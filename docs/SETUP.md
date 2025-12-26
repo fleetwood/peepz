@@ -140,8 +140,7 @@ pnpm dev --filter=@peeps/mobile
 ```
 
 **URLs:**
-- Web: http://localhost:3000
-- API: http://localhost:4000
+- Web: http://localhost:3000 (includes API at /api/trpc)
 - Mobile: Expo DevTools will open
 
 ---
@@ -237,24 +236,19 @@ pnpm dev --filter=@peeps/mobile
 ```
 peepz/
 ├── apps/
-│   ├── api/              # Express + tRPC API server
-│   │   ├── src/
-│   │   │   ├── index.ts
-│   │   │   ├── trpc/
-│   │   │   ├── routes/
-│   │   │   └── db/
-│   │   └── package.json
-│   ├── web/              # Next.js 15 web app
-│   │   ├── src/
-│   │   │   ├── app/
-│   │   │   ├── components/
-│   │   │   └── lib/
+│   ├── web/              # Next.js 15 (web UI + API)
+│   │   ├── app/
+│   │   │   ├── api/trpc/ # tRPC API routes
+│   │   │   ├── actions/  # Server Actions
+│   │   │   └── (pages)/  # Web UI pages
+│   │   ├── server/       # Shared business logic
 │   │   └── package.json
 │   └── mobile/           # Expo React Native app
-│       ├── app/
+│       ├── app/          # Expo Router pages
 │       ├── components/
 │       └── package.json
 ├── packages/
+│   ├── client/           # Shared client logic (QueryManager)
 │   ├── types/            # Shared TypeScript types
 │   ├── utils/            # Shared utilities
 │   └── config/           # Shared configs
@@ -272,13 +266,16 @@ peepz/
 ### Start Development Servers
 
 ```bash
-# All apps
+# Web app (Next.js with API routes)
 pnpm dev
+# or
+pnpm dev:web
 
-# Individual apps
-pnpm dev --filter=@peeps/api
-pnpm dev --filter=@peeps/web
-pnpm dev --filter=@peeps/mobile
+# Mobile app (Expo)
+pnpm dev:mobile
+
+# Both web + mobile
+pnpm dev:all
 ```
 
 ### Build for Production
@@ -310,7 +307,7 @@ pnpm format
 ### Database Migrations
 
 ```bash
-cd apps/api
+cd apps/web
 
 # Generate migration from schema changes
 pnpm drizzle-kit generate
@@ -339,41 +336,39 @@ pnpm add -D <package> --filter=@peeps/api
 
 ## Tech Stack
 
-### API (`apps/api`)
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js
-- **API**: tRPC 11 (type-safe)
-- **Database**: Supabase PostgreSQL
-- **ORM**: Drizzle ORM
-- **Auth**: Supabase Auth
-- **Validation**: Zod
-
 ### Web (`apps/web`)
 - **Framework**: Next.js 15 (App Router)
 - **React**: 18.3.1
+- **API**: tRPC 11 + Server Actions
+- **Database**: Supabase PostgreSQL
+- **ORM**: Drizzle ORM
+- **Auth**: Supabase Auth
 - **Styling**: TailwindCSS + shadcn/ui
 - **State**: Zustand
-- **Data**: TanStack Query + tRPC
-- **Auth**: Supabase Auth SDK
+- **Data**: TanStack Query (via QueryManager)
+- **Validation**: Zod
 
 ### Mobile (`apps/mobile`)
 - **Framework**: React Native (Expo 52)
 - **Navigation**: Expo Router
 - **State**: Zustand
-- **Data**: TanStack Query + tRPC
+- **Data**: TanStack Query + tRPC (via QueryManager)
 - **Auth**: Supabase Auth SDK
 
-### Shared
+### Shared Packages
+- **@peeps/client**: QueryManager, shared client logic
+- **@peeps/types**: TypeScript types + Zod schemas
+- **@peeps/utils**: Shared utilities
+- **@peeps/config**: ESLint/Prettier configs
 - **TypeScript**: 5.7.2
-- **Validation**: Zod 3.24.1
 - **Monorepo**: Turborepo + pnpm workspaces
 
 ---
 
 ## Next Steps
 
-1. **Set up Drizzle schema** - Define data models in `apps/api/src/db/schema.ts`
-2. **Create tRPC routers** - Define API endpoints in `apps/api/src/trpc/routers/`
+1. **Set up Drizzle schema** - Define data models in `apps/web/server/db/schema.ts`
+2. **Create tRPC routers** - Define API endpoints in `apps/web/app/api/trpc/`
 3. **Build auth UI** - Custom login/signup pages in web app
 4. **Set up Supabase RLS** - Define Row Level Security policies
 5. **Add shadcn/ui components** - Install needed UI components for web

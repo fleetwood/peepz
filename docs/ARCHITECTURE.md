@@ -1,13 +1,13 @@
-# Peeps Multi-Platform Architecture
+# Peeps Architecture
 
 ## Overview
 
-Peeps uses a **monorepo architecture** with four separate codebases:
+Peeps uses a **layered monorepo architecture** with clear separation of concerns:
 
-1. **API** - Backend REST/tRPC API (Node.js/Express)
-2. **Web** - Next.js web application
-3. **Mobile** - React Native mobile app (iOS/Android)
-4. **Shared** - Shared UI components, types, and utilities
+1. **Client Layer** - Frontend data fetching and caching
+2. **Route Layer** - API endpoints (validation only)
+3. **Service Layer** - Business logic and database operations
+4. **Database Layer** - PostgreSQL via Drizzle ORM
 
 ---
 
@@ -16,18 +16,25 @@ Peeps uses a **monorepo architecture** with four separate codebases:
 ```
 peeps/
 ├── apps/
-│   ├── api/              # Backend API server
-│   ├── web/              # Next.js web app
-│   └── mobile/           # React Native app
+│   ├── web/              # Next.js (web UI + API routes)
+│   │   ├── app/
+│   │   │   ├── api/trpc/ # tRPC API routes
+│   │   │   ├── actions/  # Server Actions (web only)
+│   │   │   └── (pages)/  # Web UI pages
+│   │   └── server/       # Database config
+│   └── mobile/           # React Native (Expo)
+│       └── app/          # Expo Router pages
 ├── packages/
-│   ├── ui/               # Shared UI components
+│   ├── client/           # QueryManager, TanStack Query hooks
+│   ├── services/         # Business logic layer
+│   │   ├── entities/     # Entity services (PersonService, GroupService, etc.)
+│   │   └── integrations/ # Integration services (RedisService, ResendService, etc.)
 │   ├── types/            # Shared TypeScript types
-│   ├── config/           # Shared configs (ESLint, TS, etc)
-│   └── utils/            # Shared utilities
+│   ├── utils/            # Shared utilities
+│   └── config/           # Shared configs
 ├── package.json
 ├── turbo.json
-├── pnpm-workspace.yaml
-└── README.md
+└── pnpm-workspace.yaml
 ```
 
 ---
