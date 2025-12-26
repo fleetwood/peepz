@@ -41,35 +41,24 @@ peeps/
 
 ## Technology Stack by Codebase
 
-### 1. API (`apps/api`)
+### 1. API (Next.js, inside `apps/web`)
 
 **Purpose**: Secure backend API accessible by both web and mobile clients
 
-**Stack:**
-- **Runtime**: Node.js 18+
-- **Framework**: Express.js or Fastify
-- **API Layer**: tRPC (type-safe API) + REST endpoints
-- **Database**: PostgreSQL via Drizzle ORM
-- **Auth**: Supabase Auth (JWT validation for mobile/web)
-- **Real-time**: Pusher or Socket.io
-- **File Upload**: Cloudinary SDK
-- **Email**: Resend
-- **SMS**: Twilio (deferred)
-- **Queue**: BullMQ + Upstash Redis
-- **Validation**: Zod
-- **Payments**: Stripe
+**Location:**
+- `apps/web/app/api/trpc/` (tRPC routes)
 
-**Key Features:**
-- JWT-based authentication (Supabase tokens)
-- Rate limiting per client
-- CORS configuration for web/mobile
-- API versioning (`/api/v1`)
-- Webhook handlers (Stripe, Supabase, Pusher)
-- Background job processing
+**Stack:**
+- **Runtime**: Node.js (Next.js server runtime)
+- **Framework**: Next.js (App Router)
+- **API Layer**: tRPC
+- **Business Logic**: `@peeps/services`
+- **Database**: PostgreSQL via Drizzle ORM (`@peeps/db`)
+- **Auth**: Supabase Auth (session/JWT validation)
+- **Validation**: Zod
 
 **Deployment:**
-- Vercel Serverless Functions (for tRPC endpoints)
-- Railway or Render (for long-running processes like queues)
+- Vercel (Next.js serverless/edge, depending on route configuration)
 
 ---
 

@@ -174,8 +174,9 @@ export class PersonService {
 // packages/services/src/integrations/ResendService.ts
 import { Resend } from 'resend'
 import { ServiceResult } from '@peeps/types/response/response.types'
+import { serverEnv } from '@peeps/config/env'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(serverEnv.RESEND_API_KEY)
 
 export class ResendService {
   /**
@@ -240,7 +241,7 @@ export const personRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
       // 1. Validate API key (done by protectedProcedure)
-      // 2. Check user session (done by protectedProcedure via ctx.user)
+      // 2. Check member session (done by protectedProcedure via ctx.member)
       
       // 3. Call Service
       const result = await PersonService.getById(input.id)
@@ -262,7 +263,7 @@ export const personRouter = router({
       // Call Service
       const result = await PersonService.create({
         ...input,
-        createdBy: ctx.user.id
+        createdBy: ctx.member.id
       })
       
       if (!result.success) {

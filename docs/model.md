@@ -16,33 +16,37 @@
 
 ---
 
-#### User
+#### Person
 ```typescript
 extends Base {
+  name: string[]           // ["John", "Michael", "Anthony"] - first + middle names
+  familyNames: {
+    primary: string         // "Sapphire" - main family name
+    additional: {
+      name: string
+      category: enum (maternal, paternal, adopted, surrogate, chosen, other)
+    }[]
+  }
+  dateOfBirth: date
+  preferredName?: string   // "Call me Johnny"
+  createdBy: uuid          // member who added them
+  
+  // Compound unique constraint:
+  // UNIQUE(array_to_string(name, ' '), primaryFamilyName, dateOfBirth)
+}
+```
+
+#### Member (Person with an account)
+```typescript
+extends Base {
+  personId      : uuid (foreign key to Person.id)
   email         : string (unique)
   passwordHash  : string
-  firstName     : string
-  middleName   ?: string
-  lastName      : string
-  preferredName?: string
-  dateOfBirth   : date
-  isMinor       : boolean (computed)
   privacyLevel  : enum (public, family, private)
 }
 ```
 
-#### Person (extends User for family members without accounts)
-```typescript
-extends Base {
-  userId       ?: uuid (null if no account)
-  firstName     : string
-  middleName   ?: string
-  lastName      : string
-  preferredName?: string
-  dateOfBirth  ?: date
-  createdBy     : uuid (user who added them)
-}
-```
+**Identity & uniqueness rules:** see `BUSINESS-RULES.md`
 
 #### Relationship
 ```typescript
@@ -205,11 +209,11 @@ extends Base {
   resourceType    : enum (media, message, member)
   resourceId      : uuid
   requestedBy     : uuid
-  requestType     : enum (tagged_user, untagged_user, uploader)
+  requestType     : enum (tagged_member, untagged_member, uploader)
   reason         ?: string
   status          : enum (pending, approved, rejected)
   votes           : Array<{
-    userId : uuid
+    memberId: uuid
     vote   : enum (approve, reject)
     votedAt: timestamp
   }>
@@ -222,7 +226,7 @@ extends Base {
 #### FamilyJoinRequest
 ```typescript
 extends Base {
-  userId              : string
+  memberId            : string
   groupId             : string
   claimedRelationships: Array<{
     personId        : string
@@ -257,9 +261,9 @@ extends Base {
 ```typescript
 extends Base {
   performedBy: string
-  targetType : enum (message, user, media)
+  targetType : enum (message, member, media)
   targetId   : string
-  action     : enum (delete, hide, warn, remove_user)
+  action     : enum (delete, hide, warn, remove_member)
   reason     : string
 }
 ```
@@ -267,7 +271,7 @@ extends Base {
 #### NotificationPreferences
 ```typescript
 extends Base {
-  userId             : string
+  memberId           : string
   pushNotifications  : boolean
   email              : boolean
   sms                : boolean
@@ -286,8 +290,8 @@ extends Base {
 #### Block
 ```typescript
 extends Base {
-  userId       : uuid
-  resourceType : enum (user, thread, group)
+  memberId      : uuid
+  resourceType  : enum (member, thread, group)
   resourceId   : uuid
   blockType    : enum (block, mute)
   untilDate   ?: timestamp (null = permanent)
@@ -299,7 +303,7 @@ extends Base {
 ```typescript
 extends Base {
   reportedBy  : string
-  contentType : enum (message, media, user)
+  contentType : enum (message, media, member)
   contentId   : string
   reason      : enum (spam, inappropriate, harassment, other)
   description?: string
@@ -440,12 +444,11 @@ enum BlockType {
 ### ResourceType
 ```typescript
 enum ResourceType {
-  USER   = 'USER',
+  MEMBER = 'MEMBER',
   THREAD = 'THREAD',
   GROUP  = 'GROUP',
   MEDIA  = 'MEDIA',
   MESSAGE = 'MESSAGE',
-  MEMBER  = 'MEMBER',
 }
 ```
 
@@ -492,7 +495,7 @@ enum ModerationAction {
   DELETE      = 'DELETE',
   HIDE        = 'HIDE',
   WARN        = 'WARN',
-  REMOVE_USER = 'REMOVE_USER',
+  REMOVE_MEMBER = 'REMOVE_MEMBER',
 }
 ```
 

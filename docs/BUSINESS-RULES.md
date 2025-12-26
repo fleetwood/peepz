@@ -1,7 +1,7 @@
 # Peeps Business Rules
 
 ## Overview
-This document defines the business rules, governance models, and policies that govern user interactions, content management, and family administration within Peeps.
+This document defines the business rules, governance models, and policies that govern member interactions, content management, and family administration within Peeps.
 
 ---
 
@@ -9,9 +9,45 @@ This document defines the business rules, governance models, and policies that g
 
 - **No Stigmatization**: No negative status labels anywhere (no "divorced", "estranged", etc.)
 - **Family Autonomy**: Families choose their own governance model
-- **User Autonomy**: Users control their own tags, blocks, and privacy
+- **Member Autonomy**: Members control their own tags, blocks, and privacy
 - **Shared Ownership**: Tagged media becomes shared property
 - **Soft Deletes**: All deletions are soft (`visible: false`) for safety/legal reasons
+
+---
+
+## Identity & Uniqueness
+
+This section defines how Peeps identifies a unique person without relying on government-issued IDs.
+
+### Person Identity Model
+
+Person identity is represented by:
+
+- `name: string[]` (first name + 0..n middle names)
+- `familyNames.primary: string`
+- `dateOfBirth: date`
+- `preferredName?: string` (display / self-identification)
+
+### Compound Unique Key
+
+The database uniqueness rule for a person is:
+
+```sql
+UNIQUE(array_to_string(name, ' '), familyNames.primary, dateOfBirth)
+```
+
+### Family Name Categories
+
+Additional family names may be stored with a category:
+
+- `paternal`
+- `maternal`
+- `adopted`
+- `surrogate`
+- `chosen`
+- `other`
+
+Examples and edge cases are documented in this section.
 
 ---
 
@@ -133,6 +169,20 @@ Families can choose one of four governance models when creating a group:
 
 ## Privacy & Safety
 
+### Privacy-First Strategy (Outbound Only)
+
+- Peeps is a closed system.
+- External platforms/channels receive notifications outbound.
+- Replies happen inside Peeps (link back to app).
+
+### Bot Prevention (Family Verification)
+
+- Anyone can create a Member account.
+- During onboarding, the Member claims relationships to existing family people.
+- Access to family content requires confirmation from:
+  - 1 admin OR
+  - 2 non-admin members
+
 ### Children/Minors
 
 **Auto-detect minors from DOB (under 18):**
@@ -166,17 +216,17 @@ Families can choose one of four governance models when creating a group:
 ### Tag Management
 
 **Self-Remove Tags:**
-- Any user can remove themselves from a tag instantly
+- Any member can remove themselves from a tag instantly
 - No approval needed
 - Complete autonomy over their own tags
 
 ### Media Removal Requests
 
-**Tagged User Requests Removal:**
+**Tagged Member Requests Removal:**
 - Media is hidden immediately
-- Uploader can delete without further confirmation (respects tagged user's privacy)
+- Uploader can delete without further confirmation (respects tagged member's privacy)
 
-**Untagged User Requests Removal:**
+**Untagged Member Requests Removal:**
 - Media is hidden immediately
 - Normal deletion process applies (see below)
 
@@ -220,7 +270,7 @@ Users can block or mute:
 **Mute:**
 - Hides content/notifications
 - Doesn't prevent interaction
-- User doesn't know they're muted
+- Member doesn't know they're muted
 - Useful for noisy threads or temporary breaks
 
 ### Time-Scoped Blocking/Muting
@@ -267,15 +317,15 @@ Used for admin appointments, removals, and media deletion:
 
 ## Content Moderation
 
-### User-Initiated Actions
+### Member-Initiated Actions
 
 **Content Reporting:**
-- Any user can report spam, inappropriate content, harassment
+- Any member can report spam, inappropriate content, harassment
 - Reports go to group admins
 - Admin reviews and takes action per governance model
 
 **Block/Mute:**
-- Users can block or mute other users, threads, or groups
+- Members can block or mute other members, threads, or groups
 - No approval needed
 - Autonomous decision
 

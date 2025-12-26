@@ -38,15 +38,10 @@ This installs all dependencies for the monorepo workspaces:
 - Turborepo (build orchestration)
 - Prettier (code formatting)
 
-**API (`apps/api`):**
-- Express + tRPC + Drizzle ORM
-- Supabase Auth
-- BullMQ + ioredis (Redis queues)
-- Resend (email)
-- Cloudinary (media)
-- Pusher (real-time)
-- Stripe (payments)
-- Drizzle Kit (migrations)
+**API (Next.js, inside `apps/web`):**
+- tRPC routes at `apps/web/app/api/trpc/`
+- Business logic in `packages/services`
+- Database client + schema in `packages/db`
 
 **Web (`apps/web`):**
 - Next.js 15 + React 18.3.1
@@ -109,7 +104,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 # App Config
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-API_URL=http://localhost:4000
+LOG_LEVEL=ERROR
 ```
 
 ### 4. Set Up Supabase
@@ -118,14 +113,9 @@ See [Service Setup](#supabase-setup) below for detailed instructions.
 
 ### 5. Initialize Database
 
-```bash
-# Generate Drizzle schema
-cd apps/api
-pnpm drizzle-kit generate
+Database schema is defined in TypeScript under `packages/db`.
 
-# Push to Supabase
-pnpm drizzle-kit push
-```
+If you change the schema, generate/apply migrations **manually** using your preferred Drizzle workflow.
 
 ### 6. Start Development
 
@@ -134,9 +124,8 @@ pnpm drizzle-kit push
 pnpm dev
 
 # Or start individual apps
-pnpm dev --filter=@peeps/api
-pnpm dev --filter=@peeps/web
-pnpm dev --filter=@peeps/mobile
+pnpm dev --filter=web
+pnpm dev --filter=mobile
 ```
 
 **URLs:**
@@ -306,18 +295,9 @@ pnpm format
 
 ### Database Migrations
 
-```bash
-cd apps/web
+Schema changes are made in TypeScript under `packages/db`.
 
-# Generate migration from schema changes
-pnpm drizzle-kit generate
-
-# Push to database
-pnpm drizzle-kit push
-
-# Open Drizzle Studio (database GUI)
-pnpm drizzle-kit studio
-```
+Generate/apply migrations manually using your preferred Drizzle workflow.
 
 ### Add Dependencies
 
@@ -329,7 +309,7 @@ pnpm add <package> --filter=@peeps/web
 pnpm add -w <package>
 
 # Dev dependency
-pnpm add -D <package> --filter=@peeps/api
+pnpm add -D <package> --filter=web
 ```
 
 ---
@@ -418,11 +398,43 @@ pnpm dev
 
 ## Documentation
 
+## Monorepo Notes
+
+- Workspace config: `pnpm-workspace.yaml`
+- Build orchestration: `turbo.json`
+- Apps live under `apps/*`
+- Packages live under `packages/*`
+
+## High-Level Requirements
+
+People
+- name
+- preferred name
+- relationship
+- groups
+- events
+- threads
+- albums
+
+Contact information
+- email
+- phone
+- address
+- whatsapp
+- telegram
+
+Groups
+- name
+- type
+- description
+- members
+- threads
+- albums
+
 - [Architecture](./ARCHITECTURE.md)
 - [Business Rules](./BUSINESS-RULES.md)
-- [Coding Standards](./CODING-STANDARDS.md)
 - [Data Models](./model.md)
-- [Privacy Strategy](./PRIVACY-FIRST-STRATEGY.md)
+- [Integrations](./INTEGRATIONS.md)
 
 ---
 

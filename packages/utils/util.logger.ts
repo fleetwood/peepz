@@ -1,7 +1,6 @@
-import { ErrorCodeEnum } from '@/lib/errors/errorCodes'
-import { write } from '@/lib/util.chalk'
-import chalk from 'chalk'
-import * as Sentry from '@sentry/nextjs'
+import { clientEnv } from '@peeps/config/env'
+import { ErrorCodeEnum } from '@peeps/types/base/errorCodes'
+import { colors } from './src/colors'
 
 /*
 
@@ -85,7 +84,7 @@ export enum LogLevel {
 
   // Parse LOG_LEVELS from environment or use default
 const getLogLevel = (): LogLevel => {
-    const  envLevel       = process.env.LOG_LEVEL || 'ERROR'
+    const  envLevel       = clientEnv.LOG_LEVEL
     const  level          = LogLevel[envLevel as keyof typeof LogLevel]
     return typeof level === 'number' ? level : LogLevel.ERROR
 }
@@ -179,11 +178,11 @@ export class Logger {
         if (count === 1) {
             // Create a new logger instance
             this.instances.set(filename, new Logger(filename, active))
-            if (active) write(`¶ LOGGER ${filename}`, 'cyanBright')
+            if (active) console.log(colors.cyanBright(`¶ LOGGER ${filename}`))
         } else if (active !== this.instances.get(filename)!.active) {
             // Update active state if it changed
             this.instances.get(filename)!.active = active
-            if (active) write(`¶ LOGGER ${filename} [${count}] UPDATED`, 'cyanBright')
+            if (active) console.log(colors.cyanBright(`¶ LOGGER ${filename} [${count}] UPDATED`))
         }
         return this.instances.get(filename)!
     }
@@ -252,53 +251,53 @@ export class Logger {
         console.error(formattedMessage, ...args)
         
         // Send to Sentry for monitoring (if available)
-        if (Sentry) {
-            try {
-                // Create error context for Sentry
-                const errorContext = {
-                logger: this.filename,
-                    errorCode,
-                    timestamp: new Date().toISOString(),
-                    args: args.map(arg => {
-                        // Safely stringify objects for Sentry
-                        if (typeof arg === 'object' && arg !== null) {
-                            try {
-                                return JSON.stringify(arg)
-                            } catch {
-                                return '[Object - could not stringify]'
-                            }
-                        }
-                        return arg
-                    })
-                }
+        // if (Sentry) {
+        //     try {
+        //         // Create error context for Sentry
+        //         const errorContext = {
+        //         logger: this.filename,
+        //             errorCode,
+        //             timestamp: new Date().toISOString(),
+        //             args: args.map(arg => {
+        //                 // Safely stringify objects for Sentry
+        //                 if (typeof arg === 'object' && arg !== null) {
+        //                     try {
+        //                         return JSON.stringify(arg)
+        //                     } catch {
+        //                         return '[Object - could not stringify]'
+        //                     }
+        //                 }
+        //                 return arg
+        //             })
+        //         }
                 
-                // If first arg is an Error object, capture it as an exception
-                if (args.length > 0 && args[0] instanceof Error) {
-                    Sentry.withScope((scope: any) => {
-                        scope.setTag('logger', this.filename)
-                        scope.setContext('error_details', errorContext)
-                        if (errorCode) {
-                            scope.setTag('error_code', errorCode)
-                        }
-                        Sentry.captureException(args[0])
-                    })
-                } else {
-                    // Capture as message with context
-                    Sentry.withScope((scope: any) => {
-                        scope.setTag('logger', this.filename)
-                        scope.setLevel('error')
-                        scope.setContext('error_details', errorContext)
-                        if (errorCode) {
-                            scope.setTag('error_code', errorCode)
-                        }
-                        Sentry.captureMessage(formattedMessage)
-                    })
-                }
-            } catch (sentryError) {
-                // Don't let Sentry errors break the application
-                console.warn('Failed to send error to Sentry:', sentryError)
-            }
-        }
+        //         // If first arg is an Error object, capture it as an exception
+        //         if (args.length > 0 && args[0] instanceof Error) {
+        //             Sentry.withScope((scope: any) => {
+        //                 scope.setTag('logger', this.filename)
+        //                 scope.setContext('error_details', errorContext)
+        //                 if (errorCode) {
+        //                     scope.setTag('error_code', errorCode)
+        //                 }
+        //                 Sentry.captureException(args[0])
+        //             })
+        //         } else {
+        //             // Capture as message with context
+        //             Sentry.withScope((scope: any) => {
+        //                 scope.setTag('logger', this.filename)
+        //                 scope.setLevel('error')
+        //                 scope.setContext('error_details', errorContext)
+        //                 if (errorCode) {
+        //                     scope.setTag('error_code', errorCode)
+        //                 }
+        //                 Sentry.captureMessage(formattedMessage)
+        //             })
+        //         }
+        //     } catch (sentryError) {
+        //         // Don't let Sentry errors break the application
+        //         console.warn('Failed to send error to Sentry:', sentryError)
+        //     }
+        // }
     }
 
     /**
@@ -333,7 +332,7 @@ export class Logger {
      */
     highlight(...args: any[]): void {
         if (!this.approved(LogLevel.DEBUG)) return
-        console.log(chalk.bgCyan(`🔔 ${this.formatMessage()}\n\t`, JSON.stringify(args, null, 2)))
+        console.log(colors.bgCyan(`🔔 ${this.formatMessage()}\n\t${JSON.stringify(args, null, 2)}`))
     }
 
     /**

@@ -1,0 +1,120 @@
+**IMPORTANT RULE:** Before creating any new functions, files, or types (including enum values), perform a comprehensive search of the codebase to ensure a similar entity does not already exist.
+
+**IMPORTANT RULE:** DO NOT USE INTERFACES. Use types instead.
+- Use Column Alignment for types.
+- Never export types from components or services. Create or update a types file in the `types` folder.
+
+**IMPORTANT RULE:** USE NAMED TYPES for functions with more than 1 parameter.
+
+**IMPORTANT RULE:** DO NOT USE console FOR LOGGING. Follow all the logging rules in `util.logger.ts`.
+
+**IMPORTANT RULE:** You may not make any changes to SQL migrations.
+
+**💀💀 CRITICAL DATABASE RULE:** YOU MAY NEVER RUN DRIZZLE COMMANDS, MIGRATIONS, OR ANY DATABASE OPERATIONS. THIS INCLUDES BUT IS NOT LIMITED TO:
+- `drizzle-kit migrate`
+- `drizzle-kit generate`
+- `drizzle-kit push`
+- `drizzle-kit studio`
+- `drizzle-kit drop`
+- ANY command that modifies the database schema or data
+
+**💀💀 SEVERE CONSEQUENCE:** Running database commands could DESTROY PRODUCTION DATA. You are FORBIDDEN from executing any database operations under any circumstances. If a migration or schema change is needed, STOP IMMEDIATELY and ask the user to run it manually.
+
+**💀💀 DATABASE SAFETY PROTOCOL:**
+1. Schema changes: Update .ts files only
+2. Migration files: NEVER CREATE - USER handles all DB changes through Drizzle
+3. Database operations: NEVER - USER ONLY, see rule 2
+
+**💀💀 ABSOLUTE DATABASE PROHIBITION:** 
+- ❌ DO NOT create SQL migration files
+- ❌ DO NOT run `drizzle-kit` commands
+- ❌ DO NOT modify database schema directly
+- ❌ DO NOT touch any database-related files except TypeScript schema definitions
+- ✅ ONLY update .ts schema files and ask user to handle database changes
+
+**💀💀 IF YOU SEE A DATABASE OPERATION NEEDED:**
+1. Update the TypeScript schema file
+2. STOP and inform the user: "Schema updated. Please run the migration manually."
+3. DO NOT proceed until user confirms database changes are applied 
+
+**💀💀 IMPORTANT RULE:** You may not make any changes to drizzle schema without first confirming with the user. You may only change one schema at a time, and then stop and wait for user to review.
+
+**IMPORTANT RULE:** You may not make any changes to routes without first confirming with the user.
+
+**IMPORTANT RULE:** You may not CREATE or DELETE any files without first confirming with the user. All work must be done within existing `.ts` and `.tsx` files.
+
+**IMPORTANT RULE:** If a file is empty or no longer needed, mark it as deprecated in the file, add a TODO item to remove it, and add it to the `USER FOLLOW-UP REQUIRED` list in the plan file.
+
+**IMPORTANT RULE:** NEVER use inline imports. Unless it requires refactoring, imports should happen once at the top of the file. If an inline import is used, explain why and justify the decision so the user can confirm it is appropriate.
+
+**STYLE RULES:**
+- Prefer ternary operations for simple one-line conditions. 
+- Use Column Alignment.
+- When a function or definition is exported, it must use named types.
+- When a function or definition is exported, it must reside in a standalone (e.g., types) file.
+- Never comment at the end of a line. Comments go ABOVE the line.
+- Other than the default component, never export types or functions from components.
+    ```
+
+    // ExampleComponent.tsx
+    export default IntervalSelector
+
+    import { Logger } from '@/lib/util.logger'
+
+    const logger = Logger.instance('ExampleComponent') // default is false (empty param)
+    // const logger = Logger.instance('ExampleComponent', true) // or set to true to turn on logging for this component
+
+    export type ExampleComponentProps = {
+        
+    }
+
+    const ExampleComponent = (props:ExampleComponentProps) => {
+        logger.debug('ExampleComponent', props) // logging example, uses ...args similar to console
+        return (
+            <>
+            </>
+        )
+    }
+
+    ExampleComponent.displayName = "ExampleComponent"
+    export default ExampleComponent
+    ```
+- If shared functionality is needed, check the `utils` folder for existing utils. Confirm before creating a new utils.
+- In components, use the following order for declarations and logic:
+  - imports
+  - types
+    Inside component function:
+    - constants
+    - component state
+    - variables
+    - functions
+    - useEffect
+    - render
+
+- Enums are always UPPERCASE and always have Enum in their name!
+  ...
+  // INCORRECT
+  export enum Foo { <-- WRONG!!!
+    /**
+    * #### FOO
+    * Describe the foo
+    */
+    FOO = 'foo' <-- WRONG!!!
+  }
+
+  // CORRECT
+  export enum FooTypeEnum {
+    /**
+    * #### FOO
+    * Describe the foo
+    */
+    FOO = 'FOO'
+  }
+
+
+**IMPORTANT RULE:** After completing a step in the plan, you must self-review:
+- Ensure your code is concise, DRY, and closely matches the established pattern. 
+- Avoid verbose logic, excessive comments, or complex case code.
+- There can be no TS errors remaining after self-review.
+- There can be no runtime errors remaining after self-review.
+- do not use `useEffect`.  instead use 'useLoggedEffect' from '@/lib/util.effect'. (this requires a logger instance.)

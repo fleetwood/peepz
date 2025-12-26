@@ -13,11 +13,8 @@
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "paths": {
-      "@peeps/types/*": ["../types/src/*"],
-      "@peeps/types": ["../types/src"]
-    }
+    "outDir": "./dist"
   },
-  "include": ["**/*.ts"],
+  "include": ["src/**/*.ts", "drizzle.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

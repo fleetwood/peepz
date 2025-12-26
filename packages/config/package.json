@@ -6,12 +6,21 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./env": "./env.ts",
     "./constants/*": "./constants/*.ts"
   },
   "files": [
     "src",
     "constants",
     "eslint",
-    "typescript"
-  ]
+    "typescript",
+    "env.ts"
+  ],
+  "dependencies": {
+    "@peeps/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
 }

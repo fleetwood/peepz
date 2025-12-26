@@ -3,6 +3,7 @@
     "target": "ES2020",
     "module": "ESNext",
     "lib": ["ES2020", "DOM"],
+    "types": ["node"],
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "declaration": true,
@@ -12,8 +13,12 @@
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": ".",
+    "paths": {
+      "@peeps/config": ["../config"],
+      "@peeps/config/*": ["../config/*"]
+    },
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "util.logger.ts"],
   "exclude": ["node_modules", "dist"]
 }

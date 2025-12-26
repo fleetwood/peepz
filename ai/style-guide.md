@@ -5,6 +5,70 @@ This document defines coding standards and conventions for the Peeps project.
 
 ---
 
+**STYLE RULES:**
+- Prefer ternary operations for simple one-line conditions. 
+- Use Column Alignment.
+- When a function or definition is exported, it must use named types.
+- When a function or definition is exported, it must reside in a standalone (e.g., types) file.
+- Never comment at the end of a line. Comments go ABOVE the line.
+- Other than the default component, never export types or functions from components.
+    ```
+
+    // ExampleComponent.tsx
+    export default IntervalSelector
+
+    import { Logger } from '@/lib/util.logger'
+
+    const logger = Logger.instance('ExampleComponent') // default is false (empty param)
+    // const logger = Logger.instance('ExampleComponent', true) // or set to true to turn on logging for this component
+
+    export type ExampleComponentProps = {
+        
+    }
+
+    const ExampleComponent = (props:ExampleComponentProps) => {
+        logger.debug('ExampleComponent', props) // logging example, uses ...args similar to console
+        return (
+            <>
+            </>
+        )
+    }
+
+    ExampleComponent.displayName = "ExampleComponent"
+    export default ExampleComponent
+    ```
+- If shared functionality is needed, check the `utils` folder for existing utils. Confirm before creating a new utils.
+- In components, use the following order for declarations and logic:
+  - imports
+  - types
+    Inside component function:
+    - constants
+    - component state
+    - variables
+    - functions
+    - useEffect
+    - render
+
+- Enums are always UPPERCASE and always have Enum in their name!
+  ...
+  // INCORRECT
+  export enum Foo { <-- WRONG!!!
+    /**
+    * #### FOO
+    * Describe the foo
+    */
+    FOO = 'foo' <-- WRONG!!!
+  }
+
+  // CORRECT
+  export enum FooTypeEnum {
+    /**
+    * #### FOO
+    * Describe the foo
+    */
+    FOO = 'FOO'
+  }
+
 ## TypeScript
 
 ### Enums
@@ -13,13 +77,13 @@ This document defines coding standards and conventions for the Peeps project.
 
 ```typescript
 // ✅ GOOD
-export enum Status {
+export enum StatusEnum {
   ACTIVE   = 'ACTIVE',
   PENDING  = 'PENDING',
   REJECTED = 'REJECTED',
 }
 
-export enum MessageType {
+export enum MessageTypeEnum {
   TEXT  = 'TEXT',
   IMAGE = 'IMAGE',
   VIDEO = 'VIDEO',
@@ -43,7 +107,6 @@ export enum Status {
 ### String Literals
 
 **DO NOT use string literals for comparisons, conditions, or persistence.**
-
 **ALWAYS prefer Enum, Type, or Const.**
 
 ```typescript
@@ -53,9 +116,9 @@ await db.insert(requests).values({ status: 'pending' });
 await notifyUser(userId, { type: 'family_join_request' });
 
 // ✅ GOOD - enums
-if (status === RequestStatus.PENDING) { }
-await db.insert(requests).values({ status: RequestStatus.PENDING });
-await notifyUser(userId, { type: NotificationType.FAMILY_JOIN_REQUEST });
+if (status === RequestStatusEnum.PENDING) { }
+await db.insert(requests).values({ status: RequestStatusEnum.PENDING });
+await notifyUser(userId, { type: NotificationTypeEnum.FAMILY_JOIN_REQUEST });
 
 // ✅ GOOD - const for one-off values
 const NOTIFICATION_TYPES = {
