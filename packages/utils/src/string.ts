@@ -1,10 +1,10 @@
+import { v4 as uuid } from 'uuid';
+
 /**
  * Generate a random unique identifier
  * @returns A random string ID
  */
-export function ruid(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-}
+export const ruid = () => uuid()
 
 /**
  * Combine class names conditionally
