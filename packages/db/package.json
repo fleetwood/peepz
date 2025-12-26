@@ -20,7 +20,9 @@
     "drizzle-orm": "^0.36.4",
     "postgres": "^3.4.5",
     "@supabase/supabase-js": "^2.45.4",
-    "@peeps/config": "workspace:*"
+    "@peeps/config": "workspace:*",
+    "@peeps/utils": "workspace:*",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "drizzle-kit": "^0.29.1",

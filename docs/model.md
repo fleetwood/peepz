@@ -20,19 +20,18 @@
 ```typescript
 extends Base {
   name: string[]           // ["John", "Michael", "Anthony"] - first + middle names
-  familyNames: {
-    primary: string         // "Sapphire" - main family name
-    additional: {
-      name: string
-      category: enum (maternal, paternal, adopted, surrogate, chosen, other)
-    }[]
-  }
+  familyNames: Array<{
+    name     : string
+    category : enum (maternal, paternal, adopted, surrogate, chosen, other)
+    active   : boolean
+    order    : number
+  }>
   dateOfBirth: date
   preferredName?: string   // "Call me Johnny"
-  createdBy: uuid          // member who added them
+  createdByMemberId?: uuid // member who added them (nullable = self-created)
   
-  // Compound unique constraint:
-  // UNIQUE(array_to_string(name, ' '), primaryFamilyName, dateOfBirth)
+  // Duplicate detection heuristic:
+  // (array_to_string(name, ' '), active family name(s) in order, dateOfBirth)
 }
 ```
 
@@ -42,7 +41,7 @@ extends Base {
   personId      : uuid (foreign key to Person.id)
   email         : string (unique)
   passwordHash  : string
-  privacyLevel  : enum (public, family, private)
+  privacyLevel  : enum (PUBLIC, FAMILY, PRIVATE)
 }
 ```
 
@@ -63,14 +62,22 @@ extends Base {
 ```typescript
 extends Base {
   name            : string
-  type            : enum (family, friends, club, other)
+  type            : enum (FAMILY, FRIENDS, CLUB, OTHER)
   description    ?: string
-  createdBy       : uuid
-  adminIds        : uuid[]
-  privacyLevel    : enum (private, invite-only)
-  governanceModel : enum (democratic, hierarchical, consensus, single_admin)
-  removalPolicy   : enum (immediate, vote_required, consensus_required)
+  createdByMemberId: uuid
+  privacyLevel    : enum (PRIVATE, INVITE_ONLY)
+  governanceModel : enum (SINGLE_ADMIN, HIERARCHICAL, CONSENSUS, DEMOCRATIC)
+  removalPolicy   : enum (IMMEDIATE, VOTE_REQUIRED, CONSENSUS_REQUIRED)
   voteThreshold  ?: number (percentage, 50-100, for democratic model)
+}
+```
+
+Admins are represented as `GroupMembership` rows with `role = ADMIN`.
+
+#### Family
+```typescript
+extends Base {
+  groupId : uuid (foreign key to Group.id, where Group.type = family)
 }
 ```
 
@@ -79,9 +86,9 @@ extends Base {
 extends Base {
   groupId  : uuid
   personId : uuid
-  role     : enum (admin, member)
-  status   : enum (active, invited, removed)
-  invitedBy: uuid
+  role     : enum (ADMIN, MEMBER)
+  status   : enum (ACTIVE, INVITED, REMOVED)
+  invitedByMemberId?: uuid
   joinedAt : timestamp
 }
 ```

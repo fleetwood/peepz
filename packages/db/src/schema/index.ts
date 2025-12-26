@@ -1,12 +1,20 @@
-// Schema exports
-// Import and re-export all schema tables here
 
-// Example:
-// export * from './persons'
-// export * from './groups'
-// export * from './members'
-
-// TODO: Create schema files based on model.md
-
-// Temporary export to make this a valid module
-export {}
+export * from './enums'
+export * from './persons'
+export * from './personFamilyNames'
+export * from './members'
+export * from './groups'
+export * from './families'
+export * from './groupMemberships'
+export * from './contactPoints'
+export * from './contactHandles'
+export * from './relationships'
+export * from './threads'
+export * from './threadParticipants'
+export * from './messages'
+export * from './albums'
+export * from './media'
+export * from './tags'
+export * from './blocks'
+export * from './contentReports'
+export * from './removalRequests'

@@ -24,21 +24,25 @@ This section defines how Peeps identifies a unique person without relying on gov
 Person identity is represented by:
 
 - `name: string[]` (first name + 0..n middle names)
-- `familyNames.primary: string`
+- `familyNames: Array<{ name; category; active; order }>`
 - `dateOfBirth: date`
 - `preferredName?: string` (display / self-identification)
 
-### Compound Unique Key
+### Uniqueness vs Duplicate Detection
 
-The database uniqueness rule for a person is:
+The only true unique identifier for a person is the primary key (`id`).
 
-```sql
-UNIQUE(array_to_string(name, ' '), familyNames.primary, dateOfBirth)
-```
+Peeps uses a compound key as a **duplicate detection heuristic** (not a hard uniqueness guarantee):
+
+- `array_to_string(name, ' ')`
+- active family name(s), sorted by `order`
+- `dateOfBirth`
+
+This key is used to surface **possible matches** during onboarding and search. It should be indexed for lookup, but it must **not** be enforced as a strict `UNIQUE` constraint because collisions are possible.
 
 ### Family Name Categories
 
-Additional family names may be stored with a category:
+Each family name entry includes a category:
 
 - `paternal`
 - `maternal`
@@ -46,6 +50,12 @@ Additional family names may be stored with a category:
 - `surrogate`
 - `chosen`
 - `other`
+
+### Family (First-Class Entity)
+
+Families are first-class entities.
+
+A `Family` is a specialized `Group` where `Group.type = family`.
 
 Examples and edge cases are documented in this section.
 
