@@ -1,412 +1,164 @@
-# Peeps Project Setup Guide
+# Peeps Setup Guide
+
+Family-centered social platform built with Turborepo monorepo architecture.
 
 ## Prerequisites
 
-- Node.js 18+ and pnpm installed
-- Git installed
-- Vercel account (free tier)
-- Clerk account (free tier)
-- Cloudinary account (free tier)
-- Pusher account (free tier)
-- Resend account (free tier)
-- Upstash account (free tier)
-- Stripe account (for future freemium features)
+- **Node.js 18+** installed
+- **pnpm 8+** installed
+- **Git** installed
+- **GitHub** account
+- **Supabase** account (free tier - database + auth)
+- **Cloudinary** account (free tier - media storage)
+- **Pusher** account (optional - can use Supabase Realtime)
+- **Resend** account (free tier - email)
+- **Upstash Redis** account (free tier - queues)
+- **Stripe** account (for future payments)
 
 ---
 
-## Phase 1: Initial Setup
+## Quick Start
 
-### Step 1: Create Next.js Project
-
-```bash
-pnpm create next-app@latest peeps --typescript --tailwind --app --use-pnpm
-cd peeps
-```
-
-**Configuration options:**
-- TypeScript: Yes
-- ESLint: Yes
-- Tailwind CSS: Yes
-- `src/` directory: Yes
-- App Router: Yes
-- Import alias: `@/*`
-
-### Step 2: Install Core Dependencies
+### 1. Clone Repository
 
 ```bash
-# UI Components
-pnpm add @radix-ui/react-slot class-variance-authority clsx tailwind-merge lucide-react
-
-# Forms & Validation
-pnpm add react-hook-form @hookform/resolvers zod
-
-# State Management
-pnpm add zustand
-
-# Data Fetching
-pnpm add @tanstack/react-query
-
-# Database & ORM
-pnpm add drizzle-orm postgres
-pnpm add -D drizzle-kit
-
-# Auth
-pnpm add @clerk/nextjs
-
-# File Upload
-pnpm add cloudinary next-cloudinary
-
-# Real-time
-pnpm add pusher pusher-js
-
-# Email
-pnpm add resend
-
-# Payments
-pnpm add stripe @stripe/stripe-js
-
-# Redis Queue
-pnpm add ioredis bullmq
-
-# Dev Dependencies
-pnpm add -D @types/node prettier eslint-config-prettier
+git clone git@github.com:fleetwood/peepz.git
+cd peepz
 ```
 
-### Step 3: Initialize shadcn/ui
+### 2. Install Dependencies
 
 ```bash
-pnpm dlx shadcn-ui@latest init
+pnpm install
 ```
 
-**Configuration:**
-- Style: Default
-- Base color: Slate
-- CSS variables: Yes (for theming)
+This installs all dependencies for the monorepo workspaces:
 
-**Install initial components:**
-```bash
-pnpm dlx shadcn-ui@latest add button
-pnpm dlx shadcn-ui@latest add input
-pnpm dlx shadcn-ui@latest add form
-pnpm dlx shadcn-ui@latest add card
-pnpm dlx shadcn-ui@latest add avatar
-pnpm dlx shadcn-ui@latest add dropdown-menu
-pnpm dlx shadcn-ui@latest add dialog
-pnpm dlx shadcn-ui@latest add toast
-pnpm dlx shadcn-ui@latest add tabs
-pnpm dlx shadcn-ui@latest add select
-pnpm dlx shadcn-ui@latest add calendar
-pnpm dlx shadcn-ui@latest add badge
-pnpm dlx shadcn-ui@latest add separator
-```
+**Root workspace:**
+- Turborepo (build orchestration)
+- Prettier (code formatting)
 
-### Step 4: Configure Tailwind Theme Variables
+**API (`apps/api`):**
+- Express + tRPC + Drizzle ORM
+- Supabase Auth
+- BullMQ + ioredis (Redis queues)
+- Resend (email)
+- Cloudinary (media)
+- Pusher (real-time)
+- Stripe (payments)
+- Drizzle Kit (migrations)
 
-Update `src/app/globals.css`:
+**Web (`apps/web`):**
+- Next.js 15 + React 18.3.1
+- TanStack Query + tRPC client
+- Supabase Auth SDK
+- shadcn/ui components (Radix UI)
+- React Hook Form + Zod
+- Zustand (state)
+- Lucide icons
+- next-cloudinary
+- pusher-js
+- Stripe client
 
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+**Mobile (`apps/mobile`):**
+- Expo 52 + React Native
+- TanStack Query + tRPC client
+- Supabase Auth SDK
+- Zustand (state)
+- Expo modules (camera, notifications, secure-store)
+- pusher-js
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
+**Shared packages:**
+- `packages/types` - TypeScript types + Zod schemas
+- `packages/utils` - Shared utilities
+- `packages/config` - ESLint/Prettier configs
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-  }
-}
+### 3. Set Up Environment Variables
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-```
-
-### Step 5: Set Up Environment Variables
-
-Create `.env.local`:
+Create `.env.local` in the root:
 
 ```bash
-# Database (Vercel Postgres or Neon)
-DATABASE_URL="postgresql://..."
-POSTGRES_URL_NON_POOLING="postgresql://..."
+# Supabase (Database + Auth)
+NEXT_PUBLIC_SUPABASE_URL=https://[project-ref].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+DATABASE_URL=postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
 
-# Clerk Auth
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
-CLERK_SECRET_KEY="sk_test_..."
-NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
-NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/"
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/"
+# Cloudinary (Media Storage)
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
 
-# Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="..."
-CLOUDINARY_API_KEY="..."
-CLOUDINARY_API_SECRET="..."
+# Pusher (Real-time - optional, can use Supabase Realtime)
+NEXT_PUBLIC_PUSHER_APP_KEY=your-app-key
+PUSHER_APP_ID=your-app-id
+PUSHER_SECRET=your-secret
+NEXT_PUBLIC_PUSHER_CLUSTER=your-cluster
 
-# Pusher
-NEXT_PUBLIC_PUSHER_APP_KEY="..."
-PUSHER_APP_ID="..."
-PUSHER_SECRET="..."
-NEXT_PUBLIC_PUSHER_CLUSTER="..."
+# Resend (Email)
+RESEND_API_KEY=re_...
 
-# Resend
-RESEND_API_KEY="re_..."
+# Upstash Redis (Queues)
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
 
-# Upstash Redis
-UPSTASH_REDIS_REST_URL="https://..."
-UPSTASH_REDIS_REST_TOKEN="..."
-
-# Stripe (for future freemium)
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
+# Stripe (Payments)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 
 # App Config
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+API_URL=http://localhost:4000
 ```
 
-### Step 6: Initialize Drizzle ORM
+### 4. Set Up Supabase
 
-Create `drizzle.config.ts`:
+See [Service Setup](#supabase-setup) below for detailed instructions.
 
-```typescript
-import type { Config } from 'drizzle-kit';
+### 5. Initialize Database
 
-export default {
-  schema: './src/db/schema.ts',
-  out: './drizzle',
-  driver: 'pg',
-  dbCredentials: {
-    connectionString: process.env.DATABASE_URL!,
-  },
-} satisfies Config;
+```bash
+# Generate Drizzle schema
+cd apps/api
+pnpm drizzle-kit generate
+
+# Push to Supabase
+pnpm drizzle-kit push
 ```
 
-Create `src/db/index.ts`:
+### 6. Start Development
 
-```typescript
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+```bash
+# From root - starts all apps
+pnpm dev
 
-const connectionString = process.env.DATABASE_URL!;
-const client = postgres(connectionString);
-export const db = drizzle(client);
+# Or start individual apps
+pnpm dev --filter=@peeps/api
+pnpm dev --filter=@peeps/web
+pnpm dev --filter=@peeps/mobile
 ```
 
-### Step 7: Configure Clerk Auth
-
-Update `src/app/layout.tsx`:
-
-```typescript
-import { ClerkProvider } from '@clerk/nextjs';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'Peeps - Family Social Platform',
-  description: 'Connect with family across all communication channels',
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>{children}</body>
-      </html>
-    </ClerkProvider>
-  );
-}
-```
-
-Create `src/middleware.ts`:
-
-```typescript
-import { authMiddleware } from '@clerk/nextjs';
-
-export default authMiddleware({
-  publicRoutes: ['/'],
-});
-
-export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
-};
-```
-
-### Step 8: Set Up Tanstack Query
-
-Create `src/providers/query-provider.tsx`:
-
-```typescript
-'use client';
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
-
-export function QueryProvider({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-            refetchOnWindowFocus: false,
-          },
-        },
-      })
-  );
-
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-}
-```
-
-Update `src/app/layout.tsx` to include QueryProvider.
-
-### Step 9: Configure Prettier
-
-Create `.prettierrc`:
-
-```json
-{
-  "semi": true,
-  "trailingComma": "es5",
-  "singleQuote": true,
-  "tabWidth": 2,
-  "useTabs": false,
-  "printWidth": 80,
-  "arrowParens": "always"
-}
-```
-
-Create `.prettierignore`:
-
-```
-node_modules
-.next
-out
-dist
-build
-*.lock
-package-lock.json
-pnpm-lock.yaml
-```
-
-### Step 10: Project Structure
-
-Create the following directory structure:
-
-```
-src/
-├── app/
-│   ├── (auth)/
-│   │   ├── sign-in/
-│   │   └── sign-up/
-│   ├── (dashboard)/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   ├── people/
-│   │   ├── groups/
-│   │   ├── messages/
-│   │   ├── events/
-│   │   └── albums/
-│   ├── api/
-│   │   ├── webhooks/
-│   │   └── trpc/
-│   ├── globals.css
-│   └── layout.tsx
-├── components/
-│   ├── ui/              (shadcn components)
-│   ├── layout/
-│   │   ├── header.tsx
-│   │   ├── sidebar.tsx
-│   │   └── footer.tsx
-│   ├── people/
-│   ├── groups/
-│   ├── messages/
-│   ├── events/
-│   └── albums/
-├── db/
-│   ├── index.ts
-│   └── schema.ts
-├── lib/
-│   ├── utils.ts
-│   ├── validations/
-│   ├── hooks/
-│   └── constants.ts
-├── stores/
-│   └── use-user-store.ts
-├── types/
-│   └── index.ts
-└── middleware.ts
-```
+**URLs:**
+- Web: http://localhost:3000
+- API: http://localhost:4000
+- Mobile: Expo DevTools will open
 
 ---
 
-## Service Setup Instructions
+## Service Setup
 
 ### Supabase Setup (Database + Auth)
 
-1. Go to supabase.com
+1. Go to [supabase.com](https://supabase.com)
 2. Create new project
 3. Choose region closest to your users
 4. Set database password (save this!)
 5. Wait for project to provision (~2 minutes)
 
 **Get API Keys:**
-6. Go to Project Settings > API
+
+6. Go to **Project Settings > API**
 7. Copy to `.env.local`:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
      - Format: `https://[project-ref].supabase.co`
@@ -416,13 +168,15 @@ src/
      - Long JWT token (server-only, never expose to client)
 
 **Get Database Connection:**
-8. Go to Project Settings > Database
+
+8. Go to **Project Settings > Database**
 9. Copy **Connection String** (URI format) → `DATABASE_URL`
    - Format: `postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres`
    - Replace `[password]` with your database password
 
 **Enable OAuth Providers (Optional):**
-1. Go to Authentication > Providers
+
+1. Go to **Authentication > Providers**
 2. Enable desired providers (Google, Facebook, GitHub, etc.)
 3. Add OAuth credentials from each provider
 4. Configure redirect URLs
@@ -434,15 +188,20 @@ src/
 
 ### Cloudinary Setup
 
-1. Go to cloudinary.com
+1. Go to [cloudinary.com](https://cloudinary.com)
 2. Sign up for free account
 3. Go to Dashboard
-4. Copy Cloud Name, API Key, API Secret to `.env.local`
+4. Copy to `.env.local`:
+   - Cloud Name → `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
+   - API Key → `CLOUDINARY_API_KEY`
+   - API Secret → `CLOUDINARY_API_SECRET`
 5. Enable unsigned uploads (Settings > Upload)
 
-### Pusher Setup
+### Pusher Setup (Optional)
 
-1. Go to pusher.com
+**Note:** Can use Supabase Realtime instead
+
+1. Go to [pusher.com](https://pusher.com)
 2. Create Channels app
 3. Select free tier (Sandbox)
 4. Copy credentials to `.env.local`
@@ -450,22 +209,22 @@ src/
 
 ### Resend Setup
 
-1. Go to resend.com
+1. Go to [resend.com](https://resend.com)
 2. Sign up for free account
-3. Verify domain (or use onboarding domain for testing)
-4. Create API key
-5. Copy to `.env.local`
+3. Create API key
+4. Copy to `.env.local` → `RESEND_API_KEY`
+5. Verify domain (optional for production)
 
 ### Upstash Redis Setup
 
-1. Go to upstash.com
+1. Go to [upstash.com](https://upstash.com)
 2. Create Redis database
 3. Select free tier
-4. Copy REST URL and token to `.env.local`
+4. Copy REST URL and Token to `.env.local`
 
 ### Stripe Setup (Future)
 
-1. Go to stripe.com
+1. Go to [stripe.com](https://stripe.com)
 2. Create account
 3. Get test API keys from Dashboard
 4. Copy to `.env.local`
@@ -473,76 +232,206 @@ src/
 
 ---
 
+## Project Structure
+
+```
+peepz/
+├── apps/
+│   ├── api/              # Express + tRPC API server
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   ├── trpc/
+│   │   │   ├── routes/
+│   │   │   └── db/
+│   │   └── package.json
+│   ├── web/              # Next.js 15 web app
+│   │   ├── src/
+│   │   │   ├── app/
+│   │   │   ├── components/
+│   │   │   └── lib/
+│   │   └── package.json
+│   └── mobile/           # Expo React Native app
+│       ├── app/
+│       ├── components/
+│       └── package.json
+├── packages/
+│   ├── types/            # Shared TypeScript types
+│   ├── utils/            # Shared utilities
+│   └── config/           # Shared configs
+├── doca/                 # Documentation
+├── .gitignore
+├── turbo.json            # Turborepo config
+├── pnpm-workspace.yaml   # pnpm workspace config
+└── package.json          # Root package
+```
+
+---
+
 ## Development Workflow
 
-### Start Development Server
+### Start Development Servers
 
 ```bash
+# All apps
 pnpm dev
+
+# Individual apps
+pnpm dev --filter=@peeps/api
+pnpm dev --filter=@peeps/web
+pnpm dev --filter=@peeps/mobile
+```
+
+### Build for Production
+
+```bash
+# All apps
+pnpm build
+
+# Individual apps
+pnpm build --filter=@peeps/web
+```
+
+### Linting
+
+```bash
+# All apps
+pnpm lint
+
+# Individual apps
+pnpm lint --filter=@peeps/web
+```
+
+### Format Code
+
+```bash
+pnpm format
 ```
 
 ### Database Migrations
 
 ```bash
-# Generate migration
-pnpm drizzle-kit generate:pg
+cd apps/api
+
+# Generate migration from schema changes
+pnpm drizzle-kit generate
 
 # Push to database
-pnpm drizzle-kit push:pg
+pnpm drizzle-kit push
 
-# Open Drizzle Studio
+# Open Drizzle Studio (database GUI)
 pnpm drizzle-kit studio
 ```
 
-### Code Quality
+### Add Dependencies
 
 ```bash
-# Lint
-pnpm lint
+# To specific workspace
+pnpm add <package> --filter=@peeps/web
 
-# Format
-pnpm prettier --write .
+# To root
+pnpm add -w <package>
 
-# Type check
-pnpm tsc --noEmit
+# Dev dependency
+pnpm add -D <package> --filter=@peeps/api
 ```
 
 ---
 
-## Next Steps After Setup
+## Tech Stack
 
-1. Create base database schema in `src/db/schema.ts`
-2. Set up authentication pages
-3. Create dashboard layout
-4. Build user profile page
-5. Implement person management
+### API (`apps/api`)
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **API**: tRPC 11 (type-safe)
+- **Database**: Supabase PostgreSQL
+- **ORM**: Drizzle ORM
+- **Auth**: Supabase Auth
+- **Validation**: Zod
+
+### Web (`apps/web`)
+- **Framework**: Next.js 15 (App Router)
+- **React**: 18.3.1
+- **Styling**: TailwindCSS + shadcn/ui
+- **State**: Zustand
+- **Data**: TanStack Query + tRPC
+- **Auth**: Supabase Auth SDK
+
+### Mobile (`apps/mobile`)
+- **Framework**: React Native (Expo 52)
+- **Navigation**: Expo Router
+- **State**: Zustand
+- **Data**: TanStack Query + tRPC
+- **Auth**: Supabase Auth SDK
+
+### Shared
+- **TypeScript**: 5.7.2
+- **Validation**: Zod 3.24.1
+- **Monorepo**: Turborepo + pnpm workspaces
+
+---
+
+## Next Steps
+
+1. **Set up Drizzle schema** - Define data models in `apps/api/src/db/schema.ts`
+2. **Create tRPC routers** - Define API endpoints in `apps/api/src/trpc/routers/`
+3. **Build auth UI** - Custom login/signup pages in web app
+4. **Set up Supabase RLS** - Define Row Level Security policies
+5. **Add shadcn/ui components** - Install needed UI components for web
+6. **Configure Expo** - Set up app.json for mobile
 
 ---
 
 ## Troubleshooting
 
+### Port Already in Use
+
+```bash
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+
+# Kill process on port 4000
+lsof -ti:4000 | xargs kill -9
+```
+
+### pnpm Install Fails
+
+```bash
+# Clear pnpm cache
+pnpm store prune
+
+# Remove node_modules and reinstall
+rm -rf node_modules apps/*/node_modules packages/*/node_modules
+pnpm install
+```
+
+### Turborepo Cache Issues
+
+```bash
+# Clear Turborepo cache
+rm -rf .turbo
+pnpm dev
+```
+
 ### Database Connection Issues
-- Verify connection string format
-- Check if database is running
-- Ensure IP is whitelisted (Neon)
 
-### Clerk Auth Issues
-- Verify API keys are correct
-- Check redirect URLs match
-- Ensure middleware is configured
-
-### Build Errors
-- Clear `.next` folder: `rm -rf .next`
-- Delete `node_modules` and reinstall: `rm -rf node_modules && pnpm install`
-- Check for TypeScript errors: `pnpm tsc --noEmit`
+- Verify `DATABASE_URL` in `.env.local`
+- Check Supabase project is running
+- Verify IP is allowed in Supabase settings
+- Test connection with `psql` or database client
 
 ---
 
-## Resources
+## Documentation
 
-- [Next.js Docs](https://nextjs.org/docs)
-- [Drizzle ORM Docs](https://orm.drizzle.team)
-- [Clerk Docs](https://clerk.com/docs)
-- [shadcn/ui Docs](https://ui.shadcn.com)
-- [Tanstack Query Docs](https://tanstack.com/query)
-- [Tailwind CSS Docs](https://tailwindcss.com/docs)
+- [Architecture](./ARCHITECTURE.md)
+- [Business Rules](./BUSINESS-RULES.md)
+- [Coding Standards](./CODING-STANDARDS.md)
+- [Data Models](./model.md)
+- [Privacy Strategy](./PRIVACY-FIRST-STRATEGY.md)
+
+---
+
+## Support
+
+- GitHub Issues: https://github.com/fleetwood/peepz/issues
+- Documentation: `/doca` folder
