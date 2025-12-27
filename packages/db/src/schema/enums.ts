@@ -166,3 +166,36 @@ export const ReportStatus = {
 } as const
 
 export const reportStatusEnum = (name: string) => enumColumn(name, ReportStatus)
+
+export const EventRole = {
+  OWNER   : 'OWNER',
+  CO_OWNER: 'CO_OWNER',
+  EDITOR  : 'EDITOR',
+  VIEWER  : 'VIEWER',
+} as const
+
+export const eventRoleEnum = (name: string) => enumColumn(name, EventRole)
+
+export const EventInstanceStatus = {
+  ACTIVE  : 'ACTIVE',
+  CANCELED: 'CANCELED',
+} as const
+
+export const eventInstanceStatusEnum = (name: string) => enumColumn(name, EventInstanceStatus)
+
+export const RSVPStatus = {
+  YES    : 'YES',
+  NO     : 'NO',
+  MAYBE  : 'MAYBE',
+  PENDING: 'PENDING',
+} as const
+
+export const rsvpStatusEnum = (name: string) => enumColumn(name, RSVPStatus)
+
+export const EventShareTarget = {
+  GROUP : 'GROUP',
+  FAMILY: 'FAMILY',
+  MEMBER: 'MEMBER',
+} as const
+
+export const eventShareTargetEnum = (name: string) => enumColumn(name, EventShareTarget)

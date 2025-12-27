@@ -517,3 +517,27 @@ enum NotificationDigest {
 ```
 
 ---
+
+## Calendar Import/Export
+
+### Mapping plan (no schema changes)
+
+| iCalendar | Our field | Notes |
+|----------|-----------|-------|
+| UID | `event_series.id` | Global unique identifier |
+| DTSTAMP | `event_series.updatedAt` | Last-modified timestamp |
+| DTSTART/DTEND | `event_instances.startsAt`/`endsAt` | Stored with timezone |
+| SUMMARY | `event_series.title` | |
+| DESCRIPTION | `event_series.description` | |
+| LOCATION | `addresses` (via `event_instances.locationId`) | |
+| RRULE | `event_series.recurrenceRule` | RFC 5545 compatible |
+| ATTENDEE | `event_attendees` → `members.email` | Join for emails |
+| ORGANIZER | `event_series.createdByMemberId` → `members.email` | Optional: add explicit organizerEmail later |
+
+### TODO: Implement calendar utils
+
+- **Export**: Map our fields to iCalendar VEVENT properties
+- **Import**: Parse iCalendar and populate `event_series`/`event_instances`
+- **Other formats**: Google Calendar API, Microsoft Graph API, Apple Calendar (CalDAV)
+
+---
