@@ -9,7 +9,8 @@
     "./queryManager": "./queryManager.ts",
     "./response/*": "./response/*.ts",
     "./cloudinary": "./cloudinary/cloudinary.ts",
-    "./base/*": "./base/*.ts"
+    "./base/*": "./base/*.ts",
+    "./user/*": "./user/*.ts"
   },
   "scripts": {
     "lint": "eslint src --ext .ts"

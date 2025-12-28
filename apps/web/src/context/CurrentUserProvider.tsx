@@ -2,44 +2,26 @@
 
 import * as React from 'react'
 
-import { useQuery } from '@tanstack/react-query'
-
-import { AuthClient } from '@peeps/client'
-import type { Member } from '@peeps/db/schema'
-
-type EnsureMemberResponse = {
-  member: Member
-}
+import { AuthClient, UserClient } from '@peeps/client'
+import type { UserDto } from '@peeps/types/user/user.dto'
 
 type CurrentUserContextValue = {
-  user       : Member | null
+  user       : UserDto | null
   userLoading: boolean
   userError  : unknown
-  auth       : ReturnType<typeof AuthClient.createWeb<EnsureMemberResponse>>
+  auth       : ReturnType<typeof AuthClient.createWeb<unknown>>
 }
 
 const CurrentUserContext = React.createContext<CurrentUserContextValue | null>(null)
 
 export function CurrentUserProvider({ children }: { children: React.ReactNode }) {
-  const auth = React.useMemo(() => AuthClient.createWeb<EnsureMemberResponse>(), [])
-
-  const query = useQuery({
-    queryKey: ['current-user'],
-    queryFn : async () => {
-      try {
-        return await auth.continueAfterAuth()
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err)
-        if (message.includes('No session yet')) return null
-        throw err
-      }
-    },
-    retry: false,
-  })
+  const auth = React.useMemo(() => AuthClient.createWeb<unknown>(), [])
+  const userClient = React.useMemo(() => UserClient.createWeb<UserDto>(), [])
+  const query = userClient.useMe()
 
   const value = React.useMemo(() => {
     return {
-      user       : query.data?.member ?? null,
+      user       : query.data ?? null,
       userLoading: query.isLoading,
       userError  : query.error,
       auth,

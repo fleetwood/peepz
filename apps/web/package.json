@@ -23,6 +23,7 @@
     "@peeps/config": "workspace:*",
     "@peeps/client": "workspace:*",
     "@peeps/types": "workspace:*",
+    "@peeps/ui": "workspace:*",
     "@peeps/utils": "workspace:*",
     "@peeps/services": "workspace:*",
     "drizzle-orm": "^0.36.4",
@@ -54,6 +55,7 @@
     "eslint-config-prettier": "^9.1.0",
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
+    "tailwindcss-animate": "^1.0.7",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   }
