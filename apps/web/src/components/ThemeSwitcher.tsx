@@ -48,7 +48,7 @@ export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
 
   return (
     <button className={className} type="button" onClick={toggle}>
-      {theme === 'dark' ? 'Dark' : 'Light'}
+      {theme === 'dark' ? <Moon /> : 'Light'}
     </button>
   )
 }
