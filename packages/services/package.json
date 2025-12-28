@@ -13,6 +13,7 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
+    "@peeps/db": "workspace:*",
     "@peeps/types": "workspace:*",
     "@peeps/utils": "workspace:*",
     "@supabase/supabase-js": "^2.45.4",

@@ -103,7 +103,7 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
 # App Config
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3001
 LOG_LEVEL=ERROR
 ```
 
@@ -129,7 +129,7 @@ pnpm dev --filter=mobile
 ```
 
 **URLs:**
-- Web: http://localhost:3000 (includes API at /api/trpc)
+- Web: http://localhost:3001 (includes API at /api/trpc)
 - Mobile: Expo DevTools will open
 
 ---
