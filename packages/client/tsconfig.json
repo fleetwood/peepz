@@ -14,6 +14,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@peeps/config/env": ["../config/env.ts"],
+      "@peeps/config/constants/*": ["../config/constants/*"],
       "@peeps/types": ["../types/src"],
       "@peeps/types/*": ["../types/*"],
       "@peeps/utils": ["../utils/src"],

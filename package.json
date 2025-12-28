@@ -8,9 +8,17 @@
     "dev:web": "turbo run dev --filter=@peeps/web",
     "dev:mobile": "turbo run dev --filter=@peeps/mobile",
     "dev:all": "turbo run dev --filter=@peeps/web --filter=@peeps/mobile",
+    "build:web": "turbo run build --filter=@peeps/web",
+    "build:mobile": "turbo run build --filter=@peeps/mobile",
     "build": "turbo run build",
+    "lint:web": "turbo run lint --filter=@peeps/web",
+    "lint:mobile": "turbo run lint --filter=@peeps/mobile",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "db:generate": "pnpm --filter @peeps/db db:generate",
+    "db:migrate": "pnpm --filter @peeps/db db:migrate",
+    "db:push": "pnpm --filter @peeps/db db:push",
+    "db:studio": "pnpm --filter @peeps/db db:studio",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

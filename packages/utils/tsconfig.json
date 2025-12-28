@@ -19,6 +19,6 @@
     },
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "util.logger.ts"],
+  "include": ["src/**/*.ts", "src/logger.ts"],
   "exclude": ["node_modules", "dist"]
 }

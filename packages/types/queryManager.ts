@@ -27,9 +27,11 @@ export enum QueryDomainEnum {
   CHAT    = 'CHAT',
   CONTENT = 'CONTENT',
   EVENTS  = 'EVENTS',
+  FAMILIES = 'FAMILIES',
   MEMBERS = 'MEMBERS',
   NOTIFS  = 'NOTIFS',
   PARTIES = 'PARTIES',
+  PERSONS = 'PERSONS',
   POSTS   = 'POSTS',
   STRIPE  = 'STRIPE',
 }

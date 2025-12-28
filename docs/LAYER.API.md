@@ -31,3 +31,29 @@ The API Layer defines the server-side boundary that clients call.
 // 3. Call PersonService
 // 4. Return JSON response
 ```
+
+## TODO: API Key + Mobile Attestation Security
+
+- We discussed using an `x-peeps-api-key` header as a security gate so a bad actor can’t call our API.
+- Key conclusion: a secret API key in a browser (website) is not a meaningful security boundary because it can be extracted from the JS bundle / DevTools and replayed.
+
+### Deferred plan (selected direction)
+
+- Standard server-to-server API key model:
+  - Key format: `keyId.secret` presented via header (e.g. `x-peeps-api-key: <keyId>.<secret>`)
+  - Store only: `keyId`, `secretHash`, metadata (scopes, owner, createdAt, lastUsedAt, revokedAt)
+  - Verify per request: lookup by `keyId`, hash provided secret, compare, enforce scopes/revocation
+  - Support rotation + revocation
+
+- Mobile attestation for “only our app can call the API”:
+  - iOS: App Attest (or DeviceCheck)
+  - Android: Play Integrity
+  - Pattern: mobile performs attestation, server verifies, server issues short-lived attestation token (JWT), token required for mobile calls
+  
+
+### Open questions for later
+
+- Do we require attestation for:
+  - Mobile only (recommended)
+  - Or any other clients?
+- Which endpoints are gated by server-to-server API keys (internal-only) vs gated by user auth (Supabase bearer token)?

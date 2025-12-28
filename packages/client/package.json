@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",
+    "@supabase/supabase-js": "^2.45.4",
+    "@peeps/config": "workspace:*",
     "@peeps/types": "workspace:*",
     "@peeps/utils": "workspace:*"
   },

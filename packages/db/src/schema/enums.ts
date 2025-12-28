@@ -199,3 +199,44 @@ export const EventShareTarget = {
 } as const
 
 export const eventShareTargetEnum = (name: string) => enumColumn(name, EventShareTarget)
+
+export const RelationshipType = {
+  PARENT       : 'PARENT',
+  CHILD        : 'CHILD',
+  SIBLING      : 'SIBLING',
+  SPOUSE       : 'SPOUSE',
+  PARTNER      : 'PARTNER',
+  GRANDPARENT  : 'GRANDPARENT',
+  GRANDCHILD   : 'GRANDCHILD',
+  AUNT_UNCLE   : 'AUNT_UNCLE',
+  NIECE_NEPHEW : 'NIECE_NEPHEW',
+  COUSIN       : 'COUSIN',
+} as const
+
+export const relationshipTypeEnum = (name: string) => enumColumn(name, RelationshipType)
+
+export const InvitationStatus = {
+  PENDING : 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  EXPIRED : 'EXPIRED',
+} as const
+
+export const invitationStatusEnum = (name: string) => enumColumn(name, InvitationStatus)
+
+export const NotificationDigest = {
+  HOURLY: 'HOURLY',
+  DAILY : 'DAILY',
+  WEEKLY: 'WEEKLY',
+  NEVER : 'NEVER',
+} as const
+
+export const notificationDigestEnum = (name: string) => enumColumn(name, NotificationDigest)
+
+export const ModerationAction = {
+  DELETE       : 'DELETE',
+  HIDE         : 'HIDE',
+  WARN         : 'WARN',
+  REMOVE_MEMBER: 'REMOVE_MEMBER',
+} as const
+
+export const moderationActionEnum = (name: string) => enumColumn(name, ModerationAction)
