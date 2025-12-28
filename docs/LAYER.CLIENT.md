@@ -8,7 +8,7 @@ The Client Layer is responsible for client-side data fetching, caching, invalida
 
 ## Responsibilities
 
-- Call the API layer (tRPC routes)
+- Call the API layer (REST routes)
 - Cache results (TanStack Query)
 - Handle invalidation patterns
 - Provide shared hooks usable by both web and mobile
@@ -24,7 +24,7 @@ The Client Layer is responsible for client-side data fetching, caching, invalida
 ```text
 UI (apps/web or apps/mobile)
   -> Client hooks (packages/client)
-    -> tRPC calls (apps/web/app/api/trpc)
+    -> fetch calls (apps/web/app/api)
       -> Service layer (packages/services)
         -> DB layer (packages/db)
 ```

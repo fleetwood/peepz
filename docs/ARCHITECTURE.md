@@ -18,7 +18,7 @@ peeps/
 ├── apps/
 │   ├── web/              # Next.js (web UI + API routes)
 │   │   ├── app/
-│   │   │   ├── api/trpc/ # tRPC API routes
+│   │   │   ├── api/      # REST API routes (Next.js Route Handlers)
 │   │   │   ├── actions/  # Server Actions (web only)
 │   │   │   └── (pages)/  # Web UI pages
 │   │   └── server/       # Database config
@@ -46,12 +46,12 @@ peeps/
 **Purpose**: Secure backend API accessible by both web and mobile clients
 
 **Location:**
-- `apps/web/app/api/trpc/` (tRPC routes)
+- `apps/web/app/api/` (REST routes)
 
 **Stack:**
 - **Runtime**: Node.js (Next.js server runtime)
 - **Framework**: Next.js (App Router)
-- **API Layer**: tRPC
+- **API Layer**: REST (Next.js Route Handlers)
 - **Business Logic**: `@peeps/services`
 - **Database**: PostgreSQL via Drizzle ORM (`@peeps/db`)
 - **Auth**: Supabase Auth (session/JWT validation)
@@ -70,7 +70,7 @@ peeps/
 - **Framework**: Next.js 14+ (App Router)
 - **UI**: React + TailwindCSS + shadcn/ui
 - **State**: Zustand
-- **Data Fetching**: Tanstack Query + tRPC client
+- **Data Fetching**: TanStack Query + `@peeps/client` (fetch-based REST)
 - **Auth**: Supabase Auth SDK (custom UI)
 - **Forms**: React Hook Form + Zod
 - **Icons**: Lucide React
@@ -98,7 +98,7 @@ peeps/
 - **Navigation**: React Navigation
 - **UI**: React Native Paper or NativeBase
 - **State**: Zustand (shared with web)
-- **Data Fetching**: Tanstack Query + tRPC client
+- **Data Fetching**: TanStack Query + `@peeps/client` (fetch-based REST)
 - **Auth**: Supabase Auth SDK (custom UI)
 - **Forms**: React Hook Form + Zod
 - **Icons**: React Native Vector Icons
@@ -244,31 +244,26 @@ const { data, error } = await supabase.auth.signInWithPassword({
 
 ## API Design
 
-### tRPC Router Structure
+### REST Endpoints
 
-```typescript
-// apps/api/src/trpc/router.ts
-import { router } from './trpc';
-import { userRouter } from './routers/user';
-import { peopleRouter } from './routers/people';
-import { groupsRouter } from './routers/groups';
-import { messagesRouter } from './routers/messages';
-import { eventsRouter } from './routers/events';
-import { albumsRouter } from './routers/albums';
+Each entity in `docs/model.md` should have corresponding REST routes under `apps/web/app/api/<resource>`.
 
-export const appRouter = router({
-  user: userRouter,
-  people: peopleRouter,
-  groups: groupsRouter,
-  messages: messagesRouter,
-  events: eventsRouter,
-  albums: albumsRouter,
-});
+Conventions:
 
-export type AppRouter = typeof appRouter;
+```
+GET    /api/<resource>        # list
+POST   /api/<resource>        # create
+GET    /api/<resource>/:id    # detail
+PUT    /api/<resource>/:id    # update
+DELETE /api/<resource>/:id    # delete
 ```
 
-### REST Endpoints (for webhooks and file uploads)
+Notes:
+
+- Routes should only validate/parse input and call the Service Layer.
+- Routes should not access Drizzle/DB directly.
+
+### Webhooks and Uploads (still REST)
 
 ```
 POST   /api/v1/webhooks/supabase
@@ -286,10 +281,10 @@ GET    /api/v1/health
 
 ```
 Web App (Next.js)
-  ↓ tRPC Client
+  ↓ @peeps/client (fetch)
   ↓ JWT Token (Cookie)
   ↓
-API Server (Express/tRPC)
+API (Next.js Route Handlers)
   ↓ Validate JWT
   ↓ Process Request
   ↓
@@ -300,10 +295,10 @@ Database (PostgreSQL)
 
 ```
 Mobile App (React Native)
-  ↓ tRPC Client
+  ↓ @peeps/client (fetch)
   ↓ JWT Token (SecureStore)
   ↓
-API Server (Express/tRPC)
+API (Next.js Route Handlers)
   ↓ Validate JWT
   ↓ Process Request
   ↓
@@ -481,7 +476,7 @@ SUPABASE_SERVICE_ROLE_KEY=...
 ### API Deployment
 
 **Option 1: Vercel Serverless (Recommended for MVP)**
-- Deploy tRPC endpoints as serverless functions
+- Deploy Next.js API routes (Route Handlers) as serverless functions
 - Automatic scaling
 - Zero-cost for low traffic
 - Limitation: 10s timeout on Hobby plan
@@ -580,7 +575,7 @@ packages:
 Instead of starting with Next.js monolith:
 
 1. **Week 1**: Set up monorepo structure
-2. **Week 1**: Create API server with tRPC
+2. **Week 1**: Create REST API routes in `apps/web/app/api` (Next.js Route Handlers)
 3. **Week 2**: Create Next.js web app (client only)
 4. **Week 2**: Set up shared packages
 5. **Week 3**: Create React Native app shell
@@ -588,9 +583,9 @@ Instead of starting with Next.js monolith:
 
 ### Parallel Development
 
-- **API**: Build endpoints as needed
-- **Web**: Consume API via tRPC
-- **Mobile**: Consume same API via tRPC
+- **API**: Build REST endpoints as needed (Next.js Route Handlers)
+- **Web**: Consume API via `@peeps/client`
+- **Mobile**: Consume same API via `@peeps/client`
 - **Shared**: Extract common code as you go
 
 ---
@@ -619,7 +614,7 @@ Instead of starting with Next.js monolith:
 ## Next Steps
 
 1. Set up monorepo with Turborepo
-2. Create API server with Express + tRPC
+2. Create REST API routes in `apps/web/app/api` (Next.js Route Handlers)
 3. Set up database and Drizzle ORM
 4. Implement authentication (Supabase Auth with custom UI)
 5. Create web app shell

@@ -4,7 +4,7 @@ The API Layer defines the server-side boundary that clients call.
 
 ## Source of Truth
 
-- `apps/web/app/api/trpc/`
+- `apps/web/app/api/`
 
 ## Responsibilities
 
@@ -23,11 +23,11 @@ The API Layer defines the server-side boundary that clients call.
 ## Typical Handler Shape
 
 ```typescript
-// apps/web/app/api/trpc/routers/person.ts
+// apps/web/app/api/persons/route.ts
 // (Pseudo example)
 
 // 1. Validate input
-// 2. Ensure ctx.member is present
+// 2. Validate authentication/session (Member context)
 // 3. Call PersonService
-// 4. Return data
+// 4. Return JSON response
 ```

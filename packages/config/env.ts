@@ -23,7 +23,7 @@ function getEnvVar(key: string, required: boolean = true): string {
  * Only includes NEXT_PUBLIC_* variables
  */
 export const clientEnv = {
-  SUPABASE_URL         : getEnvVar('NEXT_PUBLIC_SUPABASE_PROJECT_URL'),
+  SUPABASE_URL         : getEnvVar('NEXT_PUBLIC_SUPABASE_URL'),
   SUPABASE_ANON_KEY    : getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
   CLOUDINARY_CLOUD_NAME: getEnvVar('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME'),
   APP_URL              : getEnvVar('NEXT_PUBLIC_APP_URL', false) || 'http://localhost:3001',

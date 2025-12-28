@@ -15,7 +15,7 @@ The Service Layer is the **business logic layer** that sits between API routes a
 └─────────────────────────────────────────┘
                   ↓
 ┌─────────────────────────────────────────┐
-│  Route Layer (apps/web/app/api/trpc/)   │
+│  Route Layer (apps/web/app/api/)        │
 │  - Validate API key                      │
 │  - Check user session                    │
 │  - Call Service                          │
@@ -231,48 +231,19 @@ export class ResendService {
 Routes **only** handle validation and call services. No business logic.
 
 ```typescript
-// apps/web/app/api/trpc/routers/person.ts
-import { router, protectedProcedure } from '../trpc'
+// apps/web/app/api/persons/[id]/route.ts
 import { PersonService } from '@peeps/services'
-import { z } from 'zod'
 
-export const personRouter = router({
-  getById: protectedProcedure
-    .input(z.object({ id: z.string().uuid() }))
-    .query(async ({ input, ctx }) => {
-      // 1. Validate API key (done by protectedProcedure)
-      // 2. Check member session (done by protectedProcedure via ctx.member)
-      
-      // 3. Call Service
-      const result = await PersonService.getById(input.id)
-      
-      // 4. Return response
-      if (!result.success) {
-        throw new Error(result.error)
-      }
-      
-      return result.data
-    }),
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const routeParams = await params
+  const person = await PersonService.byId({ id: routeParams.id })
 
-  create: protectedProcedure
-    .input(z.object({
-      name: z.string(),
-      email: z.string().email()
-    }))
-    .mutation(async ({ input, ctx }) => {
-      // Call Service
-      const result = await PersonService.create({
-        ...input,
-        createdBy: ctx.member.id
-      })
-      
-      if (!result.success) {
-        throw new Error(result.error)
-      }
-      
-      return result.data
-    })
-})
+  if (!person) {
+    return new Response(null, { status: 404 })
+  }
+
+  return Response.json(person)
+}
 ```
 
 ## Client Pattern
@@ -282,19 +253,17 @@ Clients use QueryManager to call routes.
 ```typescript
 // packages/client/src/PersonClient.ts
 import { QueryManager } from './QueryManager'
-import { PersonKeys } from './invalidation/PersonInvalidation'
 
 export const usePersonDetail = (personId: string) => {
   return QueryManager.domainQuery({
-    ...PersonKeys.PersonDetailKey(personId),
-    queryFn: () => trpc.person.getById.query({ id: personId }),
+    queryFn: () => fetch(`/api/persons/${personId}`).then(r => r.json()),
     enabled: !!personId
   })
 }
 
 export const useCreatePerson = () => {
   return useMutation({
-    mutationFn: (data) => trpc.person.create.mutate(data),
+    mutationFn: (data) => fetch('/api/persons', { method: 'POST', body: JSON.stringify(data) }).then(r => r.json()),
     onSuccess: () => {
       // Invalidate queries
       PersonInvalidation.invalidatePersonList()
@@ -325,7 +294,7 @@ export const useCreatePerson = () => {
 
 ### Clients MUST:
 - ✅ Use QueryManager for caching
-- ✅ Call tRPC routes
+- ✅ Call REST routes
 - ✅ Handle loading/error states
 - ❌ NO direct service calls
 - ❌ NO direct database access

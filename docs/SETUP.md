@@ -39,13 +39,13 @@ This installs all dependencies for the monorepo workspaces:
 - Prettier (code formatting)
 
 **API (Next.js, inside `apps/web`):**
-- tRPC routes at `apps/web/app/api/trpc/`
+- REST routes at `apps/web/app/api/`
 - Business logic in `packages/services`
 - Database client + schema in `packages/db`
 
 **Web (`apps/web`):**
 - Next.js 15 + React 18.3.1
-- TanStack Query + tRPC client
+- TanStack Query + `@peeps/client` (fetch-based REST)
 - Supabase Auth SDK
 - shadcn/ui components (Radix UI)
 - React Hook Form + Zod
@@ -57,7 +57,7 @@ This installs all dependencies for the monorepo workspaces:
 
 **Mobile (`apps/mobile`):**
 - Expo 52 + React Native
-- TanStack Query + tRPC client
+- TanStack Query + `@peeps/client` (fetch-based REST)
 - Supabase Auth SDK
 - Zustand (state)
 - Expo modules (camera, notifications, secure-store)
@@ -129,7 +129,7 @@ pnpm dev --filter=mobile
 ```
 
 **URLs:**
-- Web: http://localhost:3001 (includes API at /api/trpc)
+- Web: http://localhost:3001 (includes API at /api/*)
 - Mobile: Expo DevTools will open
 
 ---
@@ -227,7 +227,7 @@ peepz/
 ├── apps/
 │   ├── web/              # Next.js 15 (web UI + API)
 │   │   ├── app/
-│   │   │   ├── api/trpc/ # tRPC API routes
+│   │   │   ├── api/      # REST API routes (Next.js Route Handlers)
 │   │   │   ├── actions/  # Server Actions
 │   │   │   └── (pages)/  # Web UI pages
 │   │   ├── server/       # Shared business logic
@@ -241,7 +241,7 @@ peepz/
 │   ├── types/            # Shared TypeScript types
 │   ├── utils/            # Shared utilities
 │   └── config/           # Shared configs
-├── doca/                 # Documentation
+├── docs/                 # Documentation
 ├── .gitignore
 ├── turbo.json            # Turborepo config
 ├── pnpm-workspace.yaml   # pnpm workspace config
@@ -275,7 +275,14 @@ pnpm build
 
 # Individual apps
 pnpm build --filter=@peeps/web
+pnpm build --filter=@peeps/mobile
 ```
+
+Mobile build notes:
+
+- `apps/mobile` uses `expo export` for the build.
+- Web support is enabled for Expo export, so `react-native-web` and `react-dom` are required.
+- `react-native-screens` is pinned to `4.18.0` to avoid a React Native codegen failure in `4.19.0`.
 
 ### Linting
 
@@ -319,7 +326,7 @@ pnpm add -D <package> --filter=web
 ### Web (`apps/web`)
 - **Framework**: Next.js 15 (App Router)
 - **React**: 18.3.1
-- **API**: tRPC 11 + Server Actions
+- **API**: REST (Next.js Route Handlers) + Server Actions
 - **Database**: Supabase PostgreSQL
 - **ORM**: Drizzle ORM
 - **Auth**: Supabase Auth
@@ -332,7 +339,7 @@ pnpm add -D <package> --filter=web
 - **Framework**: React Native (Expo 52)
 - **Navigation**: Expo Router
 - **State**: Zustand
-- **Data**: TanStack Query + tRPC (via QueryManager)
+- **Data**: TanStack Query + `@peeps/client` (via QueryManager)
 - **Auth**: Supabase Auth SDK
 
 ### Shared Packages
@@ -347,8 +354,8 @@ pnpm add -D <package> --filter=web
 
 ## Next Steps
 
-1. **Set up Drizzle schema** - Define data models in `apps/web/server/db/schema.ts`
-2. **Create tRPC routers** - Define API endpoints in `apps/web/app/api/trpc/`
+1. **Set up Drizzle schema** - Define data models in `packages/db`
+2. **Create REST routes** - Define API endpoints in `apps/web/app/api/`
 3. **Build auth UI** - Custom login/signup pages in web app
 4. **Set up Supabase RLS** - Define Row Level Security policies
 5. **Add shadcn/ui components** - Install needed UI components for web
@@ -441,4 +448,4 @@ Groups
 ## Support
 
 - GitHub Issues: https://github.com/fleetwood/peepz/issues
-- Documentation: `/doca` folder
+- Documentation: `/docs` folder

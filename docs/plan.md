@@ -15,7 +15,7 @@ Family-centered social platform enabling direct connections, multi-channel commu
 ## Architecture Overview
 
 **Monorepo Structure** (Turborepo):
-- `apps/api` - Backend API server (Express + tRPC)
+- `apps/web` - Next.js app (web UI + REST API routes)
 - `apps/web` - Next.js web application
 - `apps/mobile` - React Native mobile app (Expo)
 - `packages/ui` - Shared UI components
@@ -27,10 +27,10 @@ Family-centered social platform enabling direct connections, multi-channel commu
 
 ## Tech Stack by Codebase
 
-### API Server (`apps/api`)
-- **Runtime**     : Node.js 18+
-- **Framework**   : Express.js or Fastify
-- **API Layer**   : tRPC (type-safe) + REST endpoints
+### API (`apps/web/app/api`)
+- **Runtime**     : Node.js (Next.js server runtime)
+- **Framework**   : Next.js (App Router)
+- **API Layer**   : REST (Next.js Route Handlers)
 - **Database**    : Supabase PostgreSQL (500MB free)
 - **ORM**         : Drizzle ORM
 - **Auth**        : Supabase Auth (unlimited users, OAuth included)
@@ -47,7 +47,7 @@ Family-centered social platform enabling direct connections, multi-channel commu
 - **UI**       : React + TailwindCSS + shadcn/ui (custom auth UI)
 - **Theming**  : Tailwind CSS variables (primary, secondary, accent, etc)
 - **State**    : Zustand
-- **Data**     : Tanstack Query + tRPC client
+- **Data**     : TanStack Query + `@peeps/client` (fetch-based REST)
 - **Auth**     : Supabase Auth SDK
 - **Forms**    : React Hook Form + Zod
 - **Icons**    : Lucide React
@@ -58,7 +58,7 @@ Family-centered social platform enabling direct connections, multi-channel commu
 - **Navigation**  : React Navigation / Expo Router
 - **UI**          : React Native Paper or NativeBase (custom auth UI)
 - **State**       : Zustand (shared with web)
-- **Data**        : Tanstack Query + tRPC client
+- **Data**        : TanStack Query + `@peeps/client` (fetch-based REST)
 - **Auth**        : Supabase Auth SDK
 - **Forms**       : React Hook Form + Zod
 - **Icons**       : React Native Vector Icons
