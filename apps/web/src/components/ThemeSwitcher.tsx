@@ -1,54 +1,32 @@
 "use client"
 
-import * as React from 'react'
+import { Moon, Sun } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { THEME_MODE_DARK, themeModeByName, themeNames } from '@peeps/ui'
+import type { ThemeName } from '@peeps/ui'
+import { WithClassName } from '@peeps/types/src'
 
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+type ThemeSwitcherProps = WithClassName
 
-type ThemeName = 'light' | 'dark'
-
-type ThemeSwitcherProps = {
-  className?: string
+function getNextTheme(current: string | undefined) {
+  const index = themeNames.indexOf((current as ThemeName) ?? themeNames[0])
+  const next = themeNames[(index + 1) % themeNames.length]
+  return next
 }
-
-type ThemeState = {
-  theme   : ThemeName
-  setTheme: (next: ThemeName) => void
-  toggle  : () => void
-}
-
-function applyTheme(next: ThemeName) {
-  document.documentElement.dataset.theme = next
-  document.cookie = `theme=${next}; Path=/; Max-Age=31536000; SameSite=Lax`
-}
-
-const useThemeStore = create<ThemeState>()(
-  persist(
-    (set, get) => ({
-      theme: typeof document === 'undefined' ? 'light' : (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'),
-      setTheme: (next) => {
-        applyTheme(next)
-        set({ theme: next })
-      },
-      toggle: () => {
-        const next: ThemeName = get().theme === 'dark' ? 'light' : 'dark'
-        applyTheme(next)
-        set({ theme: next })
-      },
-    }),
-    {
-      name: 'theme',
-    }
-  )
-)
 
 export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
-  const theme = useThemeStore((s) => s.theme)
-  const toggle = useThemeStore((s) => s.toggle)
+  const { resolvedTheme, setTheme } = useTheme()
+
+  const currentTheme = (resolvedTheme as ThemeName | undefined) ?? themeNames[0]
+  const mode = themeModeByName[currentTheme]
 
   return (
-    <button className={className} type="button" onClick={toggle}>
-      {theme === 'dark' ? <Moon /> : 'Light'}
+    <button
+      className={className}
+      type="button"
+      onClick={() => setTheme(getNextTheme(resolvedTheme))}
+    >
+      {mode === THEME_MODE_DARK ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
     </button>
   )
 }

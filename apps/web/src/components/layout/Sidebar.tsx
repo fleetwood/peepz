@@ -1,16 +1,21 @@
 "use client"
 
-import { Home, Users, Heart, Bell, User, Settings } from 'lucide-react'
+import { clientEnv } from '@peeps/config/env'
+import { BarChart, Bell, Heart, Home, Settings, User, Users } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const Sidebar = () => {
   const navItems = [
-    { icon: Home, label: 'Home', active: true },
-    { icon: Users, label: 'Family', active: false },
-    { icon: Heart, label: 'Memories', active: false },
-    { icon: Bell, label: 'Notifications', active: false },
-    { icon: User, label: 'Profile', active: false },
-    { icon: Settings, label: 'Settings', active: false },
+    { icon: Home, label: 'Home', active: true,  link: '/' },
+    { icon: Users, label: 'Family', active: false, link: '/' },
+    { icon: Heart, label: 'Memories', active: false, link: '/' },
+    { icon: Bell, label: 'Notifications', active: false, link: '/' },
+    { icon: User, label: 'Profile', active: false, link: '/' },
+    { icon: Settings, label: 'Settings', active: false, link: '/' },
+    ...(clientEnv.isDev ? [{ icon: BarChart, label: 'Theme', active: true, link: '/theme' }] : []),
   ]
+
+  const router = useRouter()
 
   return (
     <aside className="w-20 md:w-64 h-full border-r border-border bg-background flex flex-col flex-shrink-0">
@@ -34,6 +39,9 @@ const Sidebar = () => {
                       ? 'bg-primary text-primary-foreground'
                       : 'hover:bg-accent text-foreground'
                   }`}
+                  onClick={() => {
+                    router.push(item.link)
+                  }}
                 >
                   <Icon className="w-6 h-6" />
                   <span className="hidden md:inline">{item.label}</span>
