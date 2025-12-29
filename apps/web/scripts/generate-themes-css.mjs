@@ -1,11 +1,13 @@
 import fs from "node:fs"
 import path from "node:path"
 import url from "node:url"
-import { materializeTheme, themeNames, themes } from "@peeps/ui"
+import ui from "@peeps/ui"
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 const webRoot = path.resolve(__dirname, "..")
 const outFile = path.join(webRoot, "app", "themes.css")
+
+const { materializeTheme, themeNames, themes } = ui
 
 function toCssVars(themeName) {
   const theme = materializeTheme(themes[themeName])

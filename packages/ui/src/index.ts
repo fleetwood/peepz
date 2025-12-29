@@ -1,6 +1,6 @@
+import { materializeTheme, resolveColorRef } from "./resolve";
 import { darkTheme } from "./theme.dark";
 import { lightTheme } from "./theme.light";
-import { materializeTheme, resolveColorRef } from "./resolve";
 
 export const themes = {
   dark : darkTheme,

@@ -1,13 +1,10 @@
 "use client"
 
-import { ThemeProvider } from "next-themes"
-
-import type { ReactNode } from "react"
-
-import { themeNames } from "@peeps/ui"
-
 import { CurrentUserProvider } from "@/context/CurrentUserProvider"
 import QueryProvider from "@/context/QueryProvider"
+import { themeNames } from "@peeps/ui"
+import { ThemeProvider } from "next-themes"
+import type { ReactNode } from "react"
 
 export type ProvidersProps = {
     children: ReactNode
