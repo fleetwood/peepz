@@ -1,6 +1,6 @@
 export const lightTheme = {
   colors: {
-    carbon_black: {
+    carbon: {
       DEFAULT: "#1d1c11",
       100    : "#060603",
       200    : "#0c0b07",
@@ -36,7 +36,7 @@ export const lightTheme = {
       800    : "#fffbed",
       900    : "#fffdf6",
     },
-    lime_moss: {
+    moss: {
       DEFAULT: "#a7ab3e",
       100    : "#22220c",
       200    : "#444519",
@@ -48,7 +48,7 @@ export const lightTheme = {
       800    : "#e0e2ae",
       900    : "#f0f0d7",
     },
-    muted_teal: {
+    teal: {
       DEFAULT: "#85b3b0",
       100    : "#182625",
       200    : "#304d4b",
@@ -60,7 +60,7 @@ export const lightTheme = {
       800    : "#cee0df",
       900    : "#e7f0ef",
     },
-    almond_silk: {
+    almond: {
       DEFAULT: "#deb9b1",
       100    : "#381d17",
       200    : "#703b2f",
@@ -72,7 +72,7 @@ export const lightTheme = {
       800    : "#f2e3df",
       900    : "#f8f1ef",
     },
-    blushed_brick: {
+    brick: {
       DEFAULT: "#bd4d4d",
       100    : "#270e0e",
       200    : "#4d1d1d",
@@ -84,7 +84,7 @@ export const lightTheme = {
       800    : "#e5b8b8",
       900    : "#f2dbdb",
     },
-    sage_green: {
+    sage: {
       DEFAULT: "#689145",
       100    : "#151d0e",
       200    : "#2a3a1b",
@@ -110,25 +110,98 @@ export const lightTheme = {
       900: "#111827",
       950: "#030712",
     },
+    red: { // Formerly brick
+      DEFAULT: "#bd4d4d",
+      100    : "#270e0e",
+      200    : "#4d1d1d",
+      300    : "#742b2b",
+      400    : "#9b3939",
+      500    : "#bd4d4d",
+      600    : "#ca7070",
+      700    : "#d79494",
+      800    : "#e5b8b8",
+      900    : "#f2dbdb",
+    },
+    orange: { // NEW: Derived from Brick/Almond
+      DEFAULT: "#bd7b4d",
+      100    : "#27190e",
+      200    : "#4d321d",
+      300    : "#744b2b",
+      400    : "#9b6439",
+      500    : "#bd7b4d",
+      600    : "#ca9570",
+      700    : "#d7b094",
+      800    : "#e5cbba",
+      900    : "#f2e7db",
+    },
+    yellow: { // Formerly cornsilk (300 as base for vibrance)
+      DEFAULT: "#ffcd17",
+      100    : "#5d4900",
+      200    : "#ba9100",
+      300    : "#ffcd17",
+      400    : "#ffe174",
+      500    : "#fff5d2",   // Using your cornsilk.DEFAULT here
+      600    : "#fff7da",
+      700    : "#fff9e3",
+      800    : "#fffbed",
+      900    : "#fffdf6",
+    },
+    green: { // Formerly sage
+      DEFAULT: "#689145",
+      100    : "#151d0e",
+      200    : "#2a3a1b",
+      300    : "#3f5729",
+      400    : "#547537",
+      500    : "#689145",
+      600    : "#86b35e",
+      700    : "#a4c686",
+      800    : "#c2d9af",
+      900    : "#e1ecd7",
+    },
+    blue: { // Formerly teal
+      DEFAULT: "#85b3b0",
+      100    : "#182625",
+      200    : "#304d4b",
+      300    : "#487370",
+      400    : "#609995",
+      500    : "#85b3b0",
+      600    : "#9dc2bf",
+      700    : "#b6d1cf",
+      800    : "#cee0df",
+      900    : "#e7f0ef",
+    },
+    violet: { // NEW: Derived from Carbon/Brick
+      DEFAULT: "#7b6891",
+      100    : "#19151d",
+      200    : "#322a3a",
+      300    : "#4b3f57",
+      400    : "#645475",
+      500    : "#7b6891",
+      600    : "#9586a9",
+      700    : "#b0a4c1",
+      800    : "#cbc2d9",
+      900    : "#e7e1ec",
+    },
+      // --- UI Roles ---
     brand: {
-      primary               : "carbon_black.DEFAULT",
+      primary               : "carbon.DEFAULT",
       "primary-foreground"  : "honeydew.900",
-      secondary             : "muted_teal.DEFAULT",
-      "secondary-foreground": "carbon_black.DEFAULT",
-      accent                : "cornsilk.300",
-      "accent-foreground"   : "carbon_black.DEFAULT",
-      page                  : "carbon_black.DEFAULT",
-      "page-foreground"     : "honeydew.900",
+      secondary             : "blue.500",         // teal
+      "secondary-foreground": "carbon.DEFAULT",
+      accent                : "yellow.300",       // cornsilk.300
+      "accent-foreground"   : "carbon.DEFAULT",
+      page                  : "honeydew.900",     // Light theme background
+      "page-foreground"     : "carbon.DEFAULT",
     },
     semantic: {
-      success             : "sage_green.600",
-      "success-foreground": "carbon_black.DEFAULT",
-      warning             : "lime_moss.DEFAULT",
-      "warning-foreground": "carbon_black.DEFAULT",
-      danger              : "blushed_brick.DEFAULT",
+      success             : "green.600",
+      "success-foreground": "carbon.DEFAULT",
+      warning             : "moss.DEFAULT",
+      "warning-foreground": "carbon.DEFAULT",
+      danger              : "red.500",          // brick
       "danger-foreground" : "honeydew.900",
-      info                : "muted_teal.600",
-      "info-foreground"   : "carbon_black.DEFAULT",
+      info                : "blue.600",
+      "info-foreground"   : "carbon.DEFAULT",
     },
   },
   radii: {

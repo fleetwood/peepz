@@ -17,6 +17,22 @@ function getEnvVar(key: string, required: boolean = true): string {
   return value || ''
 }
 
+function resolveAppEnv(): 'development' | 'staging' | 'production' {
+  const raw = (
+    process.env.NEXT_PUBLIC_APP_ENV ||
+    process.env.APP_ENV ||
+    process.env.VERCEL_ENV ||
+    process.env.NODE_ENV ||
+    'development'
+  ).toLowerCase()
+
+  if (raw === 'production' || raw === 'prod') return 'production'
+  if (raw === 'staging' || raw === 'stage' || raw === 'preview') return 'staging'
+  return 'development'
+}
+
+const APP_ENV = resolveAppEnv()
+
 function getClientEnvVar(value: string | undefined, key: string, required: boolean = true): string {
   if (required && !value) {
     throw new Error(`Missing required environment variable: ${key}`)
@@ -39,6 +55,10 @@ export const clientEnv = {
   APP_URL              : getClientEnvVar(process.env.NEXT_PUBLIC_APP_URL, 'NEXT_PUBLIC_APP_URL', false) || 'http://localhost:3001',
   NODE_ENV             : getClientEnvVar(process.env.NODE_ENV, 'NODE_ENV', false) || 'development',
   LOG_LEVEL            : getClientEnvVar(process.env.LOG_LEVEL, 'LOG_LEVEL', false) || 'ERROR',
+  APP_ENV              : APP_ENV,
+  isDev                : APP_ENV === 'development',
+  isStage              : APP_ENV === 'staging',
+  isProd               : APP_ENV === 'production',
 } as const
 
 /**

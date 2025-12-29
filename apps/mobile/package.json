@@ -12,6 +12,7 @@
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-query": "^5.62.8",
     "expo": "~52.0.0",
@@ -26,8 +27,8 @@
     "react-native": "0.76.5",
     "react-native-screens": "4.18.0",
     "react-native-web": "~0.19.13",
-    "zustand": "^5.0.2",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
