@@ -1,6 +1,7 @@
 import { QueryManager } from '../QueryManager'
 
 import { clientEnv } from '@peeps/config/env'
+import { fetchApi, setRestAuthConfig } from '@peeps/utils/rest'
 
 import { createSupabaseClient } from '../supabase/client'
 import { UserInvalidation, UserKeys } from './user.invalidation'
@@ -12,6 +13,7 @@ type UserClientDeps<TUserDto> = {
 type UserClientHttpConfig = {
   baseUrl        : string
   getAccessToken?: () => Promise<string | null>
+  apiKey?        : string
   fetchFn?       : typeof fetch
 }
 
@@ -49,29 +51,22 @@ export const UserClient = {
   },
 
   createHttp<TUserDto>(config: UserClientHttpConfig) {
-    const fetchFn = config.fetchFn ?? fetch
+    setRestAuthConfig({
+      apiKey        : config.apiKey ?? clientEnv.API_KEY,
+      getAccessToken: config.getAccessToken,
+      baseUrl       : config.baseUrl,
+    })
 
     return UserClient.create<TUserDto>({
       async me() {
-        const accessToken = await config.getAccessToken?.()
-        if (!accessToken) return null
+        const { data, error, status, statusText } = await fetchApi<TUserDto>('/me')
 
-        const res = await fetchFn(`${config.baseUrl}/api/me`, {
-          method : 'GET',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-
-        if (res.status === 401) {
-          return null
+        if (status === 401) return null
+        if (error || !data) {
+          throw new Error(`UserClient.createHttp.me failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        if (!res.ok) {
-          throw new Error(`UserClient.createHttp.me failed: ${res.status} ${res.statusText}`)
-        }
-
-        return (await res.json()) as TUserDto
+        return data
       },
     })
   },
@@ -86,6 +81,7 @@ export const UserClient = {
 
     return UserClient.createHttp<TUserDto>({
       baseUrl,
+      apiKey: clientEnv.API_KEY,
       getAccessToken: async () => {
         const { data, error } = await supabase.auth.getSession()
         if (error) return null

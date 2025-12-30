@@ -6,6 +6,8 @@ import { Logger } from './logger'
 type RestAuthConfig = {
   apiKey         : string
   getAccessToken?: () => Promise<string | null>
+  baseUrl?       : string
+  apiPrefix?     : string
 }
 
 let defaultAuthConfig: RestAuthConfig | null = null
@@ -13,6 +15,8 @@ let defaultAuthConfig: RestAuthConfig | null = null
 export function setRestAuthConfig(config: {
   apiKey         : string
   getAccessToken?: () => Promise<string | null>
+  baseUrl?       : string
+  apiPrefix?     : string
 }) {
   defaultAuthConfig = config
 }
@@ -42,6 +46,20 @@ type HookResponse<T> = {
 
 function toHookResponse<T>(value: HookResponse<T>) {
   return value
+}
+
+function resolveApiUrl(raw: string, authConfig: RestAuthConfig) {
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw
+
+  const baseUrl = authConfig.baseUrl ?? ''
+  const apiPrefix = authConfig.apiPrefix ?? '/api'
+  const path = raw.startsWith('/') ? raw : `/${raw}`
+
+  if (path === apiPrefix || path.startsWith(`${apiPrefix}/`)) {
+    return `${baseUrl}${path}`
+  }
+
+  return `${baseUrl}${apiPrefix}${path}`
 }
 
 /**
@@ -194,7 +212,7 @@ export async function fetchApi<T = any>(
     headers.set('Authorization', `Bearer ${accessToken}`)
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(resolveApiUrl(url, authConfig), {
     ...fetchOptions,
     headers,
   })

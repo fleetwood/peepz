@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 
-import { PEEPS_API_KEY_HEADER } from '@peeps/config/constants/queryManager'
+import { clientEnv } from '@peeps/config/env'
 import { type PaginationParams } from '@peeps/types/response/paginated.response'
-import { postApi } from '@peeps/utils/rest'
+import { fetchApi, postApi, setRestAuthConfig } from '@peeps/utils/rest'
 
 import { QueryManager } from '../QueryManager'
+import { createSupabaseClient } from '../supabase/client'
 import { FamilyInvalidation, FamilyKeys } from './family.invalidation'
 
 type FamilyDetailParams = {
@@ -32,6 +33,10 @@ type FamilyClientHttpConfig = {
   getAccessToken?: () => Promise<string | null>
   apiKey?        : string
   fetchFn?       : typeof fetch
+}
+
+type FamilyClientWebConfig = {
+  baseUrl?: string
 }
 
 export const FamilyClient = {
@@ -97,19 +102,17 @@ export const FamilyClient = {
   createHttp<TResolveFamilyResponse, TFamilyResponse, TFamilyListResponse, TFamilySearchResponse>(
     config: FamilyClientHttpConfig,
   ) {
-    const fetchFn = config.fetchFn ?? fetch
+    setRestAuthConfig({
+      apiKey        : config.apiKey ?? clientEnv.API_KEY,
+      getAccessToken: config.getAccessToken,
+      baseUrl       : config.baseUrl,
+    })
 
     return FamilyClient.create<TResolveFamilyResponse, TFamilyResponse, TFamilyListResponse, TFamilySearchResponse>({
       async resolve() {
         const { data, error, status, statusText } = await postApi<TResolveFamilyResponse, Record<string, never>>(
-          `${config.baseUrl}/api/onboarding/family/resolve`,
+          '/onboarding/family/resolve',
           {},
-          {
-            auth: {
-              apiKey        : config.apiKey ?? '',
-              getAccessToken: config.getAccessToken,
-            },
-          },
         )
 
         if (error || !data) {
@@ -120,57 +123,58 @@ export const FamilyClient = {
       },
 
       async list({ pagination }) {
-        const url = new URL(`${config.baseUrl}/api/families`)
-        url.searchParams.set('page', String(pagination.page))
-        url.searchParams.set('limit', String(pagination.limit))
+        const cursorPart = pagination.cursor ? `&cursor=${encodeURIComponent(String(pagination.cursor))}` : ''
+        const path = `/families?limit=${encodeURIComponent(String(pagination.limit))}${cursorPart}`
+        const { data, error, status, statusText } = await fetchApi<TFamilyListResponse>(path)
 
-        const res = await fetchFn(url.toString(), {
-          method : 'GET',
-          headers: {
-            ...(config.apiKey ? { [PEEPS_API_KEY_HEADER]: config.apiKey } : {}),
-          },
-        })
-
-        if (!res.ok) {
-          throw new Error(`FamilyClient.createHttp.list failed: ${res.status} ${res.statusText}`)
+        if (error || !data) {
+          throw new Error(`FamilyClient.createHttp.list failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        return (await res.json()) as TFamilyListResponse
+        return data
       },
 
       async detail({ groupId }) {
-        const res = await fetchFn(`${config.baseUrl}/api/families/${groupId}`, {
-          method : 'GET',
-          headers: {
-            ...(config.apiKey ? { [PEEPS_API_KEY_HEADER]: config.apiKey } : {}),
-          },
-        })
+        const { data, error, status, statusText } = await fetchApi<TFamilyResponse>(`/families/${groupId}`)
 
-        if (!res.ok) {
-          throw new Error(`FamilyClient.createHttp.detail failed: ${res.status} ${res.statusText}`)
+        if (error || !data) {
+          throw new Error(`FamilyClient.createHttp.detail failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        return (await res.json()) as TFamilyResponse
+        return data
       },
 
       async search({ query, pagination }) {
-        const url = new URL(`${config.baseUrl}/api/families/search`)
-        url.searchParams.set('query', query)
-        url.searchParams.set('page', String(pagination.page))
-        url.searchParams.set('limit', String(pagination.limit))
+        const cursorPart = pagination.cursor ? `&cursor=${encodeURIComponent(String(pagination.cursor))}` : ''
+        const path = `/families/search?query=${encodeURIComponent(query)}&limit=${encodeURIComponent(String(pagination.limit))}${cursorPart}`
+        const { data, error, status, statusText } = await fetchApi<TFamilySearchResponse>(path)
 
-        const res = await fetchFn(url.toString(), {
-          method : 'GET',
-          headers: {
-            ...(config.apiKey ? { [PEEPS_API_KEY_HEADER]: config.apiKey } : {}),
-          },
-        })
-
-        if (!res.ok) {
-          throw new Error(`FamilyClient.createHttp.search failed: ${res.status} ${res.statusText}`)
+        if (error || !data) {
+          throw new Error(`FamilyClient.createHttp.search failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        return (await res.json()) as TFamilySearchResponse
+        return data
+      },
+    })
+  },
+
+  createWeb<TResolveFamilyResponse, TFamilyResponse, TFamilyListResponse, TFamilySearchResponse>(
+    config?: FamilyClientWebConfig,
+  ) {
+    const baseUrl = config?.baseUrl ?? ''
+
+    const supabase = createSupabaseClient({
+      supabaseUrl    : clientEnv.SUPABASE_URL,
+      supabaseAnonKey: clientEnv.SUPABASE_ANON_KEY,
+    })
+
+    return FamilyClient.createHttp<TResolveFamilyResponse, TFamilyResponse, TFamilyListResponse, TFamilySearchResponse>({
+      baseUrl,
+      apiKey: clientEnv.API_KEY,
+      getAccessToken: async () => {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) return null
+        return data.session?.access_token ?? null
       },
     })
   },

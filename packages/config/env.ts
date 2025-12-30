@@ -51,6 +51,7 @@ export const clientEnv = {
                       || getClientEnvVar(process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL, 'NEXT_PUBLIC_SUPABASE_PROJECT_URL', false),
   SUPABASE_ANON_KEY    : getClientEnvVar(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, 'NEXT_PUBLIC_SUPABASE_ANON_KEY', false)
                       || getClientEnvVar(process.env.NEXT_PUBLIC_SUPABASE_KEY, 'NEXT_PUBLIC_SUPABASE_KEY', false),
+  API_KEY              : getClientEnvVar(process.env.NEXT_PUBLIC_API_KEY, 'NEXT_PUBLIC_API_KEY', false),
   CLOUDINARY_CLOUD_NAME: getClientEnvVar(process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, 'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME'),
   APP_URL              : getClientEnvVar(process.env.NEXT_PUBLIC_APP_URL, 'NEXT_PUBLIC_APP_URL', false) || 'http://localhost:3001',
   NODE_ENV             : getClientEnvVar(process.env.NODE_ENV, 'NODE_ENV', false) || 'development',

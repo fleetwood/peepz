@@ -47,7 +47,17 @@ export default function LoginPage() {
     setResult(json)
 
     if (json.onboarding?.needsProfile) {
-      setStatus('Logged in. Next: POST /api/onboarding/profile')
+      router.push('/onboarding/profile')
+      return
+    }
+
+    if (json.onboarding?.needsFamily) {
+      router.push('/onboarding/family')
+      return
+    }
+
+    if (json.onboarding?.needsApproval) {
+      router.push('/onboarding/approval')
       return
     }
 

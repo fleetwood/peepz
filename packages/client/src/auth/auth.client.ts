@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 
-import { PEEPS_API_KEY_HEADER } from '@peeps/config/constants/queryManager'
 import { clientEnv } from '@peeps/config/env'
+import { postApi, setRestAuthConfig } from '@peeps/utils/rest'
 
 import { createSupabaseClient } from '../supabase/client'
 import { AuthInvalidation, AuthKeys } from './auth.invalidation'
@@ -50,31 +50,31 @@ export const AuthClient = {
   },
 
   createHttp<TEnsureMemberResponse>(config: AuthClientHttpConfig) {
-    const fetchFn = config.fetchFn ?? fetch
+    setRestAuthConfig({
+      apiKey        : config.apiKey ?? clientEnv.API_KEY,
+      getAccessToken: config.getAccessToken,
+      baseUrl       : config.baseUrl,
+    })
 
     return AuthClient.create<TEnsureMemberResponse>({
       async ensureMember() {
-        const accessToken = await config.getAccessToken?.()
-        const res = await fetchFn(`${config.baseUrl}/api/auth/ensure-member`, {
-          method : 'POST',
-          headers: {
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-            ...(config.apiKey ? { [PEEPS_API_KEY_HEADER]: config.apiKey } : {}),
-          },
-        })
+        const { data, error, status, statusText } = await postApi<TEnsureMemberResponse, Record<string, never>>(
+          '/auth/ensure-member',
+          {},
+        )
 
-        if (!res.ok) {
-          throw new Error(`AuthClient.createHttp.ensureMember failed: ${res.status} ${res.statusText}`)
+        if (error || !data) {
+          throw new Error(`AuthClient.createHttp.ensureMember failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        return (await res.json()) as TEnsureMemberResponse
+        return data
       },
     })
   },
 
   createWeb<TEnsureMemberResponse>(config?: AuthClientWebConfig) {
     const baseUrl = config?.baseUrl ?? ''
-    const apiKey = config?.apiKey
+    const apiKey = config?.apiKey ?? clientEnv.API_KEY
 
     const supabase = createSupabaseClient({
       supabaseUrl    : clientEnv.SUPABASE_URL,

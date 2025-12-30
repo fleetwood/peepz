@@ -1,6 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 
 import { QueryManager } from '../QueryManager'
+
+import { clientEnv } from '@peeps/config/env'
+import { fetchApi, postApi, setRestAuthConfig } from '@peeps/utils/rest'
+
+import { createSupabaseClient } from '../supabase/client'
 import { PersonInvalidation, PersonKeys } from './person.invalidation'
 
 type PersonClientDeps<TPerson> = {
@@ -12,7 +17,12 @@ type PersonClientDeps<TPerson> = {
 type PersonClientHttpConfig = {
   baseUrl         : string
   getAccessToken? : () => Promise<string | null>
+  apiKey?         : string
   fetchFn?        : typeof fetch
+}
+
+type PersonClientWebConfig = {
+  baseUrl?: string
 }
 
 export const PersonClient = {
@@ -74,61 +84,64 @@ export const PersonClient = {
   },
 
   createHttp<TPerson>(config: PersonClientHttpConfig) {
-    const fetchFn = config.fetchFn ?? fetch
+    setRestAuthConfig({
+      apiKey        : config.apiKey ?? clientEnv.API_KEY,
+      getAccessToken: config.getAccessToken,
+      baseUrl       : config.baseUrl,
+    })
 
     return PersonClient.create<TPerson>({
       async list() {
-        const accessToken = await config.getAccessToken?.()
-        const res = await fetchFn(`${config.baseUrl}/api/persons`, {
-          method : 'GET',
-          headers: {
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-          },
-        })
+        const { data, error, status, statusText } = await fetchApi<TPerson[]>('/persons')
 
-        if (!res.ok) {
-          throw new Error(`PersonClient.createHttp.list failed: ${res.status} ${res.statusText}`)
+        if (error || !data) {
+          throw new Error(`PersonClient.createHttp.list failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        return (await res.json()) as TPerson[]
+        return data
       },
 
       async byId(params: { id: string }) {
-        const accessToken = await config.getAccessToken?.()
-        const res = await fetchFn(`${config.baseUrl}/api/persons/${params.id}`, {
-          method : 'GET',
-          headers: {
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-          },
-        })
+        const { data, error, status, statusText } = await fetchApi<TPerson>(`/persons/${params.id}`)
 
-        if (res.status === 404) {
-          return null
+        if (status === 404) return null
+        if (error || !data) {
+          throw new Error(`PersonClient.createHttp.byId failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        if (!res.ok) {
-          throw new Error(`PersonClient.createHttp.byId failed: ${res.status} ${res.statusText}`)
-        }
-
-        return (await res.json()) as TPerson
+        return data
       },
 
       async create(params: { input: unknown }) {
-        const accessToken = await config.getAccessToken?.()
-        const res = await fetchFn(`${config.baseUrl}/api/persons`, {
-          method : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-          },
-          body: JSON.stringify(params.input),
-        })
+        const { data, error, status, statusText } = await postApi<TPerson, unknown>(
+          '/persons',
+          params.input,
+        )
 
-        if (!res.ok) {
-          throw new Error(`PersonClient.createHttp.create failed: ${res.status} ${res.statusText}`)
+        if (error || !data) {
+          throw new Error(`PersonClient.createHttp.create failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        return (await res.json()) as TPerson
+        return data
+      },
+    })
+  },
+
+  createWeb<TPerson>(config?: PersonClientWebConfig) {
+    const baseUrl = config?.baseUrl ?? ''
+
+    const supabase = createSupabaseClient({
+      supabaseUrl    : clientEnv.SUPABASE_URL,
+      supabaseAnonKey: clientEnv.SUPABASE_ANON_KEY,
+    })
+
+    return PersonClient.createHttp<TPerson>({
+      baseUrl,
+      apiKey: clientEnv.API_KEY,
+      getAccessToken: async () => {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) return null
+        return data.session?.access_token ?? null
       },
     })
   },

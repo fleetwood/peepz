@@ -28,7 +28,11 @@ const Sidebar = () => {
         <h1 className="text-primary">FC</h1>
       </div>
       
-      <nav className="flex-1 px-3">
+      <div className="p-4 border-t border-border">
+        <UserSidebar />
+      </div>
+
+      <nav className="flex-1 p-3 border-t border-border">
         <ul className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -52,10 +56,6 @@ const Sidebar = () => {
           })}
         </ul>
       </nav>
-      
-      <div className="p-4 border-t border-border">
-        <UserSidebar />
-      </div>
     </aside>
   )
 }
