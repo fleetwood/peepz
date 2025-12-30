@@ -9,6 +9,7 @@ const nextConfig = {
     '@peeps/client',
     '@peeps/db',
     '@peeps/services',
+    '@peeps/ui',
     '@peeps/types',
     '@peeps/utils',
     '@peeps/config',

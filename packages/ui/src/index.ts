@@ -1,10 +1,14 @@
 import { materializeTheme, resolveColorRef } from "./resolve";
 import { darkTheme } from "./theme.dark";
 import { lightTheme } from "./theme.light";
+import { peepsDark } from "./theme.peepsDark";
+import { peepsLight } from "./theme.peepsLight";
 
 export const themes = {
-  dark : darkTheme,
-  light: lightTheme,
+  dark      : darkTheme,
+  light     : lightTheme,
+  peepsDark : peepsDark,
+  peepsLight: peepsLight,
 } as const;
 
 export type ThemeName = keyof typeof themes;
@@ -16,8 +20,10 @@ export const THEME_MODE_LIGHT = "light" as const;
 export const THEME_MODE_DARK  = "dark" as const;
 
 export const themeModeByName = {
-  dark : THEME_MODE_DARK,
-  light: THEME_MODE_LIGHT,
+  dark      : THEME_MODE_DARK,
+  light     : THEME_MODE_LIGHT,
+  peepsDark : THEME_MODE_DARK,
+  peepsLight: THEME_MODE_LIGHT,
 } as const satisfies Record<ThemeName, typeof THEME_MODE_LIGHT | typeof THEME_MODE_DARK>;
 
 export type ThemeMode = (typeof themeModeByName)[ThemeName];

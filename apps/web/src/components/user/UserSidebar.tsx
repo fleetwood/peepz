@@ -4,15 +4,39 @@ import AsyncContainer from '@/components/layout/AsyncContainer'
 import Login from '@/components/Login'
 import { useCurrentUser } from '@/context/CurrentUserProvider'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import type { ThemeName } from '@peeps/ui'
+import { themeNames, themes } from '@peeps/ui'
+import { Check, ChevronRight, Egg, Leaf, Moon, Sun, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { User } from 'lucide-react'
-import ThemeSwitcher from '../ThemeSwitcher'
+import { useTheme } from 'next-themes'
+import { useSyncExternalStore } from 'react'
 
 export type UserSidebarProps = Record<string, never>
+
+const emptySubscribe = () => () => {}
+const useMounted = () => useSyncExternalStore(emptySubscribe, () => true, () => false)
+
+function ThemeIcon(props: { icon: string }) {
+  switch (props.icon) {
+    case 'sun':
+      return <Sun className="h-4 w-4" />
+    case 'moon':
+      return <Moon className="h-4 w-4" />
+    case 'egg':
+      return <Egg className="h-4 w-4" />
+    case 'leaf':
+      return <Leaf className="h-4 w-4" />
+    default:
+      return <Sun className="h-4 w-4" />
+  }
+}
 
 const UserSidebar = (_props: UserSidebarProps) => {
   const router = useRouter()
   const { auth, user, userLoading } = useCurrentUser()
+  const { setTheme, theme } = useTheme()
+  const mounted = useMounted()
+  const currentTheme = ((theme as ThemeName | undefined) ?? themeNames[0])
 
   return (
     <AsyncContainer isLoading={[userLoading]}>
@@ -72,10 +96,39 @@ const UserSidebar = (_props: UserSidebarProps) => {
 
                 <DropdownMenu.Separator className="my-1 h-px bg-border" />
 
-                <DropdownMenu.Item>
-                  <ThemeSwitcher  />
-                </DropdownMenu.Item>
-
+                <DropdownMenu.Sub>
+                  <DropdownMenu.SubTrigger className="flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground">
+                    <span>Theme</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </DropdownMenu.SubTrigger>
+                  <DropdownMenu.Portal>
+                    <DropdownMenu.SubContent
+                      sideOffset={8}
+                      className="z-50 min-w-[12rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+                    >
+                      {themeNames.map((name) => {
+                        const meta = themes[name]
+                        const isActive = mounted && currentTheme === name
+                        return (
+                          <DropdownMenu.Item
+                            key={name}
+                            className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"
+                            disabled={!mounted}
+                            onSelect={() => {
+                              setTheme(name)
+                            }}
+                          >
+                            <span className="flex items-center gap-2">
+                              <ThemeIcon icon={meta.icon} />
+                              {meta.name}
+                            </span>
+                            {isActive && <Check className="h-4 w-4" />}
+                          </DropdownMenu.Item>
+                        )
+                      })}
+                    </DropdownMenu.SubContent>
+                  </DropdownMenu.Portal>
+                </DropdownMenu.Sub>
 
                 <DropdownMenu.Item
                   className="cursor-pointer select-none rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"

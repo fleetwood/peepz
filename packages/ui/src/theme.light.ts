@@ -1,4 +1,12 @@
 export const lightTheme = {
+  name : "Light",
+  icon : "sun",
+  fonts: {
+    peeps: "Patrick Hand",
+    sans : "Merriweather",
+    serif: "Fraunces",
+    mono : "DM Mono",
+  },
   colors: {
     carbon: {
       DEFAULT: "#1d1c11",
@@ -170,7 +178,7 @@ export const lightTheme = {
       800    : "#cee0df",
       900    : "#e7f0ef",
     },
-    violet: { // NEW: Derived from Carbon/Brick
+    purple: { // NEW: Derived from Carbon/Brick
       DEFAULT: "#7b6891",
       100    : "#19151d",
       200    : "#322a3a",
@@ -185,10 +193,12 @@ export const lightTheme = {
     brand: {
       primary               : "blue.500",
       "primary-foreground"  : "neutral.50",
-      secondary             : "violet.500",
+      secondary             : "purple.500",
       "secondary-foreground": "neutral.50",
       accent                : "orange.500",
       "accent-foreground"   : "neutral.50",
+      muted                : "neutral.200",
+      "muted-foreground"   : "neutral.500",
       page                  : "neutral.100",
       "page-foreground"     : "neutral.900",
     },
@@ -200,7 +210,7 @@ export const lightTheme = {
       danger              : "red.500",
       "danger-foreground" : "neutral.50",
       info                : "blue.500",
-      "info-foreground"   : "violet.100",
+      "info-foreground"   : "purple.100",
     },
   },
   radii: {

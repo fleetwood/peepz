@@ -7,6 +7,12 @@ const config: Config = {
   content : ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   theme   : {
   	extend: {
+  		fontFamily: {
+  			peeps: ['var(--font-peeps)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			sans : ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			serif: ['var(--font-serif)', 'ui-serif', 'Georgia', 'serif'],
+  			mono : ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+  		},
   		colors: {
   			border: 'var(--border)',
   			input: 'var(--input)',
@@ -28,6 +34,14 @@ const config: Config = {
   			muted: {
   				DEFAULT: 'var(--muted)',
   				foreground: 'var(--muted-foreground)'
+  			},
+  			success: {
+  				DEFAULT: 'var(--success)',
+  				foreground: 'var(--success-foreground)'
+  			},
+  			warning: {
+  				DEFAULT: 'var(--warning)',
+  				foreground: 'var(--warning-foreground)'
   			},
   			destructive: {
   				DEFAULT: 'var(--destructive)',

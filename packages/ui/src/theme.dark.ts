@@ -1,6 +1,14 @@
 export const darkTheme = {
+  name : "Dark",
+  icon : "moon",
+  fonts: {
+    peeps: "Patrick Hand",
+    sans : "Merriweather",
+    serif: "Fraunces",
+    mono : "DM Mono",
+  },
   colors: {
-    violet: { // Formerly amethyst
+    purple: { // Formerly amethyst
       DEFAULT: "#0f0f39",
       100    : "#03030b",
       200    : "#060617",
@@ -101,10 +109,12 @@ export const darkTheme = {
     brand: {
       primary               : "blue.500",
       "primary-foreground"  : "neutral.50",
-      secondary             : "violet.700",
+      secondary             : "purple.700",
       "secondary-foreground": "neutral.50",
       accent                : "orange.500",
       "accent-foreground"   : "neutral.50",
+      muted                : "neutral.700",
+      "muted-foreground"   : "neutral.500",
       page                  : "neutral.900",
       "page-foreground"     : "neutral.100",
     },
@@ -116,7 +126,7 @@ export const darkTheme = {
       danger              : "red.500",
       "danger-foreground" : "neutral.50",
       info                : "blue.500",
-      "info-foreground"   : "violet.100",
+      "info-foreground"   : "purple.100",
     },
   },
   radii: {

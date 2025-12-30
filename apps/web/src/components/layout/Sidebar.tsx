@@ -1,9 +1,10 @@
 "use client"
 
 import { clientEnv } from '@peeps/config/env'
-import { BarChart, Bell, Heart, Home, Settings, User, Users } from 'lucide-react'
+import { BarChart, Heart, Home, Users } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import UserSidebar from '../user/UserSidebar'
+import PeepsLogo from './Logo'
 
 const Sidebar = () => {
   const router = useRouter()
@@ -18,12 +19,9 @@ const Sidebar = () => {
 
   return (
     <aside className="w-20 md:w-64 h-full border-r border-border bg-background flex flex-col flex-shrink-0">
-      <div className="p-6 hidden md:block">
-        <h1 className="text-primary">FamilyCircle</h1>
-      </div>
-      
-      <div className="p-4 md:hidden flex justify-center">
-        <h1 className="text-primary">FC</h1>
+      <div className="p-4 md:p-6 flex items-center justify-center md:justify-start gap-3">
+        <PeepsLogo s32 className="h-8 w-8" />
+        <h1 className="hidden md:block text-primary text-xl font-extrabold tracking-tight">peeps</h1>
       </div>
       
       <div className="p-4 border-t border-border">
