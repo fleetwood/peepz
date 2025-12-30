@@ -4,10 +4,10 @@
   "description": "Family-centered social platform",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev --filter=@peeps/web",
-    "dev:web": "turbo run dev --filter=@peeps/web",
+    "dev": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web",
+    "dev:web": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web",
     "dev:mobile": "turbo run dev --filter=@peeps/mobile",
-    "dev:all": "turbo run dev --filter=@peeps/web --filter=@peeps/mobile",
+    "dev:all": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web --filter=@peeps/mobile",
     "clean": "find . -type d \\( -name .next -o -name .turbo \\) -prune -exec rm -rf {} +",
     "build:web": "turbo run build --filter=@peeps/web",
     "build:mobile": "turbo run build --filter=@peeps/mobile",
