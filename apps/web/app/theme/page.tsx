@@ -1,16 +1,11 @@
 import Main from "@/components/layout/Main"
 import Theme from "@/components/Theme"
 
-export type ThemePageProps = {
-    
-}
-
-const ThemePage = (props:ThemePageProps) => {
+const ThemePage = (_props:unknown) => {
     return (
         <Main>
             <Theme />
         </Main>
-    
     )
 }
 

@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 
 import * as schema from '@peeps/db/schema'
 import { type Transaction, type WithTx, withTx } from '@peeps/db/client'
+import { ErrorCodeEnum, errorCodeToStatusCode } from '@peeps/types/base/errorCodes'
 import type { UserDto } from '@peeps/types/user/user.dto'
 import { type ServiceResult } from '@peeps/types/response/response.types'
 
@@ -26,7 +27,7 @@ function toIsoDay(value: unknown): string {
 
 export class UserService {
   @withTx
-  static async byAuthUserId(params: WithTx<WithTrx<ByAuthUserIdParams>>): Promise<ServiceResult<UserDto | null>> {
+  static async byAuthUserId(params: WithTx<WithTrx<ByAuthUserIdParams>>): Promise<ServiceResult<UserDto>> {
     const [row] = await params.trx!
       .select({
         member: schema.members,
@@ -37,7 +38,13 @@ export class UserService {
       .where(eq(schema.members.authUserId, params.authUserId))
       .limit(1)
 
-    if (!row) return { status: 404, result: null }
+    if (!row) {
+      throw {
+        error     : 'User not found',
+        code      : ErrorCodeEnum.AUTH_USER_NOT_FOUND,
+        statusCode: errorCodeToStatusCode[ErrorCodeEnum.AUTH_USER_NOT_FOUND],
+      }
+    }
 
     return {
       status: 200,

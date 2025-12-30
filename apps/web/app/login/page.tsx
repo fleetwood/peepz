@@ -77,13 +77,13 @@ export default function LoginPage() {
   }
 
   if (user) {
+    const displayName = user.person?.preferredName ?? user.person?.name?.[0] ?? 'User'
+
     return (
       <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-6">
         <h1 className="text-2xl font-semibold">Login</h1>
 
-        <div className="rounded bg-gray-100 p-3 text-sm">
-          Welcome {user.person.preferredName}
-        </div>
+        <div className="rounded bg-gray-100 p-3 text-sm">Welcome {displayName}</div>
 
         <div className="flex flex-col gap-2">
           <button

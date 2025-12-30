@@ -182,26 +182,25 @@ export const lightTheme = {
       800    : "#cbc2d9",
       900    : "#e7e1ec",
     },
-      // --- UI Roles ---
     brand: {
-      primary               : "carbon.DEFAULT",
-      "primary-foreground"  : "honeydew.900",
-      secondary             : "blue.500",         // teal
-      "secondary-foreground": "carbon.DEFAULT",
-      accent                : "yellow.300",       // cornsilk.300
-      "accent-foreground"   : "carbon.DEFAULT",
-      page                  : "honeydew.900",     // Light theme background
-      "page-foreground"     : "carbon.DEFAULT",
+      primary               : "blue.500",
+      "primary-foreground"  : "neutral.50",
+      secondary             : "violet.500",
+      "secondary-foreground": "neutral.50",
+      accent                : "orange.500",
+      "accent-foreground"   : "neutral.50",
+      page                  : "neutral.100",
+      "page-foreground"     : "neutral.900",
     },
     semantic: {
-      success             : "green.600",
-      "success-foreground": "carbon.DEFAULT",
-      warning             : "moss.DEFAULT",
-      "warning-foreground": "carbon.DEFAULT",
-      danger              : "red.500",          // brick
-      "danger-foreground" : "honeydew.900",
-      info                : "blue.600",
-      "info-foreground"   : "carbon.DEFAULT",
+      success             : "green.500",
+      "success-foreground": "neutral.50",
+      warning             : "yellow.500",
+      "warning-foreground": "neutral.50",
+      danger              : "red.500",
+      "danger-foreground" : "neutral.50",
+      info                : "blue.500",
+      "info-foreground"   : "violet.100",
     },
   },
   radii: {

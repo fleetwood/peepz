@@ -3,6 +3,7 @@
 import { clientEnv } from '@peeps/config/env'
 import { BarChart, Bell, Heart, Home, Settings, User, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import UserSidebar from '../user/UserSidebar'
 
 const Sidebar = () => {
   const navItems = [
@@ -53,15 +54,7 @@ const Sidebar = () => {
       </nav>
       
       <div className="p-4 border-t border-border">
-        <div className="flex items-center justify-center md:justify-start gap-3 px-2">
-          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-            <User className="w-5 h-5 text-secondary-foreground" />
-          </div>
-          <div className="hidden md:block">
-            <p className="text-foreground">John Smith</p>
-            <p className="text-muted-foreground">@johnsmith</p>
-          </div>
-        </div>
+        <UserSidebar />
       </div>
     </aside>
   )

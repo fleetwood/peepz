@@ -35,9 +35,9 @@ export enum ValidationSourceEnum {
 }
 
 export type AuthContext = {
-  sessionId?: string | null
-  userId   ?: string | null
-  appToken ?: string | null
+  accessToken?: string | null
+  authUserId ?: string | null
+  email      ?: string | null
 }
 
 export type RouteType = 

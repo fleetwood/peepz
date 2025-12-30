@@ -20,7 +20,8 @@
     "db:migrate": "pnpm --filter @peeps/db db:migrate",
     "db:push": "pnpm --filter @peeps/db db:push",
     "db:studio": "pnpm --filter @peeps/db db:studio",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "generate:themes": "pnpm --filter @peeps/web generate:themes"
   },
   "devDependencies": {
     "turbo": "latest",

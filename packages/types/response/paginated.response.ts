@@ -2,43 +2,38 @@
  * Parameters for paginated requests
  * @template T - Type of data being paginated
  * @example
- * // Request page 2 with 10 items per page
+ * // Request the next page with a cursor and limit
  * const params: PaginationParams = {
- *   page: 2,
- *   limit: 10
+ *   cursor: 'eyJpZCI6IjEyMyJ9',
+ *   limit : 20,
  * }
  */
 export type PaginationParams = {
-  /** Current page number (1-based) */
-  page: number
+  /** Cursor for the next page (null/undefined means first page) */
+  cursor?: string | null
   /** Number of items per page */
-  limit: number
-  /** Current offset (calculated as (page-1) * limit) */
-  offset?: number
+  limit  : number
 }
 
 /**
  * Standard response format for paginated data
  * @template T - Type of items in the data array
- * @property {T[]} data - Array of paginated items
- * @property {number} page - Current page number (1-based)
- * @property {number} limit - Number of items per page
- * @property {number} total - Total number of items available
- * @property {boolean} hasMore - Whether there are more items available
+ * @property {T[]} items - Array of paginated items
+ * @property {object} pageInfo - Pagination metadata for TanStack Query
  * @example
  * // Response with posts data
  * const response: PaginatedResponse<Post> = {
- *   data: [post1, post2],
- *   page: 1,
- *   limit: 10,
- *   total: 45,
- *   hasMore: true
+ *   items: [post1, post2],
+ *   pageInfo: {
+ *     nextCursor : 'eyJpZCI6IjEyMyJ9',
+ *     hasNextPage: true,
+ *   },
  * }
  */
 export type PaginatedResponse<T = any> = {
-  data: T[]
-  page: number
-  limit: number
-  total: number
-  hasMore: boolean
+  items   : T[]
+  pageInfo: {
+    nextCursor : string | null
+    hasNextPage: boolean
+  }
 }

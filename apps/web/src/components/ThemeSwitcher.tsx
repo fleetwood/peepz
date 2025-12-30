@@ -3,6 +3,7 @@
 import { WithClassName } from '@peeps/types/src'
 import type { ThemeName } from '@peeps/ui'
 import { THEME_MODE_DARK, themeModeByName, themeNames } from '@peeps/ui'
+import { cn } from '@peeps/utils/classnames'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
@@ -35,11 +36,14 @@ export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
 
   return (
     <button
-      className={className}
+      className={cn("p-2 rounded bg-primary text-primary-foreground", className)}
       type="button"
       onClick={() => setTheme(getNextTheme(currentTheme))}
     >
-      {mode === THEME_MODE_DARK ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+      {mode === THEME_MODE_DARK 
+        ? <Moon className="h-4 w-4" /> 
+        : <Sun className="h-4 w-4" />
+      }
     </button>
   )
 }

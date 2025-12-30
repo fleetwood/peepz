@@ -41,7 +41,7 @@ function SectionSwatches({ title, themeName, sectionName }: { title: string; the
         {entries.map(([key, value]) => (
           <div key={key} className="flex flex-col items-center gap-1">
             <div className="h-10 w-10 rounded-md border border-border" style={{ backgroundColor: resolveThemeColor(themeName, value) }} />
-            <div className="text-[10px] text-muted-foreground">{key}</div>
+            <div className="text-[10px]">{key}</div>
           </div>
         ))}
       </div>
@@ -72,7 +72,7 @@ function PaletteGrid({ title, themeName }: { title: string; themeName: ThemeName
                     className="h-9 w-9 rounded-md border border-border"
                     style={{ backgroundColor: resolveThemeColor(themeName, palette[shade]) }}
                   />
-                  <div className="text-[10px] text-muted-foreground">{shade}</div>
+                  <div className="text-[10px]">{shade}</div>
                 </div>
               ))}
             </div>
@@ -88,7 +88,7 @@ const Theme = (_props: ThemeProps) => {
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-foreground">Theme Preview</h1>
-        <ThemeSwitcher className="text-sm text-muted-foreground hover:text-foreground" />
+        <ThemeSwitcher />
       </div>
 
       {themeNames.map((name) => (
@@ -102,7 +102,7 @@ const Theme = (_props: ThemeProps) => {
       <section className="rounded-xl border border-border">
         <div className="p-4">
           <h2 className="text-lg font-semibold text-foreground">Component examples</h2>
-          <p className="text-sm text-muted-foreground">A few shadcn components using theme tokens.</p>
+           <p className="text-sm">A few shadcn components using theme tokens.</p>
         </div>
         <Separator />
         <div className="grid gap-4 p-4">
@@ -113,7 +113,7 @@ const Theme = (_props: ThemeProps) => {
             <Button variant="destructive">Destructive</Button>
           </div>
           <Input placeholder="Input" />
-          <div className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">Muted helper text</div>
+          <div className="rounded-md bg-muted text-muted-foreground px-3 py-2 text-sm">Muted helper text</div>
         </div>
       </section>
     </div>
@@ -121,5 +121,4 @@ const Theme = (_props: ThemeProps) => {
 }
 
 Theme.displayName = "Theme"
-
 export default Theme
