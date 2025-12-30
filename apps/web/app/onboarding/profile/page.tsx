@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 
 import { createSupabaseClient } from '@peeps/client'
 import { clientEnv } from '@peeps/config/env'
+import Main from '@/components/layout/Main'
 
 const defaultFamilyNameCategory = 'paternal'
 
@@ -97,9 +98,7 @@ export default function OnboardingProfilePage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-6">
-      <h1 className="text-2xl font-semibold">Finish your profile</h1>
-
+    <Main title="Finish your profile">
       <form className="flex flex-col gap-3" onSubmit={onSubmit}>
         <label className="flex flex-col gap-1">
           <span className="text-sm">Preferred name</span>
@@ -154,6 +153,6 @@ export default function OnboardingProfilePage() {
       </form>
 
       {status ? <pre className="whitespace-pre-wrap rounded bg-gray-100 p-3 text-sm">{status}</pre> : null}
-    </main>
+    </Main>
   )
 }

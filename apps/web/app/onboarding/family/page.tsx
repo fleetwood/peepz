@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 
 import { createSupabaseClient } from '@peeps/client'
 import { clientEnv } from '@peeps/config/env'
+import Main from '@/components/layout/Main'
 
 export default function OnboardingFamilyPage() {
   const router = useRouter()
@@ -64,8 +65,7 @@ export default function OnboardingFamilyPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-6">
-      <h1 className="text-2xl font-semibold">Connect to your family</h1>
+    <Main title="Connect with your family">
       <p className="text-sm text-muted-foreground">
         Peeps requires family verification before you can access family content.
       </p>
@@ -80,6 +80,6 @@ export default function OnboardingFamilyPage() {
       </button>
 
       {status ? <pre className="whitespace-pre-wrap rounded bg-gray-100 p-3 text-sm">{status}</pre> : null}
-    </main>
+    </Main>
   )
 }

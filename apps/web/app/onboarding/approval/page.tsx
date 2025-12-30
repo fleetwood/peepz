@@ -5,6 +5,7 @@ import * as React from 'react'
 import { useRouter } from 'next/navigation'
 
 import { AuthClient } from '@peeps/client'
+import Main from '@/components/layout/Main'
 
 type EnsureMemberResponse = {
   member    : unknown
@@ -56,8 +57,7 @@ export default function OnboardingApprovalPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-6">
-      <h1 className="text-2xl font-semibold">Waiting for approval</h1>
+    <Main title="Waiting for approval">
 
       <div className="rounded bg-gray-100 p-3 text-sm">
         <p>
@@ -84,6 +84,6 @@ export default function OnboardingApprovalPage() {
       </button>
 
       {status ? <pre className="whitespace-pre-wrap rounded bg-gray-100 p-3 text-sm">{status}</pre> : null}
-    </main>
+    </Main>
   )
 }

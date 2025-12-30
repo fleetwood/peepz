@@ -3,7 +3,7 @@ import Theme from "@/components/Theme"
 
 const ThemePage = (_props:unknown) => {
     return (
-        <Main>
+        <Main title="Theme">
             <Theme />
         </Main>
     )

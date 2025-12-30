@@ -2,21 +2,19 @@
 
 import { clientEnv } from '@peeps/config/env'
 import { BarChart, Bell, Heart, Home, Settings, User, Users } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import UserSidebar from '../user/UserSidebar'
 
 const Sidebar = () => {
-  const navItems = [
-    { icon: Home, label: 'Home', active: true,  link: '/' },
-    { icon: Users, label: 'Family', active: false, link: '/' },
-    { icon: Heart, label: 'Memories', active: false, link: '/' },
-    { icon: Bell, label: 'Notifications', active: false, link: '/' },
-    { icon: User, label: 'Profile', active: false, link: '/' },
-    { icon: Settings, label: 'Settings', active: false, link: '/' },
-    ...(clientEnv.isDev ? [{ icon: BarChart, label: 'Theme', active: true, link: '/theme' }] : []),
-  ]
-
   const router = useRouter()
+  const pathname = usePathname()
+
+  const navItems = [
+    { icon: Home, label: 'Home', link: '/' },
+    { icon: Users, label: 'Family', link: '/family/123' },
+    { icon: Heart, label: 'Memories', link: '/memories' },
+    ...(clientEnv.isDev ? [{ icon: BarChart, label: 'Theme', link: '/theme' }] : []),
+  ]
 
   return (
     <aside className="w-20 md:w-64 h-full border-r border-border bg-background flex flex-col flex-shrink-0">
@@ -36,13 +34,14 @@ const Sidebar = () => {
         <ul className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon
+            const isActive = item.link === '/' ? pathname === '/' : pathname === item.link
             return (
               <li key={item.label}>
                 <button
                   className={`w-full flex items-center justify-center md:justify-start gap-4 px-4 py-3 rounded-lg transition-colors ${
-                    item.active
+                    isActive
                       ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-accent text-foreground'
+                      : 'text-primary hover:bg-accent hover:text-accent-foreground'
                   }`}
                   onClick={() => {
                     router.push(item.link)

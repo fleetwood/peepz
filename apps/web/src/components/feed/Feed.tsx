@@ -1,4 +1,5 @@
 
+import Main from '../layout/Main'
 import { CreatePost } from './CreatePost'
 import { FeedCard } from './FeedCard'
 
@@ -43,7 +44,7 @@ const mockPosts = [
 
 const Feed = () => {
   return (
-    <main className="flex-1 max-w-2xl mx-auto p-6">
+    <Main>
       <CreatePost />
       
       <div className="space-y-4">
@@ -51,7 +52,7 @@ const Feed = () => {
           <FeedCard key={post.id} {...post} />
         ))}
       </div>
-    </main>
+    </Main>
   )
 }
 
