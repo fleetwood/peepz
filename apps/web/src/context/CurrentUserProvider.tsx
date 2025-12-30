@@ -1,0 +1,59 @@
+"use client"
+
+import * as React from 'react'
+
+import { AuthClient, UserClient } from '@peeps/client'
+import type { UserDto } from '@peeps/types/user/user.dto'
+
+type CurrentUserContextValue = {
+  user       : UserDto | null
+  userLoading: boolean
+  userError  : unknown
+  auth       : ReturnType<typeof AuthClient.createWeb<unknown>>
+}
+
+const CurrentUserContext = React.createContext<CurrentUserContextValue | null>(null)
+
+export function CurrentUserProvider({ children }: { children: React.ReactNode }) {
+  const userClient = React.useMemo(() => UserClient.createWeb<UserDto>(), [])
+  const [userOverride, setUserOverride] = React.useState<UserDto | null | undefined>(undefined)
+
+  const auth = React.useMemo(() => {
+    const base = AuthClient.createWeb<unknown>()
+
+    return {
+      ...base,
+      async continueAfterAuth() {
+        const result = await base.continueAfterAuth()
+        setUserOverride(undefined)
+        await userClient.refetchMe()
+        return result
+      },
+      async signOut() {
+        setUserOverride(null)
+        const result = await base.signOut()
+        await userClient.refetchMe()
+        return result
+      },
+    }
+  }, [userClient])
+
+  const query = userClient.useMe()
+
+  const value = React.useMemo(() => {
+    return {
+      user       : userOverride === undefined ? (query.data ?? null) : userOverride,
+      userLoading: userOverride === undefined ? (query.isLoading || query.isFetching) : false,
+      userError  : query.error,
+      auth,
+    } satisfies CurrentUserContextValue
+  }, [auth, query.data, query.error, query.isFetching, query.isLoading, userOverride])
+
+  return <CurrentUserContext.Provider value={value}>{children}</CurrentUserContext.Provider>
+}
+
+export function useCurrentUser() {
+  const ctx = React.useContext(CurrentUserContext)
+  if (!ctx) throw new Error('useCurrentUser must be used within CurrentUserProvider')
+  return { user: ctx.user, userLoading: ctx.userLoading, userError: ctx.userError, auth: ctx.auth }
+}

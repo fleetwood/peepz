@@ -1,0 +1,25 @@
+{
+  "name": "@peeps/types",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./queryManager": "./queryManager.ts",
+    "./response/*": "./response/*.ts",
+    "./cloudinary": "./cloudinary/cloudinary.ts",
+    "./base/*": "./base/*.ts",
+    "./user/*": "./user/*.ts"
+  },
+  "scripts": {
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "typescript": "^5.7.2"
+  }
+}
