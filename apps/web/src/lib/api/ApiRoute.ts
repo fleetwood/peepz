@@ -1,7 +1,6 @@
 import { serverEnv } from '@peeps/config/env'
-import { ErrorCodeEnum, errorCodeToMessage, errorCodeToStatusCode } from '@peeps/types/base/errorCodes'
-import type { PaginationParams } from '@peeps/types/response/paginated.response'
-import type { ChainContext, ServiceResult } from '@peeps/types/response/response.types'
+import { ErrorCodeEnum, errorCodeToMessage, errorCodeToStatusCode } from '@peeps/types'
+import type { ChainContext, PaginationParams, ServiceResult } from '@peeps/types'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 const supabaseJwks = createRemoteJWKSet(new URL(`${serverEnv.SUPABASE_URL}/auth/v1/.well-known/jwks.json`))
@@ -20,7 +19,7 @@ type AuthedChainContext = Omit<ChainContext, 'accessToken' | 'authUserId' | 'ema
   email      : string
 }
 
-export type ApiRouteAuthed = Omit<ApiRoute, 'handle'> & {
+type ApiRouteAuthed = Omit<ApiRoute, 'handle'> & {
   handle<T>(handler: (ctx: AuthedChainContext) => Promise<T>): Promise<Response>
 }
 
@@ -194,6 +193,10 @@ export class ApiRoute {
       }
 
       const data = await handler(ctx)
+
+      if (data instanceof Response) {
+        return data
+      }
 
       if (ApiRoute.isServiceResultLike(data)) {
         return Response.json({ data: data.result })

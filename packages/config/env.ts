@@ -91,7 +91,7 @@ const buildServerEnv = () => {
   } as const
 }
 
-export type ServerEnv = ReturnType<typeof buildServerEnv>
+type ServerEnv = ReturnType<typeof buildServerEnv>
 
 let cachedServerEnv: ServerEnv | null = null
 
@@ -107,5 +107,5 @@ export const serverEnv = new Proxy({} as ServerEnv, {
  */
 export const env = serverEnv
 
-export type ClientEnv = typeof clientEnv
+type ClientEnv = typeof clientEnv
 // ServerEnv is exported above (ReturnType<typeof buildServerEnv>)

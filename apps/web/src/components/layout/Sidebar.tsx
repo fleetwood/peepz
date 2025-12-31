@@ -19,9 +19,9 @@ const Sidebar = () => {
 
   return (
     <aside className="w-20 md:w-64 h-full border-r border-border bg-background flex flex-col flex-shrink-0">
-      <div className="p-4 md:p-6 flex items-center justify-center md:justify-start gap-3">
+      <div className="p-4 md:p-6 flex items-center justify-center md:justify-start">
         <PeepsLogo s32 className="h-8 w-8" />
-        <h1 className="hidden md:block text-primary text-xl font-extrabold tracking-tight">peeps</h1>
+        <h1 className="hidden md:block text-yellow-500 text-[2rem] -ml-0.5 font-extrabold tracking-tight">EEPS</h1>
       </div>
       
       <div className="p-4 border-t border-border">

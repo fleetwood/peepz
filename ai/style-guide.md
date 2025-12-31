@@ -9,8 +9,11 @@ This document defines coding standards and conventions for the Peeps project.
 - Prefer ternary operations for simple one-line conditions. 
 - Use Column Alignment.
 - When a function or definition is exported, it must use named types.
+- Use Column Alignment
 - When a function or definition is exported, it must reside in a standalone (e.g., types) file.
+- Use Column Alignment
 - Never comment at the end of a line. Comments go ABOVE the line.
+- Use Column Alignment
 - Other than the default component, never export types or functions from components.
     ```
 
@@ -106,7 +109,7 @@ export enum Status {
 
 ### String Literals
 
-**DO NOT use string literals for comparisons, conditions, or persistence.**
+**❌ DO NOT use string literals for comparisons, conditions, or persistence.**
 **ALWAYS prefer Enum, Type, or Const.**
 
 ```typescript
@@ -570,3 +573,4 @@ throw new Error('Email address is required and must be valid');
 - Do not try to predict what the user will ask next
 - If more than 2 attempts fail, pause and ask for guidance
 - Implement only what is explicitly requested
+- Use Column Alignment

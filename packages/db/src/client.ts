@@ -6,9 +6,7 @@ type DbClient = ReturnType<typeof postgres>
 type Db       = ReturnType<typeof drizzle<typeof schema>>
 
 declare global {
-  // eslint-disable-next-line no-var
   var __peepsDbClient: DbClient | undefined
-  // eslint-disable-next-line no-var
   var __peepsDb: Db | undefined
 }
 
@@ -24,24 +22,24 @@ export const db = globalThis.__peepsDb ?? drizzle(client, { schema })
 globalThis.__peepsDbClient = client
 globalThis.__peepsDb = db
 
-export type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
-export type WithTxExecutor<T> = (trx: Transaction) => Promise<T>
+type WithTxExecutor<T> = (tx: Transaction) => Promise<T>
 
-export type WithTxParams<T> = {
+type WithTxParams<T> = {
   tx      ?: Transaction
   executor: WithTxExecutor<T>
 }
 
-export async function runWithTx<T>({ tx, executor }: WithTxParams<T>): Promise<T> {
-  return tx ? executor(tx) : db.transaction(executor)
-}
-
-export type TxOptions = {
+type TxOptions = {
   tx?: Transaction
 }
 
-export type WithTx<TParams> = TParams & TxOptions
+type WithTx<TParams> = TParams & TxOptions
+
+export async function runWithTx<T>({ tx, executor }: WithTxParams<T>): Promise<T> {
+  return tx ? executor(tx) : db.transaction(executor)
+}
 
 export function withTx(
   _target: unknown,
@@ -59,7 +57,7 @@ export function withTx(
 
     return runWithTx({
       tx,
-      executor: (trx) => original.call(this, { ...cleanParams, trx }),
+      executor: (trx) => original.call(this, { ...cleanParams, tx: trx }),
     })
   }
 }

@@ -1,10 +1,13 @@
 import { useMutation } from '@tanstack/react-query'
 
 import { clientEnv } from '@peeps/config/env'
+import { ErrorCodeEnum } from '@peeps/types'
+import type { AuthProviderId as AuthProviderIdType, ContinueAfterAuthResult } from '@peeps/types'
 import { postApi, setRestAuthConfig } from '@peeps/utils/rest'
 
-import { createSupabaseClient } from '../supabase/client'
+import { SupabaseClient } from '../supabase/client'
 import { AuthInvalidation, AuthKeys } from './auth.invalidation'
+import { createAuthProviderRegistry } from './providers/providerRegistry'
 
 type AuthClientDeps<TEnsureMemberResponse> = {
   ensureMember: () => Promise<TEnsureMemberResponse>
@@ -22,8 +25,13 @@ type AuthClientWebConfig = {
   apiKey? : string
 }
 
-type SignInWithEmailParams = {
-  email: string
+type StartIdentityLinkParams = {
+  provider: string
+}
+
+type SignInParams = {
+  providerId: AuthProviderIdType
+  params?    : unknown
 }
 
 export const AuthClient = {
@@ -76,9 +84,10 @@ export const AuthClient = {
     const baseUrl = config?.baseUrl ?? ''
     const apiKey = config?.apiKey ?? clientEnv.API_KEY
 
-    const supabase = createSupabaseClient({
-      supabaseUrl    : clientEnv.SUPABASE_URL,
-      supabaseAnonKey: clientEnv.SUPABASE_ANON_KEY,
+    const supabase = SupabaseClient.get()
+
+    const providers = createAuthProviderRegistry({
+      redirectTo: `${clientEnv.APP_URL}/login`,
     })
 
     const http = AuthClient.createHttp<TEnsureMemberResponse>({
@@ -95,41 +104,45 @@ export const AuthClient = {
       keys        : AuthKeys,
       invalidation: AuthInvalidation,
 
-      async signInWithEmail(params: SignInWithEmailParams) {
-        const trimmed = params.email.trim()
-        if (!trimmed) {
-          throw new Error('Enter an email')
-        }
+      providers,
 
-        const { error } = await supabase.auth.signInWithOtp({
-          email  : trimmed,
-          options: {
-            emailRedirectTo: `${clientEnv.APP_URL}/login`,
-          },
-        })
-
-        if (error) {
-          throw new Error(error.message)
-        }
-
-        return 'Check your email for a login link.'
-      },
-
-      async signInWithGoogle() {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options : {
-            redirectTo: `${clientEnv.APP_URL}/login`,
-          },
-        })
-
-        if (error) {
-          throw new Error(error.message)
-        }
+      async signIn(params: SignInParams) {
+        const provider = providers.get(params.providerId)
+        return provider.signIn(params.params as any)
       },
 
       async ensureMember() {
         return http.ensureMember()
+      },
+
+      async ensureMemberResult(): Promise<ContinueAfterAuthResult<TEnsureMemberResponse>> {
+        const { data, error, code, errorDetails } = await postApi<TEnsureMemberResponse, Record<string, never>>(
+          '/auth/ensure-member',
+          {},
+        )
+
+        if (!error && data) {
+          return { kind: 'ok', data }
+        }
+
+        if (code === ErrorCodeEnum.AUTH_IDENTITY_LINK_REQUIRED) {
+          const provider = typeof errorDetails?.provider === 'string' ? errorDetails.provider : null
+          return { kind: 'link_required', provider }
+        }
+
+        throw new Error(error ?? 'Failed to ensure member')
+      },
+
+      async startIdentityLink(params: StartIdentityLinkParams) {
+        const { error } = await postApi<{ ok: true }, StartIdentityLinkParams>('/auth/link-identity/start', {
+          provider: params.provider,
+        })
+
+        if (error) {
+          throw new Error(error)
+        }
+
+        return true as const
       },
 
       async continueAfterAuth() {
@@ -144,6 +157,20 @@ export const AuthClient = {
         }
 
         return http.ensureMember()
+      },
+
+      async continueAfterAuthResult(): Promise<ContinueAfterAuthResult<TEnsureMemberResponse>> {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) {
+          throw new Error(error.message)
+        }
+
+        const accessToken = data.session?.access_token
+        if (!accessToken) {
+          throw new Error('No session yet. Use Email or Google sign-in first.')
+        }
+
+        return base.ensureMemberResult()
       },
 
       async signOut() {

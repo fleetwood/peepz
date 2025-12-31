@@ -39,4 +39,5 @@ export const colors = {
   bgGreen : (text: string) => `\x1b[42m${text}${RESET}`,
 } as const
 
+// eslint-disable-next-line no-restricted-syntax
 export type ColorName = keyof typeof colors

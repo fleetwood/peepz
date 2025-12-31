@@ -2,13 +2,11 @@
 
 import { CurrentUserProvider } from "@/context/CurrentUserProvider"
 import QueryProvider from "@/context/QueryProvider"
+import { WithChildren } from "@peeps/types"
 import { themeNames } from "@peeps/ui"
 import { ThemeProvider } from "next-themes"
-import type { ReactNode } from "react"
 
-export type ProvidersProps = {
-    children: ReactNode
-}
+type ProvidersProps = WithChildren
 
 const Providers = (props:ProvidersProps) => {
     return (

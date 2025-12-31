@@ -1,153 +1,67 @@
 "use client"
 
+import Login from '@/components/Login'
+import AsyncContainer from '@/components/layout/AsyncContainer'
+import { useCurrentUser } from '@/context/CurrentUserProvider'
+import { useLoggedEffect } from '@/hooks/useLoggedEffect'
 import * as React from 'react'
-
 import { useRouter } from 'next/navigation'
 
-import { AuthClient } from '@peeps/client'
-
-import { useCurrentUser } from '@/context/CurrentUserProvider'
-import Login from '@/components/Login'
-
-type EnsureMemberResponse = {
-  member    : unknown
-
-  onboarding: {
-    needsProfile?: boolean
-    needsFamily ?: boolean
-    needsApproval?: boolean
-  }
-}
-
 export default function LoginPage() {
+  const { user, userLoading, userError, auth } = useCurrentUser()
   const router = useRouter()
-  const { user, userLoading, userError } = useCurrentUser()
-  const authClient = React.useMemo(() => {
-    return AuthClient.createWeb<EnsureMemberResponse>()
-  }, [])
+  const didContinue = React.useRef(false)
+  const [continueLoading, setContinueLoading] = React.useState(false)
+  const [continueError, setContinueError] = React.useState<Error | null>(null)
 
-  const [email, setEmail] = React.useState('')
-  const [status, setStatus] = React.useState<string | null>(null)
-  const [result, setResult] = React.useState<EnsureMemberResponse | null>(null)
+  useLoggedEffect({
+    name: 'LoginPage.continueAfterAuth',
+    deps: [auth, router, user, userLoading],
+    effect: () => {
+      if (didContinue.current) return
+      if (userLoading) return
+      if (user) {
+        didContinue.current = true
+        router.replace('/onboarding')
+        return
+      }
 
+      didContinue.current = true
+      setContinueLoading(true)
+      setContinueError(null)
 
-  async function continueAfterAuth() {
-    setStatus(null)
+      auth
+        .continueAfterAuthResult()
+        .then((result) => {
+          if (result.kind === 'ok') {
+            router.replace('/onboarding')
+            return
+          }
 
-    let json: EnsureMemberResponse
+          router.replace('/login')
+        })
+        .catch((err) => {
+          setContinueError(err instanceof Error ? err : new Error(String(err)))
+        })
+        .finally(() => {
+          setContinueLoading(false)
+        })
+    },
+  })
 
-    try {
-      json = await authClient.continueAfterAuth()
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      setStatus(message)
-      return
-    }
+  const error = React.useMemo(() => {
+    if (!userError) return null
+    if (userError instanceof Error) return userError
+    return { message: String(userError) }
+  }, [userError])
 
-    setResult(json)
-
-    if (json.onboarding?.needsProfile) {
-      router.push('/onboarding/profile')
-      return
-    }
-
-    if (json.onboarding?.needsFamily) {
-      router.push('/onboarding/family')
-      return
-    }
-
-    if (json.onboarding?.needsApproval) {
-      router.push('/onboarding/approval')
-      return
-    }
-
-    router.push('/')
-  }
-
-  async function signOut() {
-    setStatus(null)
-    setResult(null)
-
-    try {
-      await authClient.signOut()
-      setStatus('Signed out')
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      setStatus(message)
-    }
-  }
-
-  if (userLoading) {
-    return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-6">
-        <h1 className="text-2xl font-semibold">Login</h1>
-        <div className="rounded bg-gray-100 p-3 text-sm">Loading...</div>
-      </main>
-    )
-  }
-
-  if (user) {
-    const displayName = user.person?.preferredName ?? user.person?.name?.[0] ?? 'User'
-
-    return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-6">
-        <h1 className="text-2xl font-semibold">Login</h1>
-
-        <div className="rounded bg-gray-100 p-3 text-sm">Welcome {displayName}</div>
-
-        <div className="flex flex-col gap-2">
-          <button
-            className="rounded bg-blue-600 px-3 py-2 text-white"
-            type="button"
-            onClick={() => router.push('/')}
-          >
-            Continue
-          </button>
-
-          <button
-            className="rounded border px-3 py-2"
-            type="button"
-            onClick={signOut}
-          >
-            Sign out
-          </button>
-        </div>
-      </main>
-    )
-  }
+  const mergedError = React.useMemo(() => {
+    return continueError ?? error
+  }, [continueError, error])
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-6">
-      <h1 className="text-2xl font-semibold">Login</h1>
-
-      {userError ? (
-        <pre className="whitespace-pre-wrap rounded bg-gray-100 p-3 text-sm">
-          {String(userError)}
-        </pre>
-      ) : null}
-
+    <AsyncContainer isLoading={[userLoading, continueLoading]} error={[mergedError]}>
       <Login />
-
-      <div className="flex flex-col gap-2">
-        <button
-          className="rounded bg-blue-600 px-3 py-2 text-white"
-          type="button"
-          onClick={continueAfterAuth}
-        >
-          Continue
-        </button>
-
-        <button
-          className="rounded border px-3 py-2"
-          type="button"
-          onClick={signOut}
-        >
-          Sign out
-        </button>
-      </div>
-
-      {status ? <pre className="whitespace-pre-wrap rounded bg-gray-100 p-3 text-sm">{status}</pre> : null}
-      {result ? <pre className="whitespace-pre-wrap rounded bg-gray-100 p-3 text-sm">{JSON.stringify(result, null, 2)}</pre> : null}
-    </main>
+    </AsyncContainer>
   )
 }

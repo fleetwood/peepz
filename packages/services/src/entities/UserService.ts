@@ -1,14 +1,9 @@
 import { eq } from 'drizzle-orm'
 
 import * as schema from '@peeps/db/schema'
-import { type Transaction, type WithTx, withTx } from '@peeps/db/client'
-import { ErrorCodeEnum, errorCodeToStatusCode } from '@peeps/types/base/errorCodes'
-import type { UserDto } from '@peeps/types/user/user.dto'
-import { type ServiceResult } from '@peeps/types/response/response.types'
-
-type WithTrx<TParams> = TParams & {
-  trx?: Transaction
-}
+import { type WithTx, withTx } from '@peeps/db/client'
+import { ErrorCodeEnum, errorCodeToStatusCode } from '@peeps/types'
+import type { ServiceResult, UserDto } from '@peeps/types'
 
 type ByAuthUserIdParams = {
   authUserId: string
@@ -27,8 +22,8 @@ function toIsoDay(value: unknown): string {
 
 export class UserService {
   @withTx
-  static async byAuthUserId(params: WithTx<WithTrx<ByAuthUserIdParams>>): Promise<ServiceResult<UserDto>> {
-    const [row] = await params.trx!
+  static async byAuthUserId(params: WithTx<ByAuthUserIdParams>): Promise<ServiceResult<UserDto>> {
+    const [row] = await params.tx!
       .select({
         member: schema.members,
         person: schema.persons,

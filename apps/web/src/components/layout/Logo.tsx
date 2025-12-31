@@ -9,7 +9,7 @@ import logo256 from "@peeps/ui/assets/logo_256.png"
 import logo512 from "@peeps/ui/assets/logo_512.png"
 import logo1030 from "@peeps/ui/assets/logo_1030.png"
 
-export type PeepsLogoProps = ImgHTMLAttributes<HTMLImageElement> & {
+type PeepsLogoProps = ImgHTMLAttributes<HTMLImageElement> & {
     s32  ?: boolean
     s64  ?: boolean
     s128 ?: boolean

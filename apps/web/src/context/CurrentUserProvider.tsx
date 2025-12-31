@@ -3,7 +3,7 @@
 import * as React from 'react'
 
 import { AuthClient, UserClient } from '@peeps/client'
-import type { UserDto } from '@peeps/types/user/user.dto'
+import type { UserDto } from '@peeps/types'
 
 type CurrentUserContextValue = {
   user       : UserDto | null

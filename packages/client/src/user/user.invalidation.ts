@@ -1,5 +1,4 @@
-import { QueryDomainEnum, QuerySubdomainEnum } from '@peeps/types/queryManager'
-
+import { QueryDomainEnum, QuerySubdomainEnum } from '@peeps/types'
 import { QueryManager } from '../QueryManager'
 
 type MeParams = {

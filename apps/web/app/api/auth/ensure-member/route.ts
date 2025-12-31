@@ -1,9 +1,17 @@
 import { serverEnv } from '@peeps/config/env'
 import { MemberService } from '@peeps/services'
+import { ApiRoute } from '@/lib/api/ApiRoute'
 
 type SupabaseUser = {
   id   : string
   email: string | null
+
+  identities?: Array<{
+    provider: string
+    id?     : string
+    user_id?: string
+    identity_data?: unknown
+  }>
 }
 
 async function getSupabaseUser(accessToken: string): Promise<SupabaseUser> {
@@ -22,45 +30,16 @@ async function getSupabaseUser(accessToken: string): Promise<SupabaseUser> {
   return (await res.json()) as SupabaseUser
 }
 
-function getBearerToken(request: Request): string | null {
-  const header = request.headers.get('authorization')
-  if (!header) return null
-
-  const [scheme, token] = header.split(' ')
-  if (scheme?.toLowerCase() !== 'bearer' || !token) return null
-
-  return token
-}
-
 export async function POST(request: Request) {
-  const accessToken = getBearerToken(request)
-  if (!accessToken) {
-    return new Response('Missing bearer token', { status: 401 })
-  }
+  return new ApiRoute(request)
+    .auth(true)
+    .handle(async (ctx) => {
+      const user = await getSupabaseUser(ctx.accessToken)
 
-  let user: SupabaseUser
-
-  try {
-    user = await getSupabaseUser(accessToken)
-  } catch (error) {
-    return new Response(String(error), { status: 401 })
-  }
-
-  if (!user.email) {
-    return new Response('Supabase user missing email', { status: 400 })
-  }
-
-  const result = await MemberService.ensureForAuthUser({ authUserId: user.id, email: user.email })
-
-  if (!result.result) {
-    return new Response('Failed to ensure member', { status: result.status ?? 500 })
-  }
-
-  return Response.json({
-    member    : result.result,
-    onboarding: {
-      needsProfile: true,
-      needsFamily : true,
-    },
-  })
+      return MemberService.validateSupabaseUser({
+        authUserId: ctx.authUserId,
+        email     : ctx.email,
+        user,
+      })
+    })
 }

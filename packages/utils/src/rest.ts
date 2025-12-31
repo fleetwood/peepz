@@ -1,4 +1,4 @@
-import { ErrorCodeEnum } from '@peeps/types/base/errorCodes'
+import { ErrorCodeEnum } from '@peeps/types'
 import { PEEPS_API_KEY_HEADER } from '@peeps/config/constants/queryManager'
 
 import { Logger } from './logger'
@@ -104,13 +104,20 @@ export async function handleHookResponse<T>(
   }
 
   if (!response.ok) {
-    logger.error('API error', { result })
+    if (response.status !== 401) {
+      const isEmptyObject = result && typeof result === 'object' && Object.keys(result).length === 0
+      logger.error('API error', isEmptyObject ? { status: response.status, statusText: response.statusText } : { result })
+    }
+
+    const isEmptyObject = result && typeof result === 'object' && Object.keys(result).length === 0
+    const baseError = response.status === 401 ? 'Unauthorized' : 'Something went wrong'
+
     return toHookResponse({
-      error: result.error || errorMessage || 'Something went wrong',
-      status: result.statusCode || response.status,
-      statusText: result.statusText || response.statusText,
-      code: result.code,
-      errorDetails: result.errorDetails || undefined
+      error      : (isEmptyObject ? undefined : result.error) || errorMessage || baseError,
+      status     : (isEmptyObject ? undefined : result.statusCode) || response.status,
+      statusText : (isEmptyObject ? undefined : result.statusText) || response.statusText,
+      code       : isEmptyObject ? undefined : result.code,
+      errorDetails: isEmptyObject ? undefined : result.errorDetails || undefined,
     })
   }
 

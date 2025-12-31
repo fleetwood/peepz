@@ -1,7 +1,7 @@
 import { WithChildren, WithClassName } from "@peeps/types"
 import { cn } from "@peeps/utils/classnames"
 
-export type MainProps = WithChildren & WithClassName & {
+type MainProps = WithChildren & WithClassName & {
     title?: string | React.ReactNode
 }
 

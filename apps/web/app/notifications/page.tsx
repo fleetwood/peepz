@@ -1,10 +1,6 @@
 import Main from "@/components/layout/Main"
 
-export type NotificationsPageProps = {
-    
-}
-
-const NotificationsPage = (props:NotificationsPageProps) => {
+const NotificationsPage = () => {
     return (
     <Main title="Notifications">
         <div>

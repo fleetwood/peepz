@@ -8,7 +8,7 @@ import { useTheme } from "next-themes"
 import { useSyncExternalStore } from "react"
 import ThemeSwitcher from "./ThemeSwitcher"
 
-export type ThemeProps = Record<string, never>
+type ThemeProps = Record<string, never>
 
 type Palette = Record<string, string>
 

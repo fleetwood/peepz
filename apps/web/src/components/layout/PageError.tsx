@@ -1,4 +1,4 @@
-import { ErrorCodeEnum, errorCodeToMessage, errorCodeToStatusCode } from '@peeps/types/base/errorCodes'
+import { ErrorCodeEnum, errorCodeToMessage, errorCodeToStatusCode } from '@peeps/types'
 
 type ApiErrorLike = {
     error?      : unknown
@@ -8,7 +8,7 @@ type ApiErrorLike = {
     errorDetails?: unknown
 }
 
-export type PageErrorProps = {
+type PageErrorProps = {
     error: Error | ApiErrorLike | string | null
 }
 

@@ -1,11 +1,14 @@
-import { ServiceResult } from '@peeps/types/response/response.types'
+import * as schema from '@peeps/db/schema'
+import { type WithTx, withTx } from '@peeps/db/client'
+import type { ServiceResult } from '@peeps/types'
 
 /**
  * GroupService
  * Handles all business logic for Group entity
  */
 export class GroupService {
-  static async getById(id: string): Promise<ServiceResult<any>> {
+  @withTx
+  static async getById(params: WithTx<{ id: string }>): Promise<ServiceResult<schema.Group | null>> {
     throw new Error('Not implemented')
   }
 

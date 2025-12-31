@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 
 import { clientEnv } from '@peeps/config/env'
-import { type PaginationParams } from '@peeps/types/response/paginated.response'
+import { type PaginationParams } from '@peeps/types'
 import { fetchApi, postApi, setRestAuthConfig } from '@peeps/utils/rest'
 
 import { QueryManager } from '../QueryManager'

@@ -1,10 +1,6 @@
 import Main from "@/components/layout/Main"
 
-export type FamiliesPageProps = {
-    
-}
-
-const FamiliesPage = (props:FamiliesPageProps) => {
+const FamiliesPage = () => {
     return (
     <Main title="Families">
         <div>

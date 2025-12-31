@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
 
 import { Spinner } from '../ui/spinner'
+import { WithChildren } from '@peeps/types'
 
-export type AsyncContainerProps = {
+type AsyncContainerProps = WithChildren & {
     isLoading?: boolean[]
     error    ?: Array<Error | { message?: unknown } | string | null>
     fallback ?: ReactNode
-    children  : ReactNode
 }
 
 const AsyncContainer = (props:AsyncContainerProps) => {

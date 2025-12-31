@@ -1,10 +1,6 @@
 import Main from "@/components/layout/Main"
 
-export type MemoriesPageProps = {
-    
-}
-
-const MemoriesPage = (props:MemoriesPageProps) => {
+const MemoriesPage = () => {
     return (
     <Main title="Memories">
         <div>

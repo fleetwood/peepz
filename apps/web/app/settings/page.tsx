@@ -1,10 +1,6 @@
 import Main from "@/components/layout/Main"
 
-export type SettingsPageProps = {
-    
-}
-
-const SettingsPage = (props:SettingsPageProps) => {
+const SettingsPage = () => {
     return (
     <Main title="Settings">
         <div>

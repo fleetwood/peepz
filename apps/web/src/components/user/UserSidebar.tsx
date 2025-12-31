@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
 
-export type UserSidebarProps = Record<string, never>
+type UserSidebarProps = Record<string, never>
 
 const emptySubscribe = () => () => {}
 const useMounted = () => useSyncExternalStore(emptySubscribe, () => true, () => false)

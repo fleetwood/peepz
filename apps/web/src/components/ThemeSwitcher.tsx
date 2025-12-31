@@ -1,6 +1,6 @@
 "use client"
 
-import { WithClassName } from '@peeps/types/src'
+import { WithClassName } from '@peeps/types'
 import type { ThemeName } from '@peeps/ui'
 import { themeNames, themes } from '@peeps/ui'
 import { cn } from '@peeps/utils/classnames'
