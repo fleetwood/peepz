@@ -4,8 +4,10 @@ import AsyncContainer from "@/components/layout/AsyncContainer";
 import Main from "@/components/layout/Main";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/context/CurrentUserProvider";
+import { useLayout } from "@/context/LayoutProvider";
 import { useLoggedEffect } from "@/hooks/useLoggedEffect";
 import { Logger } from '@peeps/utils';
+import { UserCog } from "lucide-react";
 import * as React from "react";
 
 const logger = Logger.instance('ProfilePage')
@@ -20,6 +22,7 @@ const ProfilePage = (props: ProfilePageProps) => {
   const searchParams = React.use(props.searchParams);
   const linked = searchParams.linked === "1";
   const { user, userLoading, userError, updateProfile } = useCurrentUser();
+  const {navigate} = useLayout();
 
   // Form state - initialize with empty strings, will be populated when user data is available
   const [preferredName, setPreferredName] = React.useState("");
@@ -91,6 +94,22 @@ const ProfilePage = (props: ProfilePageProps) => {
               Login provider linked.
             </div>
           ) : null}
+
+          {/* Family Onboarding Notice */}
+          <div className="mb-4 rounded bg-blue-50 p-3 text-sm text-blue-900">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/onboarding')}
+              >
+                <UserCog />
+              </Button>
+              <span>
+                Connect with your family.
+              </span>
+            </div>
+          </div>
 
           <div className="space-y-6">
             {/* Current Profile Display */}

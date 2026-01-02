@@ -4,6 +4,10 @@ export * from "../auth/authProvider.types"
 export * from "../base/baseClasses"
 export * from "../base/errorCodes"
 
+export * from "../db"
+
+export * from "../fuse"
+
 export * from "../cloudinary/cloudinary"
 export * from "../queryManager"
 

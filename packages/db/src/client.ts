@@ -31,12 +31,6 @@ type WithTxParams<T> = {
   executor: WithTxExecutor<T>
 }
 
-type TxOptions = {
-  tx?: Transaction
-}
-
-type WithTx<TParams> = TParams & TxOptions
-
 export async function runWithTx<T>({ tx, executor }: WithTxParams<T>): Promise<T> {
   return tx ? executor(tx) : db.transaction(executor)
 }

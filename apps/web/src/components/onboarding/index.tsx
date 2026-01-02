@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { FamilySearch } from "./FamilySearch";
 import OnboardingApproval from "./OnboardingApproval";
 import OnboardingFamily from "./OnboardingFamily";
 import OnboardingProfile from "./OnboardingProfile";
@@ -8,6 +9,11 @@ const tabs = [
     value      : "ToDo",
     label      : "ToDo",
     description: "This is where we left off",
+  },
+  {
+    value      : "Join",
+    label      : "Join",
+    description: "Find your peeps",
   },
   {
     value      : "Approval",
@@ -38,7 +44,8 @@ const OnboardingComponent = () => {
       </TabsList>
       <TabsContent value = "ToDo">
         <pre>
-            {`# Family onboarding (NOT user onboarding)
+            {`
+            # Family onboarding (NOT user onboarding)
 
 ## Core premise
 
@@ -104,6 +111,9 @@ Suggested steps:
 - Components should call client-layer functions (e.g. @peeps/client) that hide fetch + auth details.
 `}
         </pre>
+      </TabsContent>
+      <TabsContent value="Join">
+        <FamilySearch onSelectFamily={() => {}} onCreateFamily={() => {}} />
       </TabsContent>
       <TabsContent value = "Approval">
         <OnboardingApproval />

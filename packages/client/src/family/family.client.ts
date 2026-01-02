@@ -8,6 +8,27 @@ import { QueryManager } from '../QueryManager'
 import { createSupabaseClient } from '../supabase/client'
 import { FamilyInvalidation, FamilyKeys } from './family.invalidation'
 
+type FamilySearchResult = {
+  families: {
+    id: string
+    groupId: string
+    createdAt: string
+    updatedAt: string
+  }
+  groups: {
+    id: string
+    name: string
+    type: string
+    description?: string
+    privacyLevel: string
+    governanceModel: string
+    removalPolicy: string
+    createdByMemberId: string
+    createdAt: string
+    updatedAt: string
+  }
+}
+
 type FamilyDetailParams = {
   groupId: string
 }
@@ -25,7 +46,7 @@ type FamilyClientDeps<TResolveFamilyResponse, TFamilyResponse, TFamilyListRespon
   resolve: () => Promise<TResolveFamilyResponse>
   list   : (params: FamilyListParams) => Promise<TFamilyListResponse>
   detail : (params: FamilyDetailParams) => Promise<TFamilyResponse>
-  search : (params: FamilySearchParams) => Promise<TFamilySearchResponse>
+  search : (params: FamilySearchParams) => Promise<FamilySearchResult[]>
 }
 
 type FamilyClientHttpConfig = {
@@ -79,9 +100,8 @@ export const FamilyClient = {
       },
 
       useSearch(params: FamilySearchParams) {
-        return QueryManager.paginatedDomainQuery({
+        return QueryManager.domainQuery<FamilySearchResult[]>({
           ...FamilyKeys.search({ query: params.query }),
-          pagination: params.pagination,
           queryFn  : async () => deps.search(params),
         })
       },
@@ -147,13 +167,14 @@ export const FamilyClient = {
       async search({ query, pagination }) {
         const cursorPart = pagination.cursor ? `&cursor=${encodeURIComponent(String(pagination.cursor))}` : ''
         const path = `/families/search?query=${encodeURIComponent(query)}&limit=${encodeURIComponent(String(pagination.limit))}${cursorPart}`
-        const { data, error, status, statusText } = await fetchApi<TFamilySearchResponse>(path)
+        const { data, error, status, statusText } = await fetchApi<{ data: FamilySearchResult[] }>(path)
 
         if (error || !data) {
           throw new Error(`FamilyClient.createHttp.search failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
-        return data
+        // Extract data from paginated response
+        return data.data || []
       },
     })
   },

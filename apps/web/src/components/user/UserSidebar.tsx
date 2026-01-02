@@ -43,22 +43,17 @@ const UserSidebar = (_props: UserSidebarProps) => {
       {!user ? (
         <Login buttonText="Log in" className="w-full" />
       ) : (
-        (() => {
-          const rawDisplayName = user.person?.preferredName ?? user.person?.name?.[0] ?? 'User'
-          const email = user.auth?.email ?? ''
-          const displayName = rawDisplayName.includes('@') ? 'User' : rawDisplayName
-          const showEmail = email.length > 0 && email.toLowerCase() !== displayName.toLowerCase()
-
-          return (
-        <div className="flex items-center justify-center gap-3 px-2 md:justify-start bg-muted">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-            <User className="h-5 w-5 text-secondary-foreground" />
-          </div>
+        <div className="rounded-lg border border-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="hidden text-left md:block" type="button">
-                <p>{displayName}</p>
-                {showEmail && <p className="text-muted-foreground">{email}</p>}
+              <button type="button" className='flex items-center gap-2 p-2'>
+                <div className="hidden text-left md:block bg-primary rounded-full p-1">
+                  <User className="h-10 w-10 text-secondary-foreground" />
+                </div>
+                <div className='flex-grow text-left'>
+                  <p>{user.preferredName}</p>
+                  <p className="text-xs text-muted">{user.fullName}</p>
+                </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuPortal>
@@ -179,8 +174,6 @@ const UserSidebar = (_props: UserSidebarProps) => {
             </DropdownMenuPortal>
           </DropdownMenu>
         </div>
-          )
-        })()
       )}
     </AsyncContainer>
   )

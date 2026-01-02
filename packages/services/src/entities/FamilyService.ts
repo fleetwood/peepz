@@ -1,8 +1,8 @@
 import { and, asc, eq, ilike, sql } from 'drizzle-orm'
  
 import * as schema from '@peeps/db/schema'
-import { type WithTx, withTx } from '@peeps/db/client'
-import type { PaginatedResponse, PaginationParams } from '@peeps/types'
+import { withTx } from '@peeps/db/client'
+import type { PaginatedResponse, PaginationParams, WithTx } from '@peeps/types'
  
 import { decodeOffsetCursor, encodeOffsetCursor } from '@peeps/utils'
  

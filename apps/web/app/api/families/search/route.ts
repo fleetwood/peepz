@@ -1,21 +1,19 @@
 import { FamilyService } from '@peeps/services'
+import { ApiRoute } from '@/lib/api/ApiRoute'
+import {Logger} from "@peeps/utils";
 
-function parsePagination(url: URL) {
-  const pageParam  = url.searchParams.get('page')
-  const limitParam = url.searchParams.get('limit')
-
-  const page  = Math.max(1, Number(pageParam ?? 1))
-  const limit = Math.max(1, Number(limitParam ?? 20))
-
-  return { page, limit }
-}
+const logger = Logger.instance('API/families/search', false)
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
-
   const query = url.searchParams.get('query') ?? ''
-  const pagination = parsePagination(url)
 
-  const result = await FamilyService.search({ query, pagination })
-  return Response.json(result)
+  return new ApiRoute(request)
+    .pagination()
+    .handle(async (ctx) => {
+      return await FamilyService.search({ 
+        query, 
+        pagination: ctx.pagination! 
+      })
+    })
 }
