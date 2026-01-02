@@ -16,9 +16,9 @@ const ProfilePage = (props:ProfilePageProps) => {
                 Login provider linked.
             </div>
         ) : null}
-        <div>
+        <h1>
             TODO: Get the user profile
-        </div>
+        </h1>
     </Main>
     )
 }

@@ -9,13 +9,16 @@ import { useEffect, createContext, useContext } from "react";
 
 type LayoutContextType = {
   theme       : string | undefined;
+  colorTheme  : string;
+  mode        : string;
   isWarmTheme : boolean;
   isPeepsTheme: boolean;
   navigate    : (path: string) => void;
   pathname    : string;
   setDialog   : (props:PageDialogProps) => void;
   closeDialog : () => void;
-  dialog      ?: PageDialogProps
+  dialog      ?: PageDialogProps;
+  setTheme    : (theme: string) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -39,10 +42,29 @@ const LayoutProviderComponent = ({ children, values }: { children: React.ReactNo
 const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [dialog, _setDialog] = React.useState<PageDialogProps | undefined>();
 
-  const isWarmTheme = Boolean(theme?.includes("warm"));
+  // Parse current theme and mode
+  const parseTheme = (theme: string | undefined) => {
+    if (!theme) return { colorTheme: 'peeps', mode: 'system' }
+    
+    if (theme === 'system') {
+      return { colorTheme: 'peeps', mode: 'system' }
+    }
+    
+    const parts = theme.split("-")
+    if (parts.length === 2) {
+      return { colorTheme: parts[0], mode: parts[1] }
+    } else if (theme === 'light' || theme === 'dark') {
+      return { colorTheme: 'peeps', mode: theme }
+    } else {
+      return { colorTheme: theme, mode: 'system' }
+    }
+  }
+  
+  const { colorTheme, mode } = parseTheme(theme)
+  const isWarmTheme = colorTheme === 'warm'
 
   const setDialog = (t: PageDialogProps) => {
     _setDialog(t)
@@ -57,6 +79,8 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
 
   const values: LayoutContextType = {
     theme,
+    colorTheme,
+    mode,
     isWarmTheme,
     isPeepsTheme: !isWarmTheme,
     navigate,
@@ -64,15 +88,16 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
     setDialog,
     closeDialog,
     dialog,
+    setTheme,
   };
 
   return (
     <ThemeProvider
-      attribute="data-theme-raw"
-      themes={themeNames}
-      defaultTheme="peeps"
-      enableSystem={false}
-      storageKey="theme"
+      attribute    = "data-theme-raw"
+      themes       = {themeNames}
+      defaultTheme = "peeps"
+      enableSystem = {true}
+      storageKey   = "peeps-theme"
     >
       <ThemeModeHandler>
         <LayoutProviderComponent values={values}>{children}</LayoutProviderComponent>
@@ -93,21 +118,26 @@ function ThemeModeHandler({ children }: WithChildren) {
       console.log("ThemeModeHandler: theme=", theme, "parts=", parts);
 
       if (parts.length === 2) {
-        // New format: "peeps-dark" or "warm-light"
+        // Format: "peeps-dark" or "warm-light"
         // Set theme name only, mode separately
         console.log("Setting data-theme=", parts[0], "data-mode=", parts[1]);
         html.setAttribute("data-theme", parts[0]);
         html.setAttribute("data-mode", parts[1]);
       } else if (theme === "light" || theme === "dark") {
-        // Legacy format: "light" or "dark" - default to peeps theme
+        // "light" or "dark" - default to peeps theme
         console.log("Setting data-theme=peeps", "data-mode=", theme);
         html.setAttribute("data-theme", "peeps");
         html.setAttribute("data-mode", theme);
+      } else if (theme === "system") {
+        // System mode - default to peeps theme, let system handle mode
+        console.log("Setting data-theme=peeps", "data-mode=system");
+        html.setAttribute("data-theme", "peeps");
+        html.setAttribute("data-mode", "system");
       } else {
-        // Single theme name: "peeps" or "warm"
-        console.log("Setting data-theme=", theme, "data-mode=light");
+        // Single theme name: "peeps" or "warm" - default to system mode
+        console.log("Setting data-theme=", theme, "data-mode=system");
         html.setAttribute("data-theme", theme);
-        html.setAttribute("data-mode", "light");
+        html.setAttribute("data-mode", "system");
       }
     }
   }, [theme]);

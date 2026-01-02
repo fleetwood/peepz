@@ -4,7 +4,7 @@ import { textGradientPlugin } from '@peeps/ui/plugins/textGradient'
 import { transitionPlugin } from '@peeps/ui/plugins/transitions'
 
 const config: Config = {
-  darkMode: ['class', '[data-mode="dark"]'],
+  darkMode: ['class', '[data-mode="dark"]', '[data-mode="system"]'] as any,
   content : ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   theme   : {
   	extend: {

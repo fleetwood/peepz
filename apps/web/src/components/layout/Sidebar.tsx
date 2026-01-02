@@ -20,17 +20,17 @@ const Sidebar = () => {
   ]
 
   return (
-    <aside className="w-20 md:w-64 h-full border-r border-border bg-background flex flex-col flex-shrink-0">
+    <aside className="w-20 md:w-64 h-full flex flex-col flex-shrink-0">
       <div className="p-4 md:p-6 flex items-center justify-center md:justify-start">
         <PeepsLogo s32 className="h-8 w-8" />
         <h2 className={`hidden md:block font-extrabold tracking-tight ${textColorClass}`}>EEPS</h2>
       </div>
       
-      <div className="p-4 border-t border-border">
+      <div className="p-4">
         <UserSidebar />
       </div>
 
-      <nav className="flex-1 p-3 border-t border-border">
+      <nav className="flex-1 p-3">
         <ul className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon

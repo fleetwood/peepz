@@ -7,8 +7,8 @@ type MainProps = WithChildren & WithClassName & {
 
 const Main = (props:MainProps) => {
     return (
-    <div className={cn("mx-auto p-6 flex-1 overflow-y-auto", props.className)}>
-        {props.title && <h1 className="text-2xl font-bold mb-4">{props.title}</h1>}
+    <div className={cn("p-6 overflow-y-auto", props.className)}>
+        {props.title && <h1 className="w-full">{props.title}</h1>}
         {props.children}
     </div>
     )

@@ -1,10 +1,4 @@
 /**
- * Function provided by Tailwind to access theme values
- * @param path - The dot-notation path to the theme value (e.g., 'colors.primary')
- */
-type ThemeFunction = (path: string) => any
-
-/**
  * Creates gradient text utilities for applying gradient effects to text
  *
  * @remarks
@@ -27,19 +21,17 @@ type ThemeFunction = (path: string) => any
  * text-gradient-destructive-accent
  * ```
  *
- * @param options - Plugin options provided by Tailwind
- * @param options.addUtilities - Function to register the new utilities
- * @param options.theme - Function to access theme values
+ * @param api - Plugin API provided by Tailwind
  */
 export function textGradientPlugin(api: any) {
-  const { addUtilities, theme } = api as { addUtilities: any; theme: ThemeFunction }
+  const { addUtilities, theme } = api
   const colors = theme('colors')
 
   const textGradientUtilities = Object.entries(colors).reduce((acc, [key, _value]) => {
     // Generate single-color gradients (defaults to foreground)
     const singleColorMask = {
       [`.text-gradient-${key}`]: {
-        background: `linear-gradient(to right, hsl(var(--${key})), hsl(var(--foreground)))`,
+        background: `linear-gradient(to right, var(--${key}), var(--foreground))`,
         'background-clip': 'text',
         '-webkit-background-clip': 'text',
         '-webkit-text-fill-color': 'transparent',
@@ -54,7 +46,7 @@ export function textGradientPlugin(api: any) {
       (colorAcc, [secondKey, _]) => ({
         ...colorAcc,
         [`.text-gradient-${key}-${secondKey}`]: {
-          background: `linear-gradient(to right, hsl(var(--${key})), hsl(var(--${secondKey})))`,
+          background: `linear-gradient(to right, var(--${key}), var(--${secondKey}))`,
           'background-clip': 'text',
           '-webkit-background-clip': 'text',
           '-webkit-text-fill-color': 'transparent',

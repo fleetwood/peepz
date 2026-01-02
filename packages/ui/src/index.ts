@@ -7,7 +7,7 @@ export const themes = {
   peeps     : peepsTheme,
 } as const;
 
-type ThemeName = keyof typeof themes;
+export type ThemeName = keyof typeof themes;
 
 export const themeNames = Object.keys(themes) as ThemeName[];
 

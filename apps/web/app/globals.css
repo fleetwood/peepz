@@ -41,7 +41,7 @@ body {
   h6 {
     font-family: var(--font-peeps), ui-sans-serif, system-ui, sans-serif;
     font-size: 3rem !important;
-    @apply transition-ease-200 hover:text-secondary;
+    @apply transition-ease-200 hover:text-secondary text-gradient-primary-secondary;
   }
   h2,
   h3 {
