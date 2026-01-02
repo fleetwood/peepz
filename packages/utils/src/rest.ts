@@ -185,7 +185,7 @@ export async function fetchApi<T = any>(
   code?        : ErrorCodeEnum | string
   errorDetails?: Record<string, any>
 }> {
-  const logger = Logger.instance('fetchApi', false)
+  const logger = Logger.instance('fetchApi')
   const { errorMessage, auth, ...fetchOptions } = options ?? {}
   const authConfig = auth ?? defaultAuthConfig
 
@@ -204,9 +204,12 @@ export async function fetchApi<T = any>(
   if (authConfig.getAccessToken) {
     try {
       accessToken = await authConfig.getAccessToken()
+      logger.debug('Access token retrieved', { hasToken: !!accessToken })
     } catch (error) {
       logger.error('Failed to get access token', { error })
     }
+  } else {
+    logger.error('No getAccessToken function provided')
   }
 
   const headers = new Headers(fetchOptions.headers)

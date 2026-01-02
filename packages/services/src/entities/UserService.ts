@@ -1,9 +1,11 @@
 import { eq } from 'drizzle-orm'
 
 import * as schema from '@peeps/db/schema'
-import { type WithTx, withTx } from '@peeps/db/client'
+import { withTx } from '@peeps/db/client'
 import { ErrorCodeEnum, errorCodeToStatusCode } from '@peeps/types'
 import type { ServiceResult, UserDto } from '@peeps/types'
+
+type WithTx<TParams> = TParams & { tx?: any }
 
 type ByAuthUserIdParams = {
   authUserId: string
@@ -44,6 +46,16 @@ export class UserService {
     return {
       status: 200,
       result: {
+        // Person properties (flattened)
+        id           : row.person.id,
+        name         : row.person.name,
+        dateOfBirth  : toIsoDay(row.person.dateOfBirth),
+        preferredName: row.person.preferredName ?? null,
+        createdAt    : toIsoDate(row.person.createdAt),
+        updatedAt    : toIsoDate(row.person.updatedAt),
+        visible      : row.person.visible,
+        
+        // Additional properties
         member: {
           id          : row.member.id,
           personId    : row.member.personId,
@@ -54,19 +66,11 @@ export class UserService {
           updatedAt   : toIsoDate(row.member.updatedAt),
           visible     : row.member.visible,
         },
-        person: {
-          id           : row.person.id,
-          name         : row.person.name,
-          dateOfBirth  : toIsoDay(row.person.dateOfBirth),
-          preferredName: row.person.preferredName ?? null,
-          createdAt    : toIsoDate(row.person.createdAt),
-          updatedAt    : toIsoDate(row.person.updatedAt),
-          visible      : row.person.visible,
-        },
         auth: {
           authUserId: params.authUserId,
           email     : params.email,
         },
+        fullName: row.person.name.join(' '), // For now, just use person.name
       },
     }
   }

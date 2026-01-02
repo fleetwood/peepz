@@ -1,4 +1,5 @@
 import { QueryManager } from '../QueryManager'
+import { useMutation } from '@tanstack/react-query'
 
 import { clientEnv } from '@peeps/config/env'
 import { fetchApi, setRestAuthConfig } from '@peeps/utils/rest'
@@ -8,6 +9,7 @@ import { UserInvalidation, UserKeys } from './user.invalidation'
 
 type UserClientDeps<TUserDto> = {
   me: () => Promise<TUserDto | null>
+  updateProfile: (input: any) => Promise<{ member: any; person: any; onboarding: any }>
 }
 
 type UserClientHttpConfig = {
@@ -15,6 +17,7 @@ type UserClientHttpConfig = {
   getAccessToken?: () => Promise<string | null>
   apiKey?        : string
   fetchFn?       : typeof fetch
+  updateProfile?: (input: any) => Promise<{ member: any; person: any; onboarding: any }>
 }
 
 type UserClientWebConfig = {
@@ -35,6 +38,19 @@ export const UserClient = {
         return QueryManager.domainQuery({
           ...UserKeys.me(),
           queryFn: async () => deps.me(),
+        })
+      },
+
+      updateProfile(input: any) {
+        return deps.updateProfile(input)
+      },
+
+      useUpdateProfile() {
+        return useMutation({
+          mutationFn: async (input: any) => deps.updateProfile(input),
+          onSuccess: async () => {
+            await UserInvalidation.invalidateMe()
+          }
         })
       },
 
@@ -64,6 +80,21 @@ export const UserClient = {
         if (status === 401) return null
         if (error || !data) {
           throw new Error(`UserClient.createHttp.me failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
+        }
+
+        // API now returns flattened structure, so just return as-is
+        return data
+      },
+      async updateProfile(input: any) {
+        console.log('UserClient.updateProfile: Starting update with input:', input);
+        const { data, error, status, statusText } = await fetchApi('/onboarding/profile', {
+          method: 'POST',
+          body: JSON.stringify(input),
+        })
+        console.log('UserClient.updateProfile: Response:', { data, error, status, statusText });
+
+        if (error || !data) {
+          throw new Error(`UserClient.updateProfile failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
         }
 
         return data

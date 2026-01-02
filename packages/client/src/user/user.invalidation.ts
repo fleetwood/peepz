@@ -5,12 +5,24 @@ type MeParams = {
   key: 'me'
 }
 
+type UpdateProfileParams = {
+  key: 'updateProfile'
+}
+
 export class UserKeys {
   static me() {
     return {
       domain   : QueryDomainEnum.USER,
       subdomain: QuerySubdomainEnum.DETAIL,
       params   : { key: 'me' } satisfies MeParams,
+    }
+  }
+
+  static updateProfile() {
+    return {
+      domain   : QueryDomainEnum.USER,
+      subdomain: QuerySubdomainEnum.DETAIL,
+      params   : { key: 'updateProfile' } satisfies UpdateProfileParams,
     }
   }
 }

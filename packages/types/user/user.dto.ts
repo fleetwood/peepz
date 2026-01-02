@@ -24,8 +24,8 @@ export type UserPersonDto = {
   visible      : boolean
 }
 
-export type UserDto = {
+export type UserDto = UserPersonDto & {
   member: UserMemberDto
-  person: UserPersonDto
   auth  : UserAuthDto
+  fullName: string
 }
