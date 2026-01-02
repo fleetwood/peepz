@@ -2,10 +2,11 @@ import { dmMono, domine, fraunces, gluten, inconsolata, merriweather, montserrat
 import "./globals.css"
 
 import Providers from "@/components/Providers"
+import PageDialog from "@/components/layout/PageDialog"
 import Sidebar from "@/components/layout/Sidebar"
 import { clientEnv } from "@peeps/config/env"
 import { WithChildren } from "@peeps/types"
-import { themeNames } from "@peeps/ui"
+
 import logo128 from "@peeps/ui/assets/logo_128.png"
 import logo16 from "@peeps/ui/assets/logo_16.png"
 import logo32 from "@peeps/ui/assets/logo_32.png"
@@ -48,13 +49,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}:WithChildren) {
   return (
-    <html lang="en" data-theme={themeNames[0]} suppressHydrationWarning className={`${gluten.variable} ${patrickHand.variable} ${montserrat.variable} ${merriweather.variable} ${domine.variable} ${fraunces.variable} ${inconsolata.variable} ${dmMono.variable}`}>
+    <html lang="en" data-theme="peeps" suppressHydrationWarning className={`${gluten.variable} ${patrickHand.variable} ${montserrat.variable} ${merriweather.variable} ${domine.variable} ${fraunces.variable} ${inconsolata.variable} ${dmMono.variable}`}>
       <body className="min-h-screen bg-page text-page-foreground">
         <Providers>
           <main className="size-full flex overflow-hidden">
             <Sidebar />
             {children}
           </main>
+          <footer>
+            <PageDialog />
+          </footer>
         </Providers>
       </body>
     </html>

@@ -1,7 +1,6 @@
 "use client"
 
 import { WithClassName } from '@peeps/types'
-import type { ThemeName } from '@peeps/ui'
 import { themeNames, themes } from '@peeps/ui'
 import { cn } from '@peeps/utils/classnames'
 import { Egg, Leaf, Moon, Sun } from 'lucide-react'
@@ -9,6 +8,7 @@ import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
 
 type ThemeSwitcherProps = WithClassName
+type ThemeName = keyof typeof themes
 
 const emptySubscribe = () => () => {}
 const useMounted = () => useSyncExternalStore(emptySubscribe, () => true, () => false)
@@ -32,31 +32,84 @@ export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
   const { setTheme, theme } = useTheme()
   const mounted = useMounted()
 
-  const currentTheme = ((theme as ThemeName | undefined) ?? themeNames[0])
+  if (!mounted) {
+    return (
+      <div className={cn('flex flex-wrap items-center gap-2', className)}>
+        <div className="inline-flex items-center gap-2 rounded border border-border px-2 py-1 text-sm bg-background text-foreground">
+          <div className="h-4 w-4" />
+          <span className="hidden sm:inline">Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Parse current theme and mode
+  const parseTheme = (themeValue: string | undefined) => {
+    if (!themeValue) return { themeName: 'peeps' as ThemeName, mode: 'light' }
+    
+    const parts = themeValue.split('-')
+    if (parts.length === 2) {
+      return { 
+        themeName: parts[0] as ThemeName, 
+        mode: parts[1] as 'light' | 'dark' 
+      }
+    }
+    
+    // Handle legacy theme names or single theme names
+    if (themeValue === 'light' || themeValue === 'dark') {
+      return { themeName: 'peeps' as ThemeName, mode: themeValue as 'light' | 'dark' }
+    }
+    
+    return { themeName: themeValue as ThemeName, mode: 'light' as 'light' | 'dark' }
+  }
+
+  const { themeName, mode } = parseTheme(theme)
 
   return (
     <div className={cn('flex flex-wrap items-center gap-2', className)}>
-      {themeNames.map((name) => {
-        const isActive = mounted && currentTheme === name
-        const meta = themes[name]
-        return (
-          <button
-            key={name}
-            className={cn(
-              'inline-flex items-center gap-2 rounded border border-border px-2 py-1 text-sm',
-              isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'
-            )}
-            type="button"
-            disabled={!mounted}
-            onClick={() => setTheme(name)}
-          >
-            <ThemeIcon icon={meta.icon} />
-            <span className="hidden sm:inline">{meta.name}</span>
-          </button>
-        )
-      })}
+      {/* Theme selection */}
+      <div className="flex items-center gap-2">
+        {themeNames.map((name) => {
+          const isActive = mounted && themeName === name
+          const meta = themes[name]
+          return (
+            <button
+              key={name}
+              className={cn(
+                'inline-flex items-center gap-2 rounded border border-border px-2 py-1 text-sm',
+                isActive
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'
+              )}
+              type="button"
+              disabled={!mounted}
+              onClick={() => {
+                setTheme(name)
+              }}
+            >
+              <ThemeIcon icon={meta.icon} />
+              <span className="hidden sm:inline">{meta.name}</span>
+            </button>
+          )
+        })}
+      </div>
+      
+      {/* Light/Dark mode toggle */}
+      <button
+        className={cn(
+          'inline-flex items-center gap-2 rounded border border-border px-2 py-1 text-sm',
+          'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'
+        )}
+        type="button"
+        disabled={!mounted}
+        onClick={() => {
+          const isDarkMode = mode === 'dark'
+          setTheme(isDarkMode ? themeName : `${themeName}-dark`)
+        }}
+      >
+        <ThemeIcon icon={mode === 'light' ? 'sun' : 'moon'} />
+        <span className="hidden sm:inline">{mode === 'light' ? 'Light' : 'Dark'}</span>
+      </button>
     </div>
   )
 }

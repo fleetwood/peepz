@@ -6,12 +6,17 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./assets/*": "./assets/*"
+    "./assets/*": "./assets/*",
+    "./plugins/*": {
+      "types": "./src/plugins/*.ts",
+      "default": "./src/plugins/*.ts"
+    }
   },
   "scripts": {
     "lint": "eslint src --ext .ts"
   },
   "devDependencies": {
+    "@peeps/types": "workspace:*",
     "@types/node": "^22.10.2",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",

@@ -1,9 +1,10 @@
 import type { Config } from 'tailwindcss'
-import { THEME_MODE_DARK } from '@peeps/ui'
 import animate from 'tailwindcss-animate'
+import { textGradientPlugin } from '@peeps/ui/plugins/textGradient'
+import { transitionPlugin } from '@peeps/ui/plugins/transitions'
 
 const config: Config = {
-  darkMode: ['class', `[data-theme="${THEME_MODE_DARK}"]`],
+  darkMode: ['class', '[data-mode="dark"]'],
   content : ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   theme   : {
   	extend: {
@@ -43,7 +44,25 @@ const config: Config = {
   				DEFAULT: 'var(--warning)',
   				foreground: 'var(--warning-foreground)'
   			},
-  			destructive: {
+  			danger: {
+  				DEFAULT: 'var(--danger)',
+  				foreground: 'var(--danger-foreground)'
+  			},
+  			info: {
+  				DEFAULT: 'var(--info)',
+  				foreground: 'var(--info-foreground)'
+  			},
+  			// Palette colors
+			parchment  : 'var(--parchment)',
+			gold       : 'var(--gold)',
+			neutral    : 'var(--neutral)',
+			red        : 'var(--red)',
+			orange     : 'var(--orange)',
+			yellow     : 'var(--yellow)',
+			green      : 'var(--green)',
+			blue       : 'var(--blue)',
+			purple     : 'var(--purple)',
+			destructive: {
   				DEFAULT: 'var(--destructive)',
   				foreground: 'var(--destructive-foreground)'
   			},
@@ -80,7 +99,7 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [animate, require("tailwindcss-animate")],
+  plugins: [animate, textGradientPlugin, transitionPlugin],
 }
 
 export default config

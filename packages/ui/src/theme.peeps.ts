@@ -1,8 +1,9 @@
 import { brandPalette } from "./palettes/brand";
 
-export const peepsDark = {
-  name : "Peeps Dark",
-  icon : "leaf",
+export const peepsTheme = {
+  darkMode: ['selector', '[data-theme="dark"]'],
+  name : "Peeps",
+  icon : "egg",
   fonts: {
     peeps: "Gluten",
     sans : "Montserrat",
@@ -12,16 +13,16 @@ export const peepsDark = {
   colors: {
     ...brandPalette,
     brand: {
-      primary               : "gold.DEFAULT",
+      primary               : "green.DEFAULT",
       "primary-foreground"  : "neutral.50",
-      secondary             : "green.DEFAULT",
+      secondary             : "orange.DEFAULT",
       "secondary-foreground": "neutral.50",
       accent                : "blue.DEFAULT",
       "accent-foreground"   : "neutral.50",
-      muted                : "neutral.900",
+      muted                : "neutral.200",
       "muted-foreground"   : "neutral.500",
-      page                  : "green.900",
-      "page-foreground"     : "neutral.100",
+      page                  : "neutral.100",
+      "page-foreground"     : "neutral.900",
     },
     semantic: {
       success             : "green.500",
@@ -32,6 +33,10 @@ export const peepsDark = {
       "danger-foreground" : "neutral.50",
       info                : "purple.500",
       "info-foreground"   : "purple.100",
+    },
+    dark: {
+      page                  : "neutral.900",
+      "page-foreground"     : "neutral.100",
     },
   },
   radii: {

@@ -2,13 +2,15 @@
 
 import { clientEnv } from '@peeps/config/env'
 import { BarChart, Heart, Home, Users } from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useLayout } from '@/context/LayoutProvider'
 import UserSidebar from '../user/UserSidebar'
 import PeepsLogo from './Logo'
+import { Button } from '../ui/button'
 
 const Sidebar = () => {
-  const router = useRouter()
-  const pathname = usePathname()
+  const { isWarmTheme, navigate, pathname, setDialog } = useLayout()
+  
+  const textColorClass = isWarmTheme ? 'text-yellow' : 'text-orange'
 
   const navItems = [
     { icon: Home, label: 'Home', link: '/' },
@@ -21,7 +23,7 @@ const Sidebar = () => {
     <aside className="w-20 md:w-64 h-full border-r border-border bg-background flex flex-col flex-shrink-0">
       <div className="p-4 md:p-6 flex items-center justify-center md:justify-start">
         <PeepsLogo s32 className="h-8 w-8" />
-        <h1 className="hidden md:block text-yellow-500 text-[2rem] -ml-0.5 font-extrabold tracking-tight">EEPS</h1>
+        <h2 className={`hidden md:block font-extrabold tracking-tight ${textColorClass}`}>EEPS</h2>
       </div>
       
       <div className="p-4 border-t border-border">
@@ -41,9 +43,7 @@ const Sidebar = () => {
                       ? 'bg-primary text-primary-foreground'
                       : 'text-primary hover:bg-accent hover:text-accent-foreground'
                   }`}
-                  onClick={() => {
-                    router.push(item.link)
-                  }}
+                  onClick={() => navigate(item.link)}
                 >
                   <Icon className="w-6 h-6" />
                   <span className="hidden md:inline">{item.label}</span>
@@ -52,6 +52,8 @@ const Sidebar = () => {
             )
           })}
         </ul>
+
+        <Button variant='success' onClick={() => setDialog({title: "Dialog Title", children: <div>Dialog Content</div>})}>Show Dialog</Button>
       </nav>
     </aside>
   )

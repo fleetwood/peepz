@@ -3,6 +3,12 @@ import path from "node:path"
 import url from "node:url"
 import ui from "@peeps/ui"
 
+const logger = {
+  debug: (msg, ...args) => console.log(`🔍 [generate-themes-css] ${msg}`, ...args),
+  info: (msg, ...args) => console.log(`ℹ️ [generate-themes-css] ${msg}`, ...args),
+  error: (msg, ...args) => console.error(`❌ [generate-themes-css] ${msg}`, ...args),
+}
+
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 const webRoot = path.resolve(__dirname, "..")
 const outFile = path.join(webRoot, "app", "themes.css")
@@ -25,10 +31,44 @@ function mapFontToVar(fontName) {
   return fontMap[fontName] ?? fontMap["Gluten"]
 }
 
-function toCssVars(themeName) {
+function toCssVars(themeName, mode = "light") {
   const theme = materializeTheme(themes[themeName])
   const brand = theme.colors.brand
   const semantic = theme.colors.semantic
+
+  const paletteVars = []
+  for (const [paletteName, paletteObj] of Object.entries(theme.colors)) {
+    if (paletteObj && typeof paletteObj === 'object' && paletteObj !== null && paletteName !== "brand" && paletteName !== "semantic" && paletteName !== "dark") {
+      // Only add the DEFAULT shade for this palette color
+      if ('DEFAULT' in paletteObj) {
+        paletteVars.push(`--${paletteName}:${paletteObj.DEFAULT}`)
+      }
+    }
+  }
+
+  // Apply dark mode overrides for page colors if in dark mode
+  let pageBg = brand.page
+  let pageFg = brand["page-foreground"]
+  if (mode === "dark" && theme.colors.dark) {
+    // Resolve dark mode color references
+    const darkBg = theme.colors.dark.page
+    const darkFg = theme.colors.dark["page-foreground"]
+    
+    // Check if they're references (contain dots) or direct values
+    if (darkBg.includes('.')) {
+      const [paletteName, shade] = darkBg.split('.')
+      pageBg = theme.colors[paletteName][shade]
+    } else {
+      pageBg = darkBg
+    }
+    
+    if (darkFg.includes('.')) {
+      const [paletteName, shade] = darkFg.split('.')
+      pageFg = theme.colors[paletteName][shade]
+    } else {
+      pageFg = darkFg
+    }
+  }
 
   const muted = brand.muted ?? brand.secondary
   const mutedForeground = brand["muted-foreground"] ?? brand["secondary-foreground"]
@@ -37,47 +77,68 @@ function toCssVars(themeName) {
   const fontPeeps = mapFontToVar(fonts.peeps ?? "Gluten")
   const fontSans = mapFontToVar(fonts.sans ?? "Montserrat")
   const fontSerif = mapFontToVar(fonts.serif ?? "Domine")
+
+  // Helper function to resolve color references
+  function resolveColor(colorRef) {
+    if (typeof colorRef !== 'string') return colorRef
+    if (colorRef.includes('.')) {
+      const [paletteName, shade] = colorRef.split('.')
+      return theme.colors[paletteName]?.[shade] || colorRef
+    }
+    // If it's a simple color name like "green", "purple", etc.
+    return theme.colors[colorRef]?.DEFAULT || colorRef
+  }
+
   const fontMono = mapFontToVar(fonts.mono ?? "Inconsolata")
 
   return [
-    `--background:${brand.page}`,
-    `--foreground:${brand["page-foreground"]}`,
-    `--card:${brand.page}`,
-    `--card-foreground:${brand["page-foreground"]}`,
-    `--popover:${brand.page}`,
-    `--popover-foreground:${brand["page-foreground"]}`,
+    ...paletteVars,
+    `--background:${pageBg}`,
+    `--foreground:${pageFg}`,
+    `--card:${pageBg}`,
+    `--card-foreground:${pageFg}`,
+    `--popover:${pageBg}`,
+    `--popover-foreground:${pageFg}`,
     `--font-peeps:${fontPeeps}`,
     `--font-sans:${fontSans}`,
     `--font-serif:${fontSerif}`,
     `--font-mono:${fontMono}`,
     `--muted:${muted}`,
     `--muted-foreground:${mutedForeground}`,
-    `--border:${brand.secondary}`,
-    `--input:${brand.secondary}`,
-    `--ring:${brand.accent}`,
-    `--destructive:${semantic.danger}`,
-    `--destructive-foreground:${semantic["danger-foreground"]}`,
-    `--primary:${brand.primary}`,
-    `--primary-foreground:${brand["primary-foreground"]}`,
-    `--secondary:${brand.secondary}`,
-    `--secondary-foreground:${brand["secondary-foreground"]}`,
-    `--accent:${brand.accent}`,
-    `--accent-foreground:${brand["accent-foreground"]}`,
-    `--success:${semantic.success}`,
-    `--success-foreground:${semantic["success-foreground"]}`,
-    `--warning:${semantic.warning}`,
-    `--warning-foreground:${semantic["warning-foreground"]}`,
-    `--danger:${semantic.danger}`,
-    `--danger-foreground:${semantic["danger-foreground"]}`,
-    `--info:${semantic.info}`,
-    `--info-foreground:${semantic["info-foreground"]}`,
+    `--border:${resolveColor(brand.secondary)}`,
+    `--input:${resolveColor(brand.secondary)}`,
+    `--ring:${resolveColor(brand.accent)}`,
+    `--destructive:${resolveColor(semantic.danger)}`,
+    `--destructive-foreground:${resolveColor(semantic["danger-foreground"])}`,
+    `--primary:${resolveColor(brand.primary)}`,
+    `--primary-foreground:${resolveColor(brand["primary-foreground"])}`,
+    `--secondary:${resolveColor(brand.secondary)}`,
+    `--secondary-foreground:${resolveColor(brand["secondary-foreground"])}`,
+    `--accent:${resolveColor(brand.accent)}`,
+    `--accent-foreground:${resolveColor(brand["accent-foreground"])}`,
+    `--success:${resolveColor(semantic.success)}`,
+    `--success-foreground:${resolveColor(semantic["success-foreground"])}`,
+    `--warning:${resolveColor(semantic.warning)}`,
+    `--warning-foreground:${resolveColor(semantic["warning-foreground"])}`,
+    `--danger:${resolveColor(semantic.danger)}`,
+    `--danger-foreground:${resolveColor(semantic["danger-foreground"])}`,
+    `--info:${resolveColor(semantic.info)}`,
+    `--info-foreground:${resolveColor(semantic["info-foreground"])}`,
   ].join(";")
 }
 
 const css = [
-  ...themeNames.map((name) => `:root[data-theme="${name}"]{${toCssVars(name)}}`),
+  ...themeNames.flatMap((themeName) => {
+    const theme = themes[themeName]
+    return [
+      `[data-theme="${themeName}"]{${toCssVars(themeName, "light")}}`,
+      `[data-theme="${themeName}"][data-mode="dark"]{${toCssVars(themeName, "dark")}}`,
+    ]
+  }),
   "",
 ].join("\n")
 
 fs.mkdirSync(path.dirname(outFile), { recursive: true })
 fs.writeFileSync(outFile, css, "utf8")
+
+themeNames.forEach((name) => console.log(`Generated CSS vars for theme ${name} to ${outFile}`))

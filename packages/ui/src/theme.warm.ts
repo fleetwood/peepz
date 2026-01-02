@@ -1,23 +1,24 @@
-import { brandPalette } from "./palettes/brand";
+import { warmPalette } from "./palettes/warm";
 
-export const peepsLight = {
-  name : "Peeps Light",
-  icon : "egg",
+export const warmTheme = {
+  darkMode: ['selector', '[data-theme="dark"]'],
+  name : "Warm",
+  icon : "sun",
   fonts: {
-    peeps: "Gluten",
-    sans : "Montserrat",
-    serif: "Domine",
-    mono : "Inconsolata",
+    peeps: "Patrick Hand",
+    sans : "Merriweather",
+    serif: "Fraunces",
+    mono : "DM Mono",
   },
   colors: {
-    ...brandPalette,
+    ...warmPalette,
     brand: {
-      primary               : "green.DEFAULT",
-      "primary-foreground"  : "neutral.50",
-      secondary             : "orange.DEFAULT",
-      "secondary-foreground": "neutral.50",
-      accent                : "blue.DEFAULT",
-      "accent-foreground"   : "neutral.50",
+      primary               : "green",
+      "primary-foreground"  : "neutral",
+      secondary             : "purple",
+      "secondary-foreground": "neutral",
+      accent                : "orange",
+      "accent-foreground"   : "neutral",
       muted                : "neutral.200",
       "muted-foreground"   : "neutral.500",
       page                  : "neutral.100",
@@ -26,12 +27,16 @@ export const peepsLight = {
     semantic: {
       success             : "green.500",
       "success-foreground": "neutral.50",
-      warning             : "orange.500",
+      warning             : "yellow.500",
       "warning-foreground": "neutral.50",
       danger              : "red.500",
       "danger-foreground" : "neutral.50",
-      info                : "purple.500",
+      info                : "blue.500",
       "info-foreground"   : "purple.100",
+    },
+    dark: {
+      page                  : "neutral.900",
+      "page-foreground"     : "neutral.100",
     },
   },
   radii: {
@@ -77,4 +82,4 @@ export const peepsLight = {
       bold    : 700,
     },
   },
-} as const
+} as const;
