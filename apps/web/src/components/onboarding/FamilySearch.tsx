@@ -7,6 +7,7 @@ import { Search, Plus, Users } from "lucide-react";
 import { FamilyClient } from "@peeps/client";
 import { Debug } from "../layout/Debug";
 import { Logger } from "@peeps/utils";
+import MiniCard, { MiniCardContent, MiniCardCta, MiniCardIcon } from "../layout/MiniCard";
 
 const logger = Logger.instance('FamilySearch')
 
@@ -116,26 +117,24 @@ export function FamilySearch({
 
       {/* Create Family Option */}
       {onCreateFamily && query.trim().length > 0 && (
-        <div className="w-full border-2 border-dashed rounded-lg p-4">
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div>
-                <Plus className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <h5 className="font-medium">Create a new family</h5>
-                <p className="text-sm text-muted-foreground">
-                  Start a new family group and invite members
-                </p>
-              </div>
-              <div>
-                <Button onClick={onCreateFamily}>
-                  Create {query.trim()}
-                </Button>
-              </div>
+        <MiniCard>
+          <MiniCardIcon
+            icon={<Plus className="h-10 w-10 text-primary" />} 
+            />
+          <MiniCardContent>
+            <div>
+              <h5 className="font-medium">Create a new family</h5>
+              <p className="text-sm text-muted-foreground">
+                Start a new family group and invite members
+              </p>
             </div>
-          </div>
-        </div>
+          </MiniCardContent>
+          <MiniCardCta
+            icon={<Plus className="h-4 w-4" />}
+            label="Create"
+            onClick={onCreateFamily}
+          />
+        </MiniCard>
       )}
     </div>
   );

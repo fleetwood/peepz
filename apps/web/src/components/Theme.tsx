@@ -191,10 +191,7 @@ export function Theme() {
   
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6 relative">
-      <div className="flex items-center justify-between gap-4 sticky -top-8 z-10 py-4">
-        <h1>Theme Preview</h1>
-        <ThemeSwitcher />
-      </div>
+      <ThemeSwitcher />
 
       {mounted && (
         <div className="space-y-6">

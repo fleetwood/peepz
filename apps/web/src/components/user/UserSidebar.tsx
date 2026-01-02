@@ -7,8 +7,7 @@ import { useCurrentUser } from '@/context/CurrentUserProvider'
 import { useLayout } from '@/context/LayoutProvider'
 import type { ThemeName } from '@peeps/ui'
 import { themeNames, themes } from '@peeps/ui'
-import { Check, ChevronRight, Computer, Egg, Leaf, LucideProps, Moon, Sun, User } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { Check, Computer, Egg, Leaf, LucideProps, Moon, Sun, User } from 'lucide-react'
 import { ForwardRefExoticComponent, RefAttributes, useSyncExternalStore } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu'
 
@@ -23,12 +22,14 @@ type ModeTypes = {
   icon : ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>
 }
 
+  const themeModes: ModeTypes[] = [
+    { value: 'system', label: 'System', icon: Computer },
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+  ]
+  
 function ThemeIcon(props: { icon: string }) {
   switch (props.icon) {
-    case 'sun':
-      return <Sun className="h-4 w-4" />
-    case 'moon':
-      return <Moon className="h-4 w-4" />
     case 'egg':
       return <Egg className="h-4 w-4" />
     case 'leaf':
@@ -44,11 +45,6 @@ const UserSidebar = (_props: UserSidebarProps) => {
   const mounted = useMounted()
   const currentTheme = colorTheme as ThemeName
 
-  const themeModes: ModeTypes[] = [
-    { value: 'system', label: 'System', icon: Computer },
-    { value: 'light', label: 'Light', icon: Sun },
-    { value: 'dark', label: 'Dark', icon: Moon },
-  ]
 
   return (
     <AsyncContainer isLoading={[userLoading]}>

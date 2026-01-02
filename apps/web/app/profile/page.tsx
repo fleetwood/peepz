@@ -2,6 +2,7 @@
 
 import AsyncContainer from "@/components/layout/AsyncContainer";
 import Main from "@/components/layout/Main";
+import MiniCard, { MiniCardContent, MiniCardCta, MiniCardIcon } from "@/components/layout/MiniCard";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/context/CurrentUserProvider";
 import { useLayout } from "@/context/LayoutProvider";
@@ -88,28 +89,17 @@ const ProfilePage = (props: ProfilePageProps) => {
   return (
     <AsyncContainer isLoading={[userLoading]} error={[userError]}>
       {user && (
-        <Main title="User Profile">
+        <Main title="User Profile" className="flex flex-col gap-2">
           {linked ? (
             <div className="mb-4 rounded bg-green-50 p-3 text-sm text-green-900">
               Login provider linked.
             </div>
           ) : null}
 
-          {/* Family Onboarding Notice */}
-          <div className="mb-4 rounded bg-blue-50 p-3 text-sm text-blue-900">
-            <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/onboarding')}
-              >
-                <UserCog />
-              </Button>
-              <span>
-                Connect with your family.
-              </span>
-            </div>
-          </div>
+          <MiniCard>
+            <MiniCardContent>Connect with your family.</MiniCardContent>
+            <MiniCardCta icon={<UserCog />} label="Connect" onClick={() => navigate('/onboarding')}/>
+          </MiniCard>
 
           <div className="space-y-6">
             {/* Current Profile Display */}

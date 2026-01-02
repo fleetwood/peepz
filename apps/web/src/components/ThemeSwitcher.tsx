@@ -1,88 +1,104 @@
-"use client"
+"use client";
 
-import { useLayout } from '@/context/LayoutProvider'
-import { WithClassName } from '@peeps/types'
-import { themeNames, themes } from '@peeps/ui'
-import { cn } from '@peeps/utils/classnames'
-import { Egg, Leaf, Moon, Sun } from 'lucide-react'
-import { useSyncExternalStore } from 'react'
+import { useLayout } from "@/context/LayoutProvider";
+import { WithClassName } from "@peeps/types";
+import { themeNames, themes } from "@peeps/ui";
+import { cn } from "@peeps/utils/classnames";
+import {
+  Computer,
+  Egg,
+  FileQuestion,
+  Leaf,
+  LucideProps,
+  Moon,
+  Sun,
+} from "lucide-react";
+import {
+  ForwardRefExoticComponent,
+  RefAttributes,
+  useSyncExternalStore,
+} from "react";
+import { Button } from "./ui/button";
 
-type ThemeSwitcherProps = WithClassName
-type ThemeName = keyof typeof themes
+type ThemeSwitcherProps = WithClassName;
+type ThemeName = keyof typeof themes;
 
-const emptySubscribe = () => () => {}
-const useMounted = () => useSyncExternalStore(emptySubscribe, () => true, () => false)
+const emptySubscribe = () => () => {};
+const useMounted = () =>
+  useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
-function ThemeIcon(props: { icon: string }) {
-  switch (props.icon) {
-    case 'sun':
-      return <Sun className="h-4 w-4" />
-    case 'moon':
-      return <Moon className="h-4 w-4" />
-    case 'egg':
-      return <Egg className="h-4 w-4" />
-    case 'leaf':
-      return <Leaf className="h-4 w-4" />
-    default:
-      return <Sun className="h-4 w-4" />
-  }
-}
+type ModeTypes = {
+  value: "system" | "light" | "dark";
+  label: string;
+  icon: ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+  >;
+};
+
+const themeModes: ModeTypes[] = [
+  { value: "system", label: "System", icon: Computer },
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+];
 
 export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
-  const { setTheme, theme, mode, setMode } = useLayout()
-  const mounted = useMounted()
+  const { setTheme, theme, mode, setMode } = useLayout();
+  const mounted = useMounted();
 
   if (!mounted) {
     return (
-      <div className={cn('flex flex-wrap items-center gap-2', className)}>
-        <div className="inline-flex items-center gap-2 rounded border border-border px-2 py-1 text-sm bg-background text-foreground">
+      <div className={cn("flex flex-wrap items-center gap-2", className)}>
+        <div className="inline-flex items-center gap-2 rounded p-2 text-sm bg-muted text-foreground">
           <div className="h-4 w-4" />
           <span className="hidden sm:inline">Loading...</span>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2', className)}>
+    <div className="flex gap-2 border border-muted rounded-lg p-2">
       {/* Theme selection */}
       <div className="flex items-center gap-2">
         {themeNames.map((name) => {
-          const isActive = mounted && theme === name
-          const meta = themes[name]
+          const meta = themes[name];
           return (
-            <button
+            <Button
               key={name}
               className={cn(
-                'inline-flex items-center gap-2 rounded border border-border px-2 py-1 text-sm',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'
+                "inline-flex items-center gap-2 text-sm"
               )}
-              type="button"
+              variant={theme === name ? "accent" : "muted"}
               disabled={!mounted}
               onClick={() => setTheme(name)}
             >
-              <ThemeIcon icon={meta.icon} />
+              {name == 'peeps' ? <Egg className="h-8 w-8" /> : <Leaf className="h-8 w-8" />}
               <span className="hidden sm:inline">{meta.name}</span>
-            </button>
-          )
+            </Button>
+          );
         })}
       </div>
-      
-      {/* Light/Dark mode toggle */}
-      <button
-        className={cn(
-          'inline-flex items-center gap-2 rounded border border-border px-2 py-1 text-sm',
-          'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'
-        )}
-        type="button"
-        disabled={!mounted}
-        onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
-      >
-        <ThemeIcon icon={mode === 'light' ? 'sun' : 'moon'} />
-        <span className="hidden sm:inline">{mode === 'light' ? 'Light' : 'Dark'}</span>
-      </button>
+      <div className="flex-grow"/>
+      <div className="flex items-center gap-2">
+        {themeModes.map((m) => (
+          <Button
+            key={m.value}
+            className={cn(
+              "inline-flex items-center gap-2 text-sm"
+            )}
+            variant={mode === m.value ? "accent" : "muted"}
+            disabled={!mounted}
+            onClick={() => setMode(m.value)}
+          >
+            <m.icon className="h-8 w-8" />
+            <span className="hidden sm:inline">{m.label}</span>
+          </Button>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
