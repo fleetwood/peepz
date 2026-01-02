@@ -7,15 +7,21 @@ import { useCurrentUser } from '@/context/CurrentUserProvider'
 import { useLayout } from '@/context/LayoutProvider'
 import type { ThemeName } from '@peeps/ui'
 import { themeNames, themes } from '@peeps/ui'
-import { Check, ChevronRight, Egg, Leaf, Moon, Sun, User } from 'lucide-react'
+import { Check, ChevronRight, Computer, Egg, Leaf, LucideProps, Moon, Sun, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useSyncExternalStore } from 'react'
+import { ForwardRefExoticComponent, RefAttributes, useSyncExternalStore } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu'
 
 type UserSidebarProps = Record<string, never>
 
 const emptySubscribe = () => () => {}
 const useMounted = () => useSyncExternalStore(emptySubscribe, () => true, () => false)
+
+type ModeTypes = {
+  value: 'system' | 'light' | 'dark'
+  label: string,
+  icon : ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>
+}
 
 function ThemeIcon(props: { icon: string }) {
   switch (props.icon) {
@@ -34,9 +40,15 @@ function ThemeIcon(props: { icon: string }) {
 
 const UserSidebar = (_props: UserSidebarProps) => {
   const { auth, user, userLoading } = useCurrentUser()
-  const { setTheme, theme, colorTheme, mode, navigate } = useLayout()
+  const { setTheme, theme, colorTheme, mode, setMode, navigate } = useLayout()
   const mounted = useMounted()
   const currentTheme = colorTheme as ThemeName
+
+  const themeModes: ModeTypes[] = [
+    { value: 'system', label: 'System', icon: Computer },
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+  ]
 
   return (
     <AsyncContainer isLoading={[userLoading]}>
@@ -98,45 +110,20 @@ const UserSidebar = (_props: UserSidebarProps) => {
                       sideOffset={8}
                       className="z-50 min-w-[12rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
                     >
-                      <DropdownMenuItem
-                        className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"
-                        disabled={!mounted}
-                        onSelect={() => {
-                          setTheme(`${colorTheme}-system`)
-                        }}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Sun className="h-4 w-4" />
-                          System
-                        </span>
-                        {mounted && mode === 'system' && <Check className="h-4 w-4" />}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"
-                        disabled={!mounted}
-                        onSelect={() => {
-                          setTheme(`${colorTheme}-light`)
-                        }}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Sun className="h-4 w-4" />
-                          Light
-                        </span>
-                        {mounted && mode === 'light' && <Check className="h-4 w-4" />}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"
-                        disabled={!mounted}
-                        onSelect={() => {
-                          setTheme(`${colorTheme}-dark`)
-                        }}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Moon className="h-4 w-4" />
-                          Dark
-                        </span>
-                        {mounted && mode === 'dark' && <Check className="h-4 w-4" />}
-                      </DropdownMenuItem>
+                      {themeModes.map((m) => (
+                        <DropdownMenuItem
+                          key={m.value}
+                          className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"
+                          disabled={!mounted}
+                          onSelect={() => setMode(m.value)}
+                        >
+                          <span className="flex items-center gap-2">
+                            <m.icon className="h-4 w-4" />
+                            {m.label}
+                          </span>
+                          {mounted && mode === m.value && <Check className="h-4 w-4" />}
+                        </DropdownMenuItem>
+                      ))}
                       <DropdownMenuSeparator className="my-1 h-px bg-border" />
                       {themeNames.map((name) => {
                         const meta = themes[name]
@@ -146,9 +133,7 @@ const UserSidebar = (_props: UserSidebarProps) => {
                             key={name}
                             className="flex cursor-pointer select-none items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground"
                             disabled={!mounted}
-                            onSelect={() => {
-                              setTheme(`${name}-${mode === 'system' ? 'light' : mode}`)
-                            }}
+                            onSelect={() => setTheme(name)}
                           >
                             <span className="flex items-center gap-2">
                               <ThemeIcon icon={meta.icon} />

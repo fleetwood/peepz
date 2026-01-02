@@ -6,19 +6,24 @@ import { ThemeProvider, useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { useEffect, createContext, useContext } from "react";
+import { useThemeStore } from "../stores/themeStore";
 
 type LayoutContextType = {
   theme       : string | undefined;
   colorTheme  : string;
-  mode        : string;
+  mode        : 'light' | 'dark' | 'system';
   isWarmTheme : boolean;
   isPeepsTheme: boolean;
+  isSystemMode: boolean;
+  isDarkMode  : boolean;
+  isLightMode : boolean;
   navigate    : (path: string) => void;
   pathname    : string;
   setDialog   : (props:PageDialogProps) => void;
   closeDialog : () => void;
   dialog      ?: PageDialogProps;
   setTheme    : (theme: string) => void;
+  setMode     : (mode: 'light' | 'dark' | 'system') => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -42,29 +47,16 @@ const LayoutProviderComponent = ({ children, values }: { children: React.ReactNo
 const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
   const [dialog, _setDialog] = React.useState<PageDialogProps | undefined>();
-
-  // Parse current theme and mode
-  const parseTheme = (theme: string | undefined) => {
-    if (!theme) return { colorTheme: 'peeps', mode: 'system' }
-    
-    if (theme === 'system') {
-      return { colorTheme: 'peeps', mode: 'system' }
-    }
-    
-    const parts = theme.split("-")
-    if (parts.length === 2) {
-      return { colorTheme: parts[0], mode: parts[1] }
-    } else if (theme === 'light' || theme === 'dark') {
-      return { colorTheme: 'peeps', mode: theme }
-    } else {
-      return { colorTheme: theme, mode: 'system' }
-    }
-  }
   
-  const { colorTheme, mode } = parseTheme(theme)
-  const isWarmTheme = colorTheme === 'warm'
+  // Use Zustand store for theme management
+  const { theme, mode, setTheme, setMode, getColorTheme } = useThemeStore();
+  
+  const colorTheme   = getColorTheme();
+  const isWarmTheme  = colorTheme === 'warm';
+  const isSystemMode = mode       === 'system'
+  const isDarkMode   = mode       === 'dark'
+  const isLightMode  = !isDarkMode
 
   const setDialog = (t: PageDialogProps) => {
     _setDialog(t)
@@ -83,66 +75,53 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
     mode,
     isWarmTheme,
     isPeepsTheme: !isWarmTheme,
+    isSystemMode,
+    isDarkMode,
+    isLightMode,
     navigate,
     pathname,
     setDialog,
     closeDialog,
     dialog,
     setTheme,
+    setMode
   };
 
   return (
-    <ThemeProvider
-      attribute    = "data-theme-raw"
-      themes       = {themeNames}
-      defaultTheme = "peeps"
-      enableSystem = {true}
-      storageKey   = "peeps-theme"
-    >
-      <ThemeModeHandler>
-        <LayoutProviderComponent values={values}>{children}</LayoutProviderComponent>
-      </ThemeModeHandler>
-    </ThemeProvider>
+    <ThemeProviderWrapper>
+      <LayoutProviderComponent values={values}>{children}</LayoutProviderComponent>
+    </ThemeProviderWrapper>
   );
 };
 
-// Helper component to handle data-mode attribute
-function ThemeModeHandler({ children }: WithChildren) {
-  const { theme } = useTheme();
+// Simple wrapper to apply CSS classes based on Zustand store
+function ThemeProviderWrapper({ children }: WithChildren) {
+  const { theme, mode, getCombinedTheme } = useThemeStore();
+  const [mounted, setMounted] = React.useState(false)
 
-  useEffect(() => {
-    if (theme) {
-      const html = document.documentElement;
-      const parts = theme.split("-");
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
-      console.log("ThemeModeHandler: theme=", theme, "parts=", parts);
+  const fallbackTheme = 'peeps'
+  const fallbackMode  = 'system'
 
-      if (parts.length === 2) {
-        // Format: "peeps-dark" or "warm-light"
-        // Set theme name only, mode separately
-        console.log("Setting data-theme=", parts[0], "data-mode=", parts[1]);
-        html.setAttribute("data-theme", parts[0]);
-        html.setAttribute("data-mode", parts[1]);
-      } else if (theme === "light" || theme === "dark") {
-        // "light" or "dark" - default to peeps theme
-        console.log("Setting data-theme=peeps", "data-mode=", theme);
-        html.setAttribute("data-theme", "peeps");
-        html.setAttribute("data-mode", theme);
-      } else if (theme === "system") {
-        // System mode - default to peeps theme, let system handle mode
-        console.log("Setting data-theme=peeps", "data-mode=system");
-        html.setAttribute("data-theme", "peeps");
-        html.setAttribute("data-mode", "system");
-      } else {
-        // Single theme name: "peeps" or "warm" - default to system mode
-        console.log("Setting data-theme=", theme, "data-mode=system");
-        html.setAttribute("data-theme", theme);
-        html.setAttribute("data-mode", "system");
-      }
-    }
-  }, [theme]);
+  if (!mounted) {
+    return (
+      <div className={fallbackTheme} data-theme={fallbackTheme} data-mode={fallbackMode}>
+        {children}
+      </div>
+    )
+  }
 
-  return <>{children}</>;
+  const combinedTheme = getCombinedTheme();
+  const dataTheme     = theme.split('-')[0] || theme
+
+  return (
+    <div className={combinedTheme} data-theme={dataTheme} data-mode={mode}>
+      {children}
+    </div>
+  );
 }
 
 LayoutProvider.displayName = "LayoutProvider";

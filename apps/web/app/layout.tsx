@@ -49,7 +49,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}:WithChildren) {
   return (
-    <html lang="en" data-theme="peeps" suppressHydrationWarning className={`${gluten.variable} ${patrickHand.variable} ${montserrat.variable} ${merriweather.variable} ${domine.variable} ${fraunces.variable} ${inconsolata.variable} ${dmMono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${gluten.variable} ${patrickHand.variable} ${montserrat.variable} ${merriweather.variable} ${domine.variable} ${fraunces.variable} ${inconsolata.variable} ${dmMono.variable}`}>
       <body className="min-h-screen bg-page text-page-foreground">
         <Providers>
           <main className="size-full flex overflow-hidden">

@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { materializeTheme, themes } from "@peeps/ui"
 import { cva } from "class-variance-authority"
-import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { useLayout } from "@/context/LayoutProvider"
 import ThemeSwitcher from "./ThemeSwitcher"
 
 type ThemeName = keyof typeof themes
@@ -149,31 +149,6 @@ const textVariant = cva('',
   }
 )
 
-const borderVariant = cva('', 
-  {
-    variants: {
-      variant: {
-        primary  : 'border-primary',
-        secondary: 'border-secondary',
-        accent   : 'border-accent',
-        success  : 'border-success',
-        warning  : 'border-warning',
-        danger   : 'border-danger',
-        info     : 'border-info',
-        parchment: 'border-parchment',
-        netural  : 'border-netural',
-        gold     : 'border-gold',
-        red      : 'border-red',
-        orange   : 'border-orange',
-        yellow   : 'border-yellow',
-        green    : 'border-green',
-        blue     : 'border-blue',
-        purple   : 'border-purple',
-      }
-    }
-  }
-)
-
 function SectionSwatches({ title, themeName, entries }: { title: string; themeName: ThemeName, entries: Array<[string, string]> }) {
   const theme = themes[themeName]
   
@@ -181,8 +156,6 @@ function SectionSwatches({ title, themeName, entries }: { title: string; themeNa
     console.error('Theme not found:', themeName, 'Available themes:', Object.keys(themes))
     return <div>Theme not found: {themeName}</div>
   }
-  
-  const materialized = materializeTheme(theme)
 
   return (
     <section>
@@ -207,46 +180,15 @@ function SectionSwatches({ title, themeName, entries }: { title: string; themeNa
 }
 
 export function Theme() {
-  const { theme, setTheme } = useTheme()
+  const { colorTheme } = useLayout()
   const [mounted, setMounted] = useState(false)
   
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Parse current theme and mode from the theme string
-  const parseTheme = (themeValue: string | undefined) => {
-    if (!themeValue) return { themeName: 'peeps' as ThemeName, mode: 'light' }
-    
-    const parts = themeValue.split('-')
-    if (parts.length === 2) {
-      return { 
-        themeName: parts[0] as ThemeName, 
-        mode: parts[1] as 'light' | 'dark' 
-      }
-    }
-    
-    // Handle legacy theme names or single theme names
-    if (themeValue === 'light' || themeValue === 'dark') {
-      return { themeName: 'peeps' as ThemeName, mode: themeValue as 'light' | 'dark' }
-    }
-    
-    return { themeName: themeValue as ThemeName, mode: 'light' as 'light' | 'dark' }
-  }
-
-  const { themeName, mode } = parseTheme(theme)
+  const themeName = (colorTheme ?? 'peeps') as ThemeName
   
-  console.log('Current theme:', theme, 'Parsed:', { themeName, mode })
-  
-  const handleThemeChange = (newThemeName: ThemeName) => {
-    setTheme(newThemeName)
-  }
-  
-  const handleModeToggle = () => {
-    const isDarkMode = mode === 'dark'
-    setTheme(isDarkMode ? themeName : `${themeName}-dark`)
-  }
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6 relative">
       <div className="flex items-center justify-between gap-4 sticky -top-8 z-10 py-4">
@@ -256,9 +198,7 @@ export function Theme() {
 
       {mounted && (
         <div className="space-y-6">
-          <SectionSwatches title="colors" themeName={themeName} entries={Object.entries(themes[themeName].colors)} />
-          <SectionSwatches title="brand" themeName={themeName} entries={Object.entries(themes[themeName].colors.brand)} />
-          <SectionSwatches title="semantic" themeName={themeName} entries={Object.entries(themes[themeName].colors.semantic)} />
+          <SectionSwatches title="Color Palette" themeName={themeName} entries={Object.entries(themes[themeName].colors)} />
         </div>
       )}
 

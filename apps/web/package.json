@@ -50,7 +50,7 @@
     "stripe": "^17.5.0",
     "tailwind-merge": "^2.6.0",
     "zod": "^3.24.1",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

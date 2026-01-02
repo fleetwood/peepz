@@ -1,10 +1,10 @@
 "use client"
 
+import { useLayout } from '@/context/LayoutProvider'
 import { WithClassName } from '@peeps/types'
 import { themeNames, themes } from '@peeps/ui'
 import { cn } from '@peeps/utils/classnames'
 import { Egg, Leaf, Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
 
 type ThemeSwitcherProps = WithClassName
@@ -29,7 +29,7 @@ function ThemeIcon(props: { icon: string }) {
 }
 
 export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
-  const { setTheme, theme } = useTheme()
+  const { setTheme, theme, mode, setMode } = useLayout()
   const mounted = useMounted()
 
   if (!mounted) {
@@ -43,34 +43,12 @@ export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
     )
   }
 
-  // Parse current theme and mode
-  const parseTheme = (themeValue: string | undefined) => {
-    if (!themeValue) return { themeName: 'peeps' as ThemeName, mode: 'light' }
-    
-    const parts = themeValue.split('-')
-    if (parts.length === 2) {
-      return { 
-        themeName: parts[0] as ThemeName, 
-        mode: parts[1] as 'light' | 'dark' 
-      }
-    }
-    
-    // Handle legacy theme names or single theme names
-    if (themeValue === 'light' || themeValue === 'dark') {
-      return { themeName: 'peeps' as ThemeName, mode: themeValue as 'light' | 'dark' }
-    }
-    
-    return { themeName: themeValue as ThemeName, mode: 'light' as 'light' | 'dark' }
-  }
-
-  const { themeName, mode } = parseTheme(theme)
-
   return (
     <div className={cn('flex flex-wrap items-center gap-2', className)}>
       {/* Theme selection */}
       <div className="flex items-center gap-2">
         {themeNames.map((name) => {
-          const isActive = mounted && themeName === name
+          const isActive = mounted && theme === name
           const meta = themes[name]
           return (
             <button
@@ -83,9 +61,7 @@ export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
               )}
               type="button"
               disabled={!mounted}
-              onClick={() => {
-                setTheme(name)
-              }}
+              onClick={() => setTheme(name)}
             >
               <ThemeIcon icon={meta.icon} />
               <span className="hidden sm:inline">{meta.name}</span>
@@ -102,10 +78,7 @@ export default function ThemeSwitcher({ className }: ThemeSwitcherProps) {
         )}
         type="button"
         disabled={!mounted}
-        onClick={() => {
-          const isDarkMode = mode === 'dark'
-          setTheme(isDarkMode ? themeName : `${themeName}-dark`)
-        }}
+        onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
       >
         <ThemeIcon icon={mode === 'light' ? 'sun' : 'moon'} />
         <span className="hidden sm:inline">{mode === 'light' ? 'Light' : 'Dark'}</span>
