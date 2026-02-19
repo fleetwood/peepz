@@ -23,10 +23,12 @@
     "ioredis": "^5.4.2",
     "postgres": "^3.4.5",
     "resend": "^4.0.1",
+    "sharedb": "^5.2.2",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "@types/sharedb": "^5.1.0",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
     "typescript": "^5.7.2"

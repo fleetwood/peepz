@@ -1,12 +1,13 @@
-import { and, asc, eq, ilike, sql } from 'drizzle-orm'
+import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm'
  
 import * as schema from '@peeps/db/schema'
-import { withTx } from '@peeps/db/client'
+import { db, withTx } from '@peeps/db/client'
 import type { PaginatedResponse, PaginationParams, WithTx } from '@peeps/types'
- 
-import { decodeOffsetCursor, encodeOffsetCursor } from '@peeps/utils'
- 
-import { GovernanceModel, GroupRole, GroupType, MembershipStatus, RemovalPolicy } from '@peeps/db/schema/enums'
+import { decodeOffsetCursor, encodeOffsetCursor, formatStub } from '@peeps/utils'
+import { GovernanceModel, GroupRole, GroupType, MembershipStatus, RemovalPolicy, GroupPrivacyLevel } from '@peeps/db/schema/enums'
+import { Logger } from '@peeps/utils'
+
+const logger = Logger.instance('FamilyService')
 
 type ListFamiliesParams = {
   pagination: PaginationParams
@@ -19,6 +20,22 @@ type SearchFamiliesParams = {
 
 type FamilyByGroupIdParams = {
   groupId: string
+}
+
+type FamiliesByStubForMemberParams = {
+  stub    : string
+  personId: string
+}
+
+type CreateFamilyParams = {
+  memberId     : string
+  personId     : string
+  name         : string
+  description ?: string
+  privacyLevel : (typeof GroupPrivacyLevel)[keyof typeof GroupPrivacyLevel]
+  governanceModel: (typeof GovernanceModel)[keyof typeof GovernanceModel]
+  removalPolicy  : (typeof RemovalPolicy)[keyof typeof RemovalPolicy]
+  voteThreshold ?: number | null
 }
 
 export class FamilyService {
@@ -71,6 +88,45 @@ export class FamilyService {
         hasNextPage,
       },
     }
+  }
+
+  /**
+   * Creates a new Family (Group + Family rows) and grants creator admin membership.
+   *
+   * @param params - { memberId, personId, name, description?, privacyLevel, governanceModel, removalPolicy, voteThreshold? }
+   */
+  @withTx
+  static async create(params: WithTx<CreateFamilyParams>) {
+    const { memberId, personId, name, description, privacyLevel, governanceModel, removalPolicy, voteThreshold } = params
+
+    const [group] = await params.tx!
+      .insert(schema.groups)
+      .values({
+        name,
+        stub             : formatStub(name),
+        createdByMemberId: memberId,
+        type             : GroupType.FAMILY,
+        voteThreshold    : voteThreshold ?? null,
+        description,
+        privacyLevel,
+        governanceModel,
+        removalPolicy,
+      })
+      .returning()
+
+    const [family] = await params.tx!
+      .insert(schema.families)
+      .values({ groupId: group.id })
+      .returning()
+
+    await params.tx!.insert(schema.groupMemberships).values({
+      groupId : group.id,
+      role    : GroupRole.ADMIN,
+      status  : MembershipStatus.ACTIVE,
+      personId,
+    })
+
+    return { families: family, groups: group }
   }
 
   /**
@@ -164,6 +220,82 @@ export class FamilyService {
   }
 
   /**
+   * Lists every {@link schema.Family} + {@link schema.Group} pair that matches the given stub and that the requesting member belongs to,
+   * then hydrates each result with the caller’s membership row plus the roster of active members (membership + person profile) for those families.
+   * 
+   * Database Operations (local scope only):
+   * - SELECT: groups ⇄ families ⇄ group_memberships (fetch caller’s memberships filtered by stub + personId)
+   * - SELECT: group_memberships ⇄ persons (load active members for the matched group ids)
+   * 
+   * External Calls:
+   * - (none)
+   * 
+   * @param params - {@link WithTx<FamiliesByStubForMemberParams>} stub slug and requesting person id (with optional tx)
+   * @returns Array of families with caller membership + all active members
+   * 
+   * DB SCOPE:
+   * - calls : 2
+   * - tables: 4 (groups, families, group_memberships, persons)
+   * - scope : ✅ CLEAN
+   * 
+   * ❗ WARNING
+   * - Method >50 LOC
+   */
+  @withTx
+  static async listByStubForMember(
+    params: WithTx<FamiliesByStubForMemberParams>,
+  ): Promise<Array<{ families: schema.Family; groups: schema.Group; membership: schema.GroupMembership }>> {
+    const normalizedStub = formatStub(params.stub)
+    if (!normalizedStub) return []
+
+    const rows: Array<{ families: schema.Family; groups: schema.Group; membership: schema.GroupMembership }> = await params.tx!
+      .select({
+        families  : schema.families,
+        groups    : schema.groups,
+        membership: schema.groupMemberships,
+      })
+      .from(schema.groups)
+      .innerJoin(schema.families, eq(schema.families.groupId, schema.groups.id))
+      .innerJoin(schema.groupMemberships, eq(schema.groupMemberships.groupId, schema.groups.id))
+      .where(and(
+        eq(schema.groups.type, GroupType.FAMILY),
+        eq(schema.groups.stub, normalizedStub),
+        eq(schema.groupMemberships.personId, params.personId),
+      ))
+      .orderBy(asc(schema.groups.createdAt))
+
+    const groupIds = Array.from(new Set(rows.map((row) => row.groups.id)))
+    if (groupIds.length === 0) return []
+
+    const memberRows: Array<{ membership: schema.GroupMembership; person: schema.Person }> = await params.tx!
+      .select({
+        membership: schema.groupMemberships,
+        person    : schema.persons,
+      })
+      .from(schema.groupMemberships)
+      .innerJoin(schema.persons, eq(schema.persons.id, schema.groupMemberships.personId))
+      .where(and(
+        inArray(schema.groupMemberships.groupId, groupIds),
+        eq(schema.groupMemberships.status, MembershipStatus.ACTIVE),
+      ))
+      .orderBy(asc(schema.groupMemberships.joinedAt))
+
+    const membersByGroup = new Map<string, Array<{ membership: schema.GroupMembership; person: schema.Person }>>()
+    for (const memberRow of memberRows) {
+      const bucket = membersByGroup.get(memberRow.membership.groupId) ?? []
+      bucket.push(memberRow)
+      membersByGroup.set(memberRow.membership.groupId, bucket)
+    }
+
+    return rows.map((row) => ({
+      families  : row.families,
+      groups    : row.groups,
+      membership: row.membership,
+      members   : membersByGroup.get(row.groups.id) ?? [],
+    }))
+  }
+
+  /**
    * Resolves a Family for a member:
    * - If a Group(FAMILY) for the member's primary family name does not exist, creates Group + Family and adds membership.
    * - If it does exist, creates a FamilyJoinRequest.
@@ -223,6 +355,7 @@ export class FamilyService {
         .insert(schema.groups)
         .values({
           name             : primaryFamilyName.name,
+          stub             : formatStub(primaryFamilyName.name),
           type             : GroupType.FAMILY,
           createdByMemberId: params.memberId,
           governanceModel  : GovernanceModel.SINGLE_ADMIN,
@@ -253,5 +386,20 @@ export class FamilyService {
       .returning()
 
     return { kind: 'join_request', groupId: existingGroup.id, joinRequestId: joinRequest.id }
+  }
+
+  static async getGroupIdsForMember({ memberId }: { memberId: string }): Promise<string[]> {
+    const rows = await db
+      .select({ groupId: schema.groupMemberships.groupId })
+      .from(schema.members)
+      .innerJoin(schema.groupMemberships, eq(schema.groupMemberships.personId, schema.members.personId))
+      .innerJoin(schema.groups, eq(schema.groups.id, schema.groupMemberships.groupId))
+      .where(and(
+        eq(schema.members.id,              memberId),
+        eq(schema.groupMemberships.status, MembershipStatus.ACTIVE),
+        eq(schema.groups.type,             GroupType.FAMILY),
+      ))
+
+    return rows.map((r: { groupId: string }) => r.groupId)
   }
 }

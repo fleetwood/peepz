@@ -3,10 +3,12 @@ import "./globals.css"
 
 import Providers from "@/components/Providers"
 import PageDialog from "@/components/layout/PageDialog"
+import PageFooter from "@/components/layout/PageFooter"
+import PagePopover from "@/components/layout/PagePop"
+import { PageToast } from "@/components/layout/PageToast"
 import Sidebar from "@/components/layout/Sidebar"
 import { clientEnv } from "@peeps/config/env"
 import { WithChildren } from "@peeps/types"
-
 import logo128 from "@peeps/ui/assets/logo_128.png"
 import logo16 from "@peeps/ui/assets/logo_16.png"
 import logo32 from "@peeps/ui/assets/logo_32.png"
@@ -50,15 +52,20 @@ export const metadata: Metadata = {
 export default function RootLayout({children}:WithChildren) {
   return (
     <html lang="en" suppressHydrationWarning className={`${gluten.variable} ${patrickHand.variable} ${montserrat.variable} ${merriweather.variable} ${domine.variable} ${fraunces.variable} ${inconsolata.variable} ${dmMono.variable}`}>
-      <body className="min-h-screen bg-page text-page-foreground">
+      <body className="h-screen overflow-hidden bg-page text-page-foreground">
         <Providers>
-          <main className="size-full flex overflow-hidden">
+          <div className="flex h-full">
             <Sidebar />
-            {children}
-          </main>
-          <footer>
-            <PageDialog />
-          </footer>
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <main className="flex-1 overflow-y-auto">
+                {children}
+              </main>
+              <PageFooter />
+            </div>
+          </div>
+          <PageDialog />
+          <PagePopover />
+          <PageToast />
         </Providers>
       </body>
     </html>

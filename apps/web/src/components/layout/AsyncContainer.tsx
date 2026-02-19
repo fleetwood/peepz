@@ -3,7 +3,8 @@ import type { ReactNode } from 'react'
 import { Spinner } from '../ui/spinner'
 import { WithChildren } from '@peeps/types'
 
-type AsyncContainerProps = WithChildren & {
+// eslint-disable-next-line no-restricted-syntax
+export type AsyncContainerProps = WithChildren & {
     isLoading?: boolean[]
     error    ?: Array<Error | { message?: unknown } | string | null>
     fallback ?: ReactNode

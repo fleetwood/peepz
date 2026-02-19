@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { clientEnv } from '@peeps/config/env'
 import { ErrorCodeEnum } from '@peeps/types'
 import type { AuthProviderId as AuthProviderIdType, ContinueAfterAuthResult } from '@peeps/types'
-import { postApi, setRestAuthConfig } from '@peeps/utils/rest'
+import { WebRestApi } from '@peeps/utils/fetch/web'
 
 import { SupabaseClient } from '../supabase/client'
 import { AuthInvalidation, AuthKeys } from './auth.invalidation'
@@ -58,7 +58,7 @@ export const AuthClient = {
   },
 
   createHttp<TEnsureMemberResponse>(config: AuthClientHttpConfig) {
-    setRestAuthConfig({
+    WebRestApi.configure({
       apiKey        : config.apiKey ?? clientEnv.API_KEY,
       getAccessToken: config.getAccessToken,
       baseUrl       : config.baseUrl,
@@ -66,7 +66,7 @@ export const AuthClient = {
 
     return AuthClient.create<TEnsureMemberResponse>({
       async ensureMember() {
-        const { data, error, status, statusText } = await postApi<TEnsureMemberResponse, Record<string, never>>(
+        const { data, error, status, statusText } = await WebRestApi.post<TEnsureMemberResponse, Record<string, never>>(
           '/auth/ensure-member',
           {},
         )
@@ -116,7 +116,7 @@ export const AuthClient = {
       },
 
       async ensureMemberResult(): Promise<ContinueAfterAuthResult<TEnsureMemberResponse>> {
-        const { data, error, code, errorDetails } = await postApi<TEnsureMemberResponse, Record<string, never>>(
+        const { data, error, code, errorDetails } = await WebRestApi.post<TEnsureMemberResponse, Record<string, never>>(
           '/auth/ensure-member',
           {},
         )
@@ -134,7 +134,7 @@ export const AuthClient = {
       },
 
       async startIdentityLink(params: StartIdentityLinkParams) {
-        const { error } = await postApi<{ ok: true }, StartIdentityLinkParams>('/auth/link-identity/start', {
+        const { error } = await WebRestApi.post<{ ok: true }, StartIdentityLinkParams>('/auth/link-identity/start', {
           provider: params.provider,
         })
 

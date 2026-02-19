@@ -1,11 +1,9 @@
 "use client";
 
-import { PageDialogProps, WithChildren } from "@peeps/types";
-import { themeNames } from "@peeps/ui";
-import { ThemeProvider, useTheme } from "next-themes";
+import { PageDialogProps, PagePopoverProps, WithChildren } from "@peeps/types";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
-import { useEffect, createContext, useContext } from "react";
+import { createContext, useContext } from "react";
 import { useThemeStore } from "../stores/themeStore";
 
 type LayoutContextType = {
@@ -19,9 +17,15 @@ type LayoutContextType = {
   isLightMode : boolean;
   navigate    : (path: string) => void;
   pathname    : string;
+
   setDialog   : (props:PageDialogProps) => void;
   closeDialog : () => void;
   dialog      ?: PageDialogProps;
+  
+  setPopover  : (props:PagePopoverProps) => void;
+  closePopover: () => void;
+  popover     ?: PagePopoverProps;
+
   setTheme    : (theme: string) => void;
   setMode     : (mode: 'light' | 'dark' | 'system') => void;
 }
@@ -48,7 +52,7 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [dialog, _setDialog] = React.useState<PageDialogProps | undefined>();
-  
+  const [popover, _setPopover] = React.useState<PagePopoverProps | undefined>();
   // Use Zustand store for theme management
   const { theme, mode, setTheme, setMode, getColorTheme } = useThemeStore();
   
@@ -63,6 +67,13 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
   }
   const closeDialog = () => {
     _setDialog(undefined)
+  }
+
+  const setPopover = (t: PagePopoverProps) => {
+    _setPopover(t)
+  }
+  const closePopover = () => {
+    _setPopover(undefined)
   }
 
   const navigate = (path: string) => {
@@ -80,9 +91,15 @@ const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
     isLightMode,
     navigate,
     pathname,
+
     setDialog,
     closeDialog,
     dialog,
+    
+    setPopover,
+    closePopover,
+    popover,
+    
     setTheme,
     setMode
   };
@@ -108,7 +125,7 @@ function ThemeProviderWrapper({ children }: WithChildren) {
 
   if (!mounted) {
     return (
-      <div className={fallbackTheme} data-theme={fallbackTheme} data-mode={fallbackMode}>
+      <div className={`h-full ${fallbackTheme}`} data-theme={fallbackTheme} data-mode={fallbackMode}>
         {children}
       </div>
     )
@@ -118,7 +135,7 @@ function ThemeProviderWrapper({ children }: WithChildren) {
   const dataTheme     = theme.split('-')[0] || theme
 
   return (
-    <div className={combinedTheme} data-theme={dataTheme} data-mode={mode}>
+    <div className={`h-full ${combinedTheme}`} data-theme={dataTheme} data-mode={mode}>
       {children}
     </div>
   );

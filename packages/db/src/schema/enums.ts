@@ -53,8 +53,9 @@ export const GroupType = {
 export const groupTypeEnum = (name: string) => enumColumn(name, GroupType)
 
 export const GroupPrivacyLevel = {
-  PRIVATE    : 'PRIVATE',
-  INVITE_ONLY: 'INVITE_ONLY',
+  PRIVATE   : 'PRIVATE',
+  PUBLIC    : 'PUBLIC',
+  APPROVAL  : 'APPROVAL',
 } as const
 
 export const groupPrivacyLevelEnum = (name: string) => enumColumn(name, GroupPrivacyLevel)

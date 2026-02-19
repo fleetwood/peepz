@@ -6,14 +6,20 @@ type EmailOtpSignInParams = {
   email: string
 }
 
-export function createEmailOtpProvider(deps: AuthProviderFactoryDeps): AuthProvider<EmailOtpSignInParams> {
+type EmailSendJoinParams = {
+  groupId: string
+  sender : string
+  email  : string
+}
+
+export function createEmailOtpProvider(deps: AuthProviderFactoryDeps): AuthProvider<EmailOtpSignInParams, EmailSendJoinParams> {
   const supabase = SupabaseClient.get()
 
   return {
     id   : AuthProviderId.email,
     label: 'Email',
 
-    async signIn(params) {
+    async signIn(params: EmailOtpSignInParams) {
       const trimmed = params.email.trim()
       if (!trimmed) {
         throw new Error('Enter an email')
@@ -32,5 +38,8 @@ export function createEmailOtpProvider(deps: AuthProviderFactoryDeps): AuthProvi
 
       return 'Check your email for a login link.'
     },
+    async sendJoin(params: EmailSendJoinParams) {
+      // we can use QueryManager to send the necessary params to API route
+    }
   }
 }

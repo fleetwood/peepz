@@ -13,6 +13,10 @@ type FamilySearchParams = {
   query: string
 }
 
+type FamiliesByStubParams = {
+  stub: string
+}
+
 export class FamilyKeys {
   static resolve() {
     return {
@@ -42,6 +46,14 @@ export class FamilyKeys {
       domain   : QueryDomainEnum.FAMILIES,
       subdomain: QuerySubdomainEnum.LIST,
       params   : { query } satisfies FamilySearchParams,
+    }
+  }
+
+  static stubList({ stub }: FamiliesByStubParams) {
+    return {
+      domain   : QueryDomainEnum.FAMILIES,
+      subdomain: QuerySubdomainEnum.LIST,
+      params   : { stub } satisfies FamiliesByStubParams,
     }
   }
 }

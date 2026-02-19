@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Logger } from '@peeps/utils'
-import { postApi } from '@peeps/utils/rest'
+import { WebRestApi } from '@peeps/utils/fetch/web'
 
 const logger = Logger.instance('OnboardingProfile')
 
@@ -27,7 +27,7 @@ const OnboardingProfile = () => {
       const name = [firstName, ...middleNames].map((s) => s.trim()).filter(Boolean)
       const family = lastName.trim()
 
-      const { error } = await postApi(
+      const { error } = await WebRestApi.post(
         '/onboarding/profile',
         {
           name,

@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './schema'
+import { serverEnv } from '@peeps/config/env/node'
 
 type DbClient = ReturnType<typeof postgres>
 type Db       = ReturnType<typeof drizzle<typeof schema>>
@@ -10,13 +11,7 @@ declare global {
   var __peepsDb: Db | undefined
 }
 
-function getDatabaseUrl(): string {
-  const url = process.env.DATABASE_URL
-  if (!url) throw new Error('Missing required environment variable: DATABASE_URL')
-  return url
-}
-
-export const client = globalThis.__peepsDbClient ?? postgres(getDatabaseUrl())
+export const client = globalThis.__peepsDbClient ?? postgres(serverEnv.DATABASE_URL)
 export const db = globalThis.__peepsDb ?? drizzle(client, { schema })
 
 globalThis.__peepsDbClient = client

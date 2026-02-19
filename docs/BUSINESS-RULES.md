@@ -67,24 +67,34 @@ Families can choose one of four governance models when creating a group:
 
 ### 1. Single Admin
 - One admin has full control
-- Can remove members immediately
 - Must designate successor
-- Best for: Traditional patriarch/matriarch family structures
+- Best for: Small families or family structures where one person has full control
 
 ### 2. Hierarchical
 - Primary admin(s) have authority
-- Can appoint/remove other admins
-- Others need approval for major decisions
-- Best for: Multi-generational families with clear leadership
+  - Can appoint/remove other admins
+  - Can remove members immediately
+  - Change family settings
+- Regular admins can 
+  - Approve members
+  - Moderate content
+- Best for: Multi-generational families with selected leadership
 
 ### 3. Consensus
 - All admins must agree on decisions
+  - Change family settings
+  - Add/Remove members
+  - Modeate content
 - Best for: Small, tight-knit families with high trust
 
 ### 4. Democratic
+- No admins
+  - Anybody can approve or remove members
+  - Anybody can moderate content
+  - Anybody can change family settings
 - Decisions made by voting
-- Configurable threshold (50-100%)
-- Best for: Egalitarian families who prefer voting
+  - Configurable threshold (50-100%)
+- Best for: Small, egalitarian families who prefer voting
 
 ---
 

@@ -3,3 +3,5 @@ type TxOptions = {
 }
 
 export type WithTx<TParams> = TParams & TxOptions
+
+export * from './MongoDb'

@@ -12,6 +12,7 @@ export const groups = pgTable('groups', {
   ...BaseFields,
 
   name             : varchar('name', { length: 255 }).notNull(),
+  stub             : text('stub'),
   type             : groupTypeEnum('type').notNull(),
   description      : text('description'),
   createdByMemberId: uuid('created_by_member_id').notNull().references(() => members.id),

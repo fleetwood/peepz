@@ -2,7 +2,7 @@ import { QueryManager } from '../QueryManager'
 import { useMutation } from '@tanstack/react-query'
 
 import { clientEnv } from '@peeps/config/env'
-import { fetchApi, setRestAuthConfig } from '@peeps/utils/rest'
+import { WebRestApi } from '@peeps/utils/fetch/web'
 
 import { createSupabaseClient } from '../supabase/client'
 import { UserInvalidation, UserKeys } from './user.invalidation'
@@ -67,7 +67,7 @@ export const UserClient = {
   },
 
   createHttp<TUserDto>(config: UserClientHttpConfig) {
-    setRestAuthConfig({
+    WebRestApi.configure({
       apiKey        : config.apiKey ?? clientEnv.API_KEY,
       getAccessToken: config.getAccessToken,
       baseUrl       : config.baseUrl,
@@ -75,7 +75,7 @@ export const UserClient = {
 
     return UserClient.create<TUserDto>({
       async me() {
-        const { data, error, status, statusText } = await fetchApi<TUserDto>('/me')
+        const { data, error, status, statusText } = await WebRestApi.fetch<TUserDto>('/me')
 
         if (status === 401) return null
         if (error || !data) {
@@ -87,10 +87,7 @@ export const UserClient = {
       },
       async updateProfile(input: any) {
         console.log('UserClient.updateProfile: Starting update with input:', input);
-        const { data, error, status, statusText } = await fetchApi('/onboarding/profile', {
-          method: 'POST',
-          body: JSON.stringify(input),
-        })
+        const { data, error, status, statusText } = await WebRestApi.post('/onboarding/profile', input)
         console.log('UserClient.updateProfile: Response:', { data, error, status, statusText });
 
         if (error || !data) {

@@ -43,6 +43,20 @@
       "when": 1767162464823,
       "tag": "0005_plain_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1767385730255,
+      "tag": "0006_curvy_wallop",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1767385836622,
+      "tag": "0007_daily_synch",
+      "breakpoints": true
     }
   ]
 }

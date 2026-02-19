@@ -4,14 +4,20 @@ import { SupabaseClient } from '../../supabase/client'
 
 type GoogleSignInParams = Record<string, never>
 
-export function createGoogleProvider(deps: AuthProviderFactoryDeps): AuthProvider<GoogleSignInParams> {
+type GoogleSendJoinParams = {
+  groupId  : string
+  sender   : string
+  recipient: string
+}
+
+export function createGoogleProvider(deps: AuthProviderFactoryDeps): AuthProvider<GoogleSignInParams, GoogleSendJoinParams> {
   const supabase = SupabaseClient.get()
 
   return {
     id   : AuthProviderId.google,
     label: 'Google',
 
-    async signIn() {
+    async signIn(_params: GoogleSignInParams) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options : {
@@ -23,5 +29,8 @@ export function createGoogleProvider(deps: AuthProviderFactoryDeps): AuthProvide
         throw new Error(error.message)
       }
     },
+    async sendJoin(params: GoogleSendJoinParams) {
+      // we can use QueryManager to send the necessary params to API route
+    }
   }
 }

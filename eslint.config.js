@@ -8,9 +8,6 @@ module.exports = [
       '**/.next/**',
       '**/dist/**',
       '**/distro/**',
-      'apps/web/src/components/ui/**/*.{ts,tsx}',
-      'packages/types/**/*.{ts,tsx}',
-      'packages/db/src/schema/**/*.{ts,tsx}',
     ],
     languageOptions: {
       parser       : tsParser,
@@ -38,6 +35,17 @@ module.exports = [
           ],
         },
       ],
+    },
+  },
+  {
+    files: [
+      'apps/web/src/components/ui/**/*.{ts,tsx}',
+      'apps/web/src/components/library/**/*.{ts,tsx}',
+      'packages/types/**/*.{ts,tsx}',
+      'packages/db/**/*.{ts,tsx}'
+    ],
+    rules: {
+      'no-restricted-syntax': 'off',
     },
   },
 ]

@@ -8,3 +8,4 @@ export * from './entities/UserService'
 
 // Integration Services
 export * from './integrations/ResendService'
+export * from './integrations/MongoService'

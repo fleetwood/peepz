@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web",
     "dev:web": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web",
+    "dev:socket": "turbo run dev --filter=@peeps/socket",
     "dev:mobile": "turbo run dev --filter=@peeps/mobile",
-    "dev:all": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web --filter=@peeps/mobile",
+    "dev:all": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web --filter=@peeps/socket",
+    "kill": "lsof -ti :3001,4100 | xargs kill -9 2>/dev/null || true",
     "clean": "find . -type d \\( -name .next -o -name .turbo \\) -prune -exec rm -rf {} +",
     "build:web": "turbo run build --filter=@peeps/web",
     "build:mobile": "turbo run build --filter=@peeps/mobile",
@@ -25,14 +27,17 @@
     "generate:themes": "pnpm --filter @peeps/web generate:themes"
   },
   "devDependencies": {
-    "turbo": "latest",
-    "prettier": "^3.1.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
-    "@typescript-eslint/parser": "^8.0.0"
+    "prettier": "^3.1.0",
+    "turbo": "latest"
   },
   "packageManager": "pnpm@8.0.0",
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.0"
   }
 }

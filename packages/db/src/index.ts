@@ -3,6 +3,11 @@ import { client, db } from './client'
 // Database client and schema exports
 export { db, client }
 export * from './schema'
+export * from './mongo'
+
+export * from './maps/GovernanceMap'
+export * from './maps/GroupPrivacyMap'
+
 export {
   runWithTx,
   withTx,

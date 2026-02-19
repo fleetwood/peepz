@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { QueryManager } from '../QueryManager'
 
 import { clientEnv } from '@peeps/config/env'
-import { fetchApi, postApi, setRestAuthConfig } from '@peeps/utils/rest'
+import { WebRestApi } from '@peeps/utils/fetch/web'
 
 import { createSupabaseClient } from '../supabase/client'
 import { PersonInvalidation, PersonKeys } from './person.invalidation'
@@ -84,7 +84,7 @@ export const PersonClient = {
   },
 
   createHttp<TPerson>(config: PersonClientHttpConfig) {
-    setRestAuthConfig({
+    WebRestApi.configure({
       apiKey        : config.apiKey ?? clientEnv.API_KEY,
       getAccessToken: config.getAccessToken,
       baseUrl       : config.baseUrl,
@@ -92,7 +92,7 @@ export const PersonClient = {
 
     return PersonClient.create<TPerson>({
       async list() {
-        const { data, error, status, statusText } = await fetchApi<TPerson[]>('/persons')
+        const { data, error, status, statusText } = await WebRestApi.fetch<TPerson[]>('/persons')
 
         if (error || !data) {
           throw new Error(`PersonClient.createHttp.list failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
@@ -102,7 +102,7 @@ export const PersonClient = {
       },
 
       async byId(params: { id: string }) {
-        const { data, error, status, statusText } = await fetchApi<TPerson>(`/persons/${params.id}`)
+        const { data, error, status, statusText } = await WebRestApi.fetch<TPerson>(`/persons/${params.id}`)
 
         if (status === 404) return null
         if (error || !data) {
@@ -113,7 +113,7 @@ export const PersonClient = {
       },
 
       async create(params: { input: unknown }) {
-        const { data, error, status, statusText } = await postApi<TPerson, unknown>(
+        const { data, error, status, statusText } = await WebRestApi.post<TPerson, unknown>(
           '/persons',
           params.input,
         )

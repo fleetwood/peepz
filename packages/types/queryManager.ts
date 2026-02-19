@@ -68,6 +68,10 @@ export type InvalidationOptions = QueryDomainMeta & {
   refetch  ?: boolean
 }
 
+export type DomainDescriptor = InvalidationOptions & {
+  topic: Set<string>
+}
+
   /**
  * Subscription group for related queries
  */
@@ -80,9 +84,10 @@ export type QueryGroup = {
  * Generic query options (framework-agnostic)
  */
 export type QueryOptions<TData = unknown, TError = unknown> = {
-  enabled?: boolean
-  staleTime?: number
-  cacheTime?: number
+  enabled?        : boolean
+  staleTime?      : number
+  cacheTime?      : number
+  refetchInterval?: number | false
   refetchOnMount?: boolean
   refetchOnWindowFocus?: boolean
   refetchOnReconnect?: boolean

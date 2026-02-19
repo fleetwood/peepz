@@ -1,58 +1,42 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
+import type { FamilySearchResult } from "@peeps/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Users } from "lucide-react";
-import { FamilyClient } from "@peeps/client";
+import { Search, Plus } from "lucide-react";
+import { useFamilyClient } from "@peeps/client";
 import { Debug } from "../layout/Debug";
 import { Logger } from "@peeps/utils";
 import MiniCard, { MiniCardContent, MiniCardCta, MiniCardIcon } from "../layout/MiniCard";
 
 const logger = Logger.instance('FamilySearch')
 
-type FamilySearchResult = {
-  families: {
-    id: string;
-    groupId: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-  groups: {
-    id: string;
-    name: string;
-    type: string;
-    description?: string;
-    privacyLevel: string;
-    governanceModel: string;
-    removalPolicy: string;
-    createdByMemberId: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-};
-
-type FamilySearchProps = {
-  onSelectFamily: (family: FamilySearchResult) => void;
-  onCreateFamily?: () => void;
-};
-
-export function FamilySearch({
-  onSelectFamily,
-  onCreateFamily,
-}: FamilySearchProps) {
+export function FamilySearch() {
   const [query, setQuery] = React.useState("");
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
-  const familyClient = React.useMemo(() => FamilyClient.createWeb(), []);
+  const [selectingGroupId, setSelectingGroupId] = React.useState<string | null>(null);
+  const familyClient = useFamilyClient();
+  const router = useRouter();
 
   // Use QueryManager for search with debounced query
-  const {data, isLoading, isFetching, error} = familyClient.useSearch({
+  const {data, isLoading, isFetching} = familyClient.useSearch({
     query: debouncedQuery,
     pagination: { limit: 10 },
   })
 
-  const handleSelectFamily = (family: FamilySearchResult) => {
-    onSelectFamily(family);
+  const handleSelectFamily = async (family: FamilySearchResult) => {
+    setSelectingGroupId(family.groups.id);
+    // Placeholder: selection behavior will be implemented later
+    logger.debug('handleSelectFamily placeholder', family);
+    setSelectingGroupId(null);
+  };
+
+  const handleCreate = async () => {
+    const name = query.trim();
+    if (!name) return;
+    router.push(`/families/create?name=${encodeURIComponent(name)}`);
   };
 
   // Debounce query to prevent API calls on every keystroke
@@ -89,7 +73,7 @@ export function FamilySearch({
         <div
           key={family.groups.id}
           className="border rounded-lg p-4 hover:bg-accent cursor-pointer transition-colors"
-          onClick={() => handleSelectFamily(family)}
+          onClick={() => void handleSelectFamily(family)}
         >
           <div className="flex items-start justify-between">
             <div className="space-y-2">
@@ -108,15 +92,15 @@ export function FamilySearch({
                 </span>
               </div>
             </div>
-            <Button variant="ghost" size="sm">
-              Select
+            <Button variant="ghost" size="sm" disabled={selectingGroupId === family.groups.id}>
+              {selectingGroupId === family.groups.id ? "Selecting..." : "Select"}
             </Button>
           </div>
         </div>
       ))}
 
       {/* Create Family Option */}
-      {onCreateFamily && query.trim().length > 0 && (
+      {query.trim().length > 0 && (
         <MiniCard>
           <MiniCardIcon
             icon={<Plus className="h-10 w-10 text-primary" />} 
@@ -131,8 +115,8 @@ export function FamilySearch({
           </MiniCardContent>
           <MiniCardCta
             icon={<Plus className="h-4 w-4" />}
-            label="Create"
-            onClick={onCreateFamily}
+            label={`Create ${query.trim()}`}
+            onClick={() => void handleCreate()}
           />
         </MiniCard>
       )}

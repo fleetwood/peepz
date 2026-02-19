@@ -1,16 +1,19 @@
 import { WithChildren, WithClassName } from "@peeps/types"
 import { cn } from "@peeps/utils/classnames"
+import AsyncContainer, { AsyncContainerProps } from "./AsyncContainer"
 
-type MainProps = WithChildren & WithClassName & {
+type MainProps = AsyncContainerProps & WithChildren & WithClassName & {
     title?: string | React.ReactNode
 }
 
-const Main = (props:MainProps) => {
+const Main = ({title, className, children, ...props}:MainProps) => {
     return (
-    <div className={cn("p-6 overflow-y-auto", props.className)}>
-        {props.title && <h1 className="w-full">{props.title}</h1>}
-        {props.children}
-    </div>
+        <AsyncContainer {...props}>
+            <div className={cn("p-6 overflow-y-auto", className)}>
+                {title && <h1 className="w-full">{title}</h1>}
+                {children}
+            </div>
+        </AsyncContainer>
     )
 }
 

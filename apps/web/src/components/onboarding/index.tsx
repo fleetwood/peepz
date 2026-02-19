@@ -113,7 +113,7 @@ Suggested steps:
         </pre>
       </TabsContent>
       <TabsContent value="Join">
-        <FamilySearch onSelectFamily={() => {}} onCreateFamily={() => {}} />
+        <FamilySearch />
       </TabsContent>
       <TabsContent value = "Approval">
         <OnboardingApproval />

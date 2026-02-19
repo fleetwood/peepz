@@ -7,7 +7,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./string": "./src/string.ts",
-    "./logger": "./src/logger.ts"
+    "./logger": "./src/logger.ts",
+    "./fetch/web": "./src/fetch/web.ts",
+    "./fetch/socket": "./src/fetch/socket.ts"
   },
   "scripts": {
     "lint": "eslint src --ext .ts",
