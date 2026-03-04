@@ -25,3 +25,5 @@ export * from "../sharedb"
 export * from "../fetch"
 export * from "../domains/family.domain"
 export * from "../domains/presence.domain"
+
+export * from "./onboarding"

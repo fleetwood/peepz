@@ -10,99 +10,61 @@ Define shared, Zod-backed types for forms, API contracts, and UI state to ensure
 
 ## Types to add to `packages/types`
 
+See `packages/types/src/onboarding.ts` for all Zod schemas and inferred types.
+
 ### OnboardingStep
 ```typescript
-export const OnboardingStepSchema = z.enum([
-  'profile',
-  'family-selection',
-  'approval',
-  'relationships',
-  'governance',
-  'complete'
-])
+// packages/types/src/onboarding.ts
+export const OnboardingStepSchema = z.enum([...])
 export type OnboardingStep = z.infer<typeof OnboardingStepSchema>
 ```
 
 ### JoinRequest
 ```typescript
-export const JoinRequestStatusSchema = z.enum(['PENDING', 'APPROVED', 'REJECTED'])
-export type JoinRequestStatus        = z.infer<typeof JoinRequestStatusSchema>
+// packages/types/src/onboarding.ts
+export const JoinRequestStatusSchema = z.nativeEnum(RequestStatus)
+export type JoinRequestStatus = z.infer<typeof JoinRequestStatusSchema>
 
-export const JoinRequestRequirementsSchema = z.object({
-  adminsNeeded : z.number(),
-  membersNeeded: z.number()
-})
-
+export const JoinRequestRequirementsSchema = z.object({...})
 export const JoinRequestConfirmationSchema = z.object({
-  memberId : z.string(),
-  type     : z.enum(['ADMIN', 'MEMBER']),
-  createdAt: z.string().datetime()
+  type: z.nativeEnum(GroupRole),
+  ...
 })
-
 export const ClaimedRelationshipSchema = z.object({
-  targetMemberId: z.string(),
-  type          : z.enum(['PARENT', 'CHILD', 'SIBLING', 'SPOUSE', 'PARTNER'])
+  type: z.nativeEnum(RelationshipType),
+  ...
 })
-
-export const JoinRequestSchema = z.object({
-  id                  : z.string(),
-  status              : JoinRequestStatusSchema,
-  requirements        : JoinRequestRequirementsSchema,
-  confirmations       : z.array(JoinRequestConfirmationSchema),
-  claimedRelationships: z.array(ClaimedRelationshipSchema).optional(),
-  expiresAt           : z.string().datetime().optional()
-})
+export const JoinRequestSchema = z.object({...})
 export type JoinRequest = z.infer<typeof JoinRequestSchema>
 ```
 
 ### Governance
 ```typescript
-export const GovernanceModelSchema = z.enum([
-  'SINGLE_ADMIN',
-  'HIERARCHICAL',
-  'CONSENSUS',
-  'DEMOCRATIC'
-])
+// packages/types/src/onboarding.ts
+export const GovernanceModelSchema = z.nativeEnum(GovernanceModel)
 export type GovernanceModel = z.infer<typeof GovernanceModelSchema>
 
 export const GovernanceConfigSchema = z.record(z.unknown())
-export type GovernanceConfig        = z.infer<typeof GovernanceConfigSchema>
+export type GovernanceConfig = z.infer<typeof GovernanceConfigSchema>
 
-export const FamilyGovernanceSchema = z.object({
-  model : GovernanceModelSchema,
-  config: GovernanceConfigSchema.optional()
-})
+export const FamilyGovernanceSchema = z.object({...})
 export type FamilyGovernance = z.infer<typeof FamilyGovernanceSchema>
 ```
 
 ### Form inputs
 ```typescript
-export const CreateJoinRequestInputSchema = z.object({
-  familyId  : z.string(),
-  inviteCode: z.string().optional()
-})
-export type CreateJoinRequestInput = z.infer<typeof CreateJoinRequestInputSchema>
-
+// packages/types/src/onboarding.ts
+export const CreateJoinRequestInputSchema = z.object({...})
 export const ApproveRequestInputSchema = z.object({
-  confirmationType: z.enum(['ADMIN', 'MEMBER'])
+  confirmationType: z.nativeEnum(GroupRole)
 })
-export type ApproveRequestInput = z.infer<typeof ApproveRequestInputSchema>
-
-export const UpdateRelationshipsInputSchema = z.object({
-  relationships: z.array(ClaimedRelationshipSchema)
-})
-export type UpdateRelationshipsInput = z.infer<typeof UpdateRelationshipsInputSchema>
+export const UpdateRelationshipsInputSchema = z.object({...})
 ```
 
 ### UI state
 ```typescript
-export const OnboardingContextSchema = z.object({
-  currentStep      : OnboardingStepSchema,
-  selectedFamily   : z.any().optional(),                 // Family type from existing schema
-  joinRequestId    : z.string().optional(),
-  joinRequestStatus: JoinRequestStatusSchema.optional()
-})
-export type OnboardingContext = z.infer<typeof OnboardingContextSchema>
+// packages/types/src/onboarding.ts
+export const OnboardingContextSchema = z.object({...})
 ```
 
 ## Database schema additions
