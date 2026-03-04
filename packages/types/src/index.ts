@@ -15,6 +15,7 @@ export * from "../layout/pageDialogProps"
 
 export * from "../response/paginated.response"
 export * from "../response/response.types"
+export * from "../response/apiRoute.types"
 
 export * from "../theme"
 

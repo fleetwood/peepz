@@ -1,8 +1,7 @@
 "use client"
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
-import { AuthClient } from '@peeps/client'
 import { Logger } from '@peeps/utils'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
 
 const logger = Logger.instance('OnboardingApproval')
 

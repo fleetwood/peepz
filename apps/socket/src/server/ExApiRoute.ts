@@ -1,34 +1,20 @@
 import type { Request, Response } from 'express'
-import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { serverEnv } from '@peeps/config/env'
 import {
   ChainContext,
   ErrorCodeEnum,
   ValidationSourceEnum,
-  errorCodeToMessage,
   errorCodeToStatusCode,
+  type ApiErrorShape,
+  type AuthedChainContext,
   type ServiceResult,
 } from '@peeps/types'
 import type { ZodTypeAny } from 'zod'
-import { Logger } from '@peeps/utils'
+import { Logger, createSupabaseVerifier, isServiceResult, normalizeError } from '@peeps/utils'
 
 const logger = Logger.instance('ExApiRoute')
 
-type ApiErrorShape = {
-  error        : string
-  code         : ErrorCodeEnum | string
-  statusCode   : number
-  statusText?  : string
-  errorDetails?: Record<string, unknown>
-}
-
-const supabaseJwks = createRemoteJWKSet(new URL(`${serverEnv.SUPABASE_URL}/auth/v1/.well-known/jwks.json`))
-
-type AuthedChainContext = Omit<ChainContext, 'accessToken' | 'authUserId' | 'email'> & {
-  accessToken: string
-  authUserId : string
-  email      : string
-}
+const supabaseTokenVerifier = createSupabaseVerifier(serverEnv.SUPABASE_URL)
 
 type ExpressChainContext = ChainContext & {
   req      : Request
@@ -42,6 +28,52 @@ type ExApiRouteAuthed = Omit<ExApiRoute, 'handle'> & {
   handle<T>(handler: (ctx: ExpressChainContextAuthed) => Promise<T>): Promise<void>
 }
 
+/**
+ * Builder-pattern route handler for Express API routes (socket server).
+ *
+ * Express-adapted counterpart to {@link ApiRoute} (Next.js). Provides the same
+ * fluent chain for assembling auth, pagination, validation, and handler logic,
+ * with a single terminal `handle()` call that executes everything, normalizes
+ * responses, and catches all errors.
+ *
+ * Differences from {@link ApiRoute}:
+ * - Accepts Express `req`/`res` instead of a Web `Request`; writes to `res` directly
+ *   rather than returning a `Response` object
+ * - Exposes a `validate()` step for Zod schema validation of `body`, `query`, or `params`
+ * - Injects `req`, `res`, and `validated` into `ctx` so handlers have full Express access
+ * - `handle()` checks `res.headersSent` before writing to avoid double-send errors
+ *
+ * Design principles:
+ * - **Builder**: each method mutates internal state and returns `this`
+ * - **Deferred execution**: JWT verification and auth checks run inside `handle()`, not eagerly
+ * - **Type-level DI**: `auth(true)` narrows the handler's `ctx` to {@link ExpressChainContextAuthed},
+ *   guaranteeing `accessToken`, `authUserId`, and `email` are `string` at compile time
+ * - **Context Object**: all chain state assembled into {@link ExpressChainContext} passed to handler
+ * - **Error Barrier**: any thrown value is caught and normalized into a consistent JSON error response
+ * - **Response Adapter**: handlers return raw data or a {@link ServiceResult}; `handle()` wraps both
+ *   into `{ data: ... }` automatically
+ *
+ * @example Unauthenticated route
+ * ```ts
+ * router.get('/health', async (req, res) => {
+ *   await new ExApiRoute(req, res)
+ *     .handle(async () => ({ ok: true }))
+ * })
+ * ```
+ *
+ * @example Authenticated route with body validation
+ * ```ts
+ * router.post('/families', async (req, res) => {
+ *   await new ExApiRoute(req, res)
+ *     .auth(true)
+ *     .validate(ValidationSourceEnum.BODY, CreateFamilySchema)
+ *     .handle(async (ctx) => {
+ *       const body = ctx.validated[ValidationSourceEnum.BODY] as CreateFamilyInput
+ *       return FamilyService.create({ ...body, authUserId: ctx.authUserId })
+ *     })
+ * })
+ * ```
+ */
 export class ExApiRoute {
   private accessToken   : string | null
   private currentSession: { authUserId: string; email: string } | null = null
@@ -64,74 +96,26 @@ export class ExApiRoute {
     return token
   }
 
+  /**
+   * Writes a standardized JSON error response to the Express response.
+   */
   private static jsonError(res: Response, value: ApiErrorShape) {
     res.status(value.statusCode).json(value)
   }
 
-  private static async verifyAccessToken(accessToken: string): Promise<{ authUserId: string; email: string | null }> {
-    const issuer = `${serverEnv.SUPABASE_URL}/auth/v1`
-    const { payload } = await jwtVerify(accessToken, supabaseJwks, { issuer, audience: 'authenticated' })
-
-    const authUserId = typeof payload.sub === 'string' ? payload.sub : ''
-    const email = typeof payload.email === 'string' ? payload.email : null
-
-    if (!authUserId) {
-      throw new Error('Invalid access token: missing sub claim')
-    }
-
-    return { authUserId, email }
-  }
-
-  private static normalizeError(error: unknown): ApiErrorShape {
-    if (error && typeof error === 'object' && 'statusCode' in error && 'code' in error && 'error' in error) {
-      const e = error as Partial<ApiErrorShape>
-      if (typeof e.error === 'string' && typeof e.statusCode === 'number' && typeof e.code === 'string') {
-        return {
-          error       : e.error,
-          code        : e.code,
-          statusCode  : e.statusCode,
-          statusText  : e.statusText,
-          errorDetails: e.errorDetails,
-        }
-      }
-    }
-
-    if (typeof error === 'string') {
-      return {
-        error     : error,
-        code      : ErrorCodeEnum.SYS_INTERNAL_ERROR,
-        statusCode: errorCodeToStatusCode[ErrorCodeEnum.SYS_INTERNAL_ERROR],
-      }
-    }
-
-    if (error instanceof Error) {
-      return {
-        error       : error.message,
-        code        : ErrorCodeEnum.SYS_INTERNAL_ERROR,
-        statusCode  : errorCodeToStatusCode[ErrorCodeEnum.SYS_INTERNAL_ERROR],
-        errorDetails: { name: error.name },
-      }
-    }
-
-    return {
-      error     : errorCodeToMessage[ErrorCodeEnum.SYS_INTERNAL_ERROR],
-      code      : ErrorCodeEnum.SYS_INTERNAL_ERROR,
-      statusCode: errorCodeToStatusCode[ErrorCodeEnum.SYS_INTERNAL_ERROR],
-    }
-  }
-
-  private static isServiceResultLike(value: unknown): value is ServiceResult {
-    if (!value || typeof value !== 'object') return false
-    return 'status' in value && ('result' in value || 'error' in value)
-  }
-
+  /**
+   * - On failure, stores the error in `sessionError`; `handle()` will surface it as a 401
+   *   only if `auth(true)` was called.
+   *
+   * @returns `this` for chaining
+   */
   async session() {
     if (!this.accessToken) return this
     if (this.currentSession) return this
 
     logger.debug('session')
     try {
-      const verified = await ExApiRoute.verifyAccessToken(this.accessToken)
+      const verified = await supabaseTokenVerifier(this.accessToken)
       if (!verified.email) {
         this.sessionError = {
           error     : 'Supabase user missing email',
@@ -151,6 +135,21 @@ export class ExApiRoute {
     return this
   }
 
+  /**
+   * Declares the authentication requirement for this route.
+   *
+   * **Overload behaviour:**
+   * - `auth()` / `auth(false)` — marks auth as optional. The handler receives
+   *   `ctx.authUserId?: string` and `ctx.email?: string` (may be undefined).
+   * - `auth(true)` — marks auth as **required**. Returns {@link ExApiRouteAuthed}, which
+   *   narrows the handler's `ctx` to {@link ExpressChainContextAuthed} so `accessToken`,
+   *   `authUserId`, and `email` are typed as `string` (non-nullable). If the token is
+   *   missing or invalid, `handle()` short-circuits with a `401` JSON response before
+   *   the handler is ever called.
+   *
+   * @param required - `true` to enforce authentication and narrow context types
+   * @returns `this` (or {@link ExApiRouteAuthed} when `required` is `true`)
+   */
   auth(): this
   auth(required: false): this
   auth(required: true): ExApiRouteAuthed
@@ -161,6 +160,19 @@ export class ExApiRoute {
     return this
   }
 
+  /**
+   * Parses and validates pagination parameters from the Express request URL,
+   * then stores them for injection into `ctx.pagination` inside `handle()`.
+   *
+   * Query params read:
+   * - `cursor` — opaque cursor string for keyset pagination (pass-through, no parsing)
+   * - `limit`  — integer; clamped to `[1, 100]`; defaults to `params.limit ?? 20`
+   *
+   * @param params - Optional defaults to use when query params are absent
+   * @param params.cursor - Default cursor value
+   * @param params.limit  - Default page size (overridden by `?limit=` query param if present)
+   * @returns `this` for chaining
+   */
   pagination(params?: Partial<ChainContext['pagination']>) {
     logger.debug('pagination', { params })
     const url = new URL(this.req.protocol + '://' + this.req.get('host') + this.req.originalUrl)
@@ -179,6 +191,26 @@ export class ExApiRoute {
     return this
   }
 
+  /**
+   * Validates a portion of the incoming request against a Zod schema and stores
+   * the parsed result in `validated[target]` for injection into `ctx.validated`.
+   *
+   * Validation sources (see {@link ValidationSourceEnum}):
+   * - `BODY`   — `req.body` (requires `express.json()` middleware upstream)
+   * - `QUERY`  — `req.query`
+   * - `PARAMS` — `req.params` (URL path parameters)
+   *
+   * Throws synchronously on validation failure (Zod `ZodError`), which `handle()`
+   * will catch and normalize into a JSON error response.
+   *
+   * Access validated data inside the handler via `ctx.validated[ValidationSourceEnum.BODY]`
+   * etc., casting to your expected type.
+   *
+   * @param target - Which part of the request to validate ({@link ValidationSourceEnum})
+   * @param schema - Zod schema to parse against
+   * @returns `this` for chaining
+   * @throws {ZodError} if validation fails
+   */
   validate(target: ValidationSourceEnum, schema: ZodTypeAny) {
     logger.debug('validate', { target })
     try {
@@ -191,6 +223,26 @@ export class ExApiRoute {
     return this
   }
 
+  /**
+   * Terminal method — executes the assembled chain and writes a JSON response to `res`.
+   *
+   * Execution order:
+   * 1. Calls `session()` to verify the Bearer token (idempotent if already called)
+   * 2. If `auth(true)` was declared, short-circuits with `401` if token is missing or invalid
+   * 3. Assembles {@link ExpressChainContext} from all chain state and passes it to `handler`
+   * 4. Checks `res.headersSent` after the handler returns — skips response writing if another
+   *    middleware or the handler itself already sent a response
+   * 5. Normalizes the handler's return value into a `{ data: ... }` JSON response:
+   *    - If it matches {@link ServiceResult} shape (`{ status, result | error }`), unwraps `result`
+   *    - Otherwise wraps the value directly as `{ data: value }`
+   * 6. On any thrown error, calls `normalizeError` and writes the appropriate JSON error response
+   *
+   * When `auth(true)` was used, TypeScript narrows `ctx` to {@link ExpressChainContextAuthed},
+   * guaranteeing `ctx.accessToken`, `ctx.authUserId`, and `ctx.email` are `string`.
+   *
+   * @param handler - Async function receiving the assembled {@link ExpressChainContext}
+   * @returns `Promise<void>` — response is written directly to `res`
+   */
   async handle<T>(handler: (ctx: ExpressChainContext) => Promise<T>): Promise<void> {
     logger.debug('handle')
     await this.session()
@@ -229,14 +281,14 @@ export class ExApiRoute {
 
       if (this.res.headersSent) return
 
-      if (ExApiRoute.isServiceResultLike(data)) {
+      if (isServiceResult(data)) {
         this.res.json({ data: (data as ServiceResult).result })
         return
       }
 
       this.res.json({ data })
     } catch (error) {
-      ExApiRoute.jsonError(this.res, ExApiRoute.normalizeError(error))
+      ExApiRoute.jsonError(this.res, normalizeError(error))
     }
   }
 }

@@ -20,6 +20,7 @@
     "@peeps/config": "workspace:*",
     "@peeps/types": "workspace:*",
     "drizzle-orm": "^0.36.4",
+    "jose": "^5.9.3",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

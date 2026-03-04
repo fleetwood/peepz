@@ -103,9 +103,6 @@ importers:
       '@peeps/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@peeps/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@peeps/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -527,6 +524,9 @@ importers:
       drizzle-orm:
         specifier: ^0.36.4
         version: 0.36.4(@types/react@18.3.27)(postgres@3.4.7)(react@18.3.1)
+      jose:
+        specifier: ^5.9.3
+        version: 5.10.0
       uuid:
         specifier: ^13.0.0
         version: 13.0.0

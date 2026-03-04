@@ -8,14 +8,21 @@ const logger = Logger.instance('OnboardingProfile')
 
 const OnboardingProfile = () => {
  
-  const [preferredName, setPreferredName] = React.useState('')
-  const [firstName, setFirstName] = React.useState('')
-  const [middleNames, setMiddleNames] = React.useState<string[]>([])
-  const [lastName, setLastName] = React.useState('')
-  const [dateOfBirth, setDateOfBirth] = React.useState('')
+  const [formData, setFormData] = React.useState({
+    preferredName: '',
+    firstName    : '',
+    middleNames  : [] as string[],
+    lastName     : '',
+    dateOfBirth  : ''
+  })
 
   const [submitting, setSubmitting] = React.useState(false)
   const [status, setStatus] = React.useState<string | null>(null)
+
+  const updateField = <K extends keyof typeof formData>(
+    field: K,
+    value: typeof formData[K]
+  ) => setFormData(prev => ({ ...prev, [field]: value }))
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -24,15 +31,15 @@ const OnboardingProfile = () => {
     setStatus(null)
 
     try {
-      const name = [firstName, ...middleNames].map((s) => s.trim()).filter(Boolean)
-      const family = lastName.trim()
+      const name = [formData.firstName, ...formData.middleNames].map((s) => s.trim()).filter(Boolean)
+      const family = formData.lastName.trim()
 
       const { error } = await WebRestApi.post(
         '/onboarding/profile',
         {
           name,
-          dateOfBirth,
-          preferredName: preferredName.trim() || undefined,
+          dateOfBirth: formData.dateOfBirth,
+          preferredName: formData.preferredName.trim() || undefined,
           familyNames  : family
             ? [{ name: family, category: 'other', active: true, order: 0 }]
             : [],
@@ -59,9 +66,9 @@ const OnboardingProfile = () => {
           <span className="text-sm">Preferred name</span>
           <input
             className="rounded border px-3 py-2"
-            value={preferredName}
-            onChange={(e) => setPreferredName(e.target.value)}
-            placeholder="What should we call you?"
+            value={formData.preferredName}
+            onChange={(e) => updateField('preferredName', e.target.value)}
+            placeholder="How do you prefer to be addressed?"
           />
         </label>
 
@@ -69,8 +76,8 @@ const OnboardingProfile = () => {
           <span className="text-sm">First name</span>
           <input
             className="rounded border px-3 py-2"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            value={formData.firstName}
+            onChange={(e) => updateField('firstName', e.target.value)}
             required
           />
         </label>
@@ -81,28 +88,28 @@ const OnboardingProfile = () => {
             <button
               className="rounded border px-2 py-1 text-sm"
               type="button"
-              onClick={() => setMiddleNames((prev) => [...prev, ''])}
+              onClick={() => updateField('middleNames', [...formData.middleNames, ''])}
             >
               Add middle name
             </button>
           </div>
 
-          {middleNames.map((value, idx) => {
+          {formData.middleNames.map((value, idx) => {
             return (
               <div className="flex gap-2" key={idx}>
                 <input
                   className="flex-1 rounded border px-3 py-2"
                   value={value}
                   onChange={(e) => {
-                    const next = [...middleNames]
+                    const next = [...formData.middleNames]
                     next[idx] = e.target.value
-                    setMiddleNames(next)
+                    updateField('middleNames', next)
                   }}
                 />
                 <button
                   className="rounded border px-2"
                   type="button"
-                  onClick={() => setMiddleNames((prev) => prev.filter((_, i) => i !== idx))}
+                  onClick={() => updateField('middleNames', formData.middleNames.filter((_, i) => i !== idx))}
                 >
                   Remove
                 </button>
@@ -116,8 +123,8 @@ const OnboardingProfile = () => {
           <input
             className="rounded border px-3 py-2"
             type="date"
-            value={dateOfBirth}
-            onChange={(e) => setDateOfBirth(e.target.value)}
+            value={formData.dateOfBirth}
+            onChange={(e) => updateField('dateOfBirth', e.target.value)}
             required
           />
         </label>
@@ -126,8 +133,8 @@ const OnboardingProfile = () => {
           <span className="text-sm">Last name</span>
           <input
             className="rounded border px-3 py-2"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            value={formData.lastName}
+            onChange={(e) => updateField('lastName', e.target.value)}
             required
           />
         </label>
