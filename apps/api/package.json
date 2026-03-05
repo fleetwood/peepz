@@ -1,0 +1,35 @@
+{
+  "name": "@peeps/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@peeps/config": "workspace:*",
+    "@peeps/db": "workspace:*",
+    "@peeps/services": "workspace:*",
+    "@peeps/types": "workspace:*",
+    "@peeps/utils": "workspace:*",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.36.4",
+    "jose": "^6.1.3",
+    "next": "^15.1.0",
+    "postgres": "^3.4.5",
+    "stripe": "^17.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0",
+    "eslint-config-next": "^15.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "postcss": "^8.4.49",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}

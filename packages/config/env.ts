@@ -7,6 +7,13 @@
  * - NEVER import `serverEnv` in client-side code
  */
 
+export const URLS = {
+  supabase: "http://localhost:54321",
+  socket: "ws://localhost:3002",
+  api: "http://localhost:3001",
+  web: "http://localhost:3000",
+} as const
+
 function getEnvVar(key: string, required: boolean = true): string {
   const value = process.env[key];
 
@@ -57,7 +64,7 @@ const buildClientEnv = () => {
         process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL,
         "NEXT_PUBLIC_SUPABASE_PROJECT_URL",
         false,
-      ),
+      ) || URLS.supabase,
     SUPABASE_ANON_KEY:
       getClientEnvVar(
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -77,19 +84,26 @@ const buildClientEnv = () => {
     CLOUDINARY_CLOUD_NAME: getClientEnvVar(
       process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
       "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+      false,
     ),
     APP_URL:
       getClientEnvVar(
         process.env.NEXT_PUBLIC_APP_URL,
         "NEXT_PUBLIC_APP_URL",
         false,
-      ) || "http://localhost:3001",
+      ) || URLS.web,
+    API_URL:
+      getClientEnvVar(
+        process.env.NEXT_PUBLIC_API_URL,
+        "NEXT_PUBLIC_API_URL",
+        false,
+      ) || URLS.api,
     SOCKET_URL:
       getClientEnvVar(
         process.env.NEXT_PUBLIC_SOCKET_URL,
         "NEXT_PUBLIC_SOCKET_URL",
         false,
-      ) || "ws://localhost:4100",
+      ) || URLS.socket,
     NODE_ENV:
       getClientEnvVar(process.env.NODE_ENV, "NODE_ENV", false) || "development",
     LOG_LEVEL:

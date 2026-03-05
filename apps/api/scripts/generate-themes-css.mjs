@@ -11,7 +11,7 @@ const logger = {
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 const webRoot = path.resolve(__dirname, "..")
-const outFile = path.join(webRoot, "assets", "css", "themes.css")
+const outFile = path.join(webRoot, "app", "themes.css")
 
 const { materializeTheme, themeNames, themes } = ui
 
@@ -39,18 +39,22 @@ function toCssVars(themeName, mode = "light") {
   const paletteVars = []
   for (const [paletteName, paletteObj] of Object.entries(theme.colors)) {
     if (paletteObj && typeof paletteObj === 'object' && paletteObj !== null && paletteName !== "brand" && paletteName !== "semantic" && paletteName !== "dark") {
+      // Only add the DEFAULT shade for this palette color
       if ('DEFAULT' in paletteObj) {
         paletteVars.push(`--${paletteName}:${paletteObj.DEFAULT}`)
       }
     }
   }
 
+  // Apply dark mode overrides for page colors if in dark mode
   let pageBg = brand.page
   let pageFg = brand["page-foreground"]
   if (mode === "dark" && theme.colors.dark) {
+    // Resolve dark mode color references
     const darkBg = theme.colors.dark.page
     const darkFg = theme.colors.dark["page-foreground"]
     
+    // Check if they're references (contain dots) or direct values
     if (darkBg.includes('.')) {
       const [paletteName, shade] = darkBg.split('.')
       pageBg = theme.colors[paletteName][shade]
@@ -73,21 +77,22 @@ function toCssVars(themeName, mode = "light") {
   const fontPeeps = mapFontToVar(fonts.peeps ?? "Gluten")
   const fontSans = mapFontToVar(fonts.sans ?? "Montserrat")
   const fontSerif = mapFontToVar(fonts.serif ?? "Domine")
-  const fontMono = mapFontToVar(fonts.mono ?? "Inconsolata")
 
+  // Helper function to resolve color references
   function resolveColor(colorRef) {
     if (typeof colorRef !== 'string') return colorRef
     if (colorRef.includes('.')) {
       const [paletteName, shade] = colorRef.split('.')
       return theme.colors[paletteName]?.[shade] || colorRef
     }
+    // If it's a simple color name like "green", "purple", etc.
     return theme.colors[colorRef]?.DEFAULT || colorRef
   }
 
+  const fontMono = mapFontToVar(fonts.mono ?? "Inconsolata")
+
   return [
     ...paletteVars,
-    `--page:${pageBg}`,
-    `--page-foreground:${pageFg}`,
     `--background:${pageBg}`,
     `--foreground:${pageFg}`,
     `--card:${pageBg}`,
@@ -119,7 +124,6 @@ function toCssVars(themeName, mode = "light") {
     `--danger-foreground:${resolveColor(semantic["danger-foreground"])}`,
     `--info:${resolveColor(semantic.info)}`,
     `--info-foreground:${resolveColor(semantic["info-foreground"])}`,
-    `--radius:${theme.radii?.md || 10}px`,
   ].join(";")
 }
 

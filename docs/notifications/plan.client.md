@@ -1,218 +1,80 @@
 # Notifications: Client Layer
 
+## Status: ✅ **COMPLETED**
+
 ## Goal
 
-Build React Query hooks for notification state management. Provides `useNotifications`, `useMarkAsRead`, and `useNotificationPreferences` for UI consumption.
+Build React Query hooks for notification state management. Provides notification hooks for UI consumption.
 
 ## Dependencies
 
-- `@peeps/utils/fetch/web` - `WebRestApi` for HTTP calls
+- `@peeps/client/fetch/WebRestApi` - HTTP calls with auth token injection
 - `@tanstack/react-query` - Caching and state management
-- `@peeps/client/QueryManager` - Invalidation utilities
+- `@peeps/client/QueryManager` - Centralized query management and invalidation
 
-## Files to Create
+## Files Created ✅
 
-- `packages/client/src/notifications/notifications.client.ts` - Main client
-- Update `packages/client/src/index.ts` - Export
+- `packages/client/src/notifications/notifications.client.ts` - Main client with factory pattern
+- `packages/client/src/notifications/notification.invalidation.ts` - Query keys and invalidation utilities
+- `packages/client/src/notifications/index.ts` - Barrel export
+- `packages/client/src/index.ts` - Updated to export notifications
 
-## NotificationClient API
+## Implementation Details
 
-### useNotifications Hook
+### Factory Pattern Architecture
 
-```typescript
-// packages/client/src/notifications/notifications.client.ts
-export function useNotifications(options?: { unreadOnly?: boolean; limit?: number }) {
-  return useQuery({
-    queryKey: ['notifications', options?.unreadOnly ? 'unread' : 'all', options?.limit ?? 20],
-    queryFn: async () => {
-      const unreadParam = options?.unreadOnly ? 'unreadOnly=true' : ''
-      const limitParam = options?.limit ? `limit=${options.limit}` : ''
-      const params = [unreadParam, limitParam].filter(Boolean).join('&')
-      
-      const { data, error, status, statusText } = await WebRestApi.fetch<{ notifications: Notification[] }>(
-        `/api/notifications${params ? `?${params}` : ''}`
-      )
-      
-      if (error || !data) {
-        throw new Error(`Failed to fetch notifications: ${status} ${statusText}`)
-      }
-      
-      return data.notifications
-    },
-  })
-}
-```
-
-### useUnreadCount Hook
+The client uses a factory pattern similar to other clients in the codebase:
 
 ```typescript
-export function useUnreadCount() {
-  return useQuery({
-    queryKey: ['notifications', 'unread-count'],
-    queryFn: async () => {
-      const { data, error, status, statusText } = await WebRestApi.fetch<{ count: number }>(
-        '/api/notifications?unreadOnly=true&limit=0&count=true'
-      )
-      
-      if (error || !data) {
-        throw new Error(`Failed to fetch unread count: ${status} ${statusText}`)
-      }
-      
-      return data.count
-    },
-    // Poll every 30 seconds for new notifications
-    refetchInterval: 30000,
-  })
-}
+// Create HTTP client instance
+const notificationClient = NotificationClient.createHttp(config)
+
+// Use hooks
+const { data: notifications } = notificationClient.useList({ filters: { unreadOnly: true } })
+const { data: unreadCount } = notificationClient.useUnreadCount(memberId)
 ```
 
-### useMarkAsRead Hook
+### Available Hooks
 
-```typescript
-export function useMarkAsRead() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (notificationId: string) => {
-      const { data, error, status, statusText } = await WebRestApi.post<{ notification: Notification }>(
-        `/api/notifications/${notificationId}/read`,
-        {}
-      )
-      
-      if (error || !data) {
-        throw new Error(`Failed to mark as read: ${status} ${statusText}`)
-      }
-      
-      return data.notification
-    },
-    onSuccess: () => {
-      // Invalidate notification queries
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-    },
-  })
-}
-```
+- `useList(params)` - Paginated notification list with filters
+- `useUnreadCount(memberId)` - Unread count with 30s polling
+- `useMarkAsRead()` - Mark single notification as read
+- `useMarkAllAsRead()` - Mark all notifications as read
+- `usePreferences(params)` - Get notification preferences
+- `useUpdatePreferences()` - Update notification preferences
 
-### useMarkAllAsRead Hook
+### Query Management
 
-```typescript
-export function useMarkAllAsRead() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async () => {
-      const { data, error, status, statusText } = await WebRestApi.post<{ success: boolean }>(
-        '/api/notifications/read-all',
-        {}
-      )
-      
-      if (error || !data) {
-        throw new Error(`Failed to mark all as read: ${status} ${statusText}`)
-      }
-      
-      return data.success
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-    },
-  })
-}
-```
+Uses `QueryManager` for:
+- Consistent query key generation via `NotificationKeys`
+- Centralized invalidation via `NotificationInvalidation`
+- Domain-based query organization (`QueryDomainEnum.NOTIFS`)
 
-### useNotificationPreferences Hook
+### Integration Points
 
-```typescript
-export function useNotificationPreferences() {
-  return useQuery({
-    queryKey: ['notification-preferences'],
-    queryFn: async () => {
-      const { data, error, status, statusText } = await WebRestApi.fetch<{ preferences: NotificationPreferences }>(
-        '/api/notifications/preferences'
-      )
-      
-      if (error || !data) {
-        throw new Error(`Failed to fetch preferences: ${status} ${statusText}`)
-      }
-      
-      return data.preferences
-    },
-  })
-}
-
-export function useUpdateNotificationPreferences() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (updates: Partial<NotificationPreferences>) => {
-      const { data, error, status, statusText } = await WebRestApi.put<{ preferences: NotificationPreferences }>(
-        '/api/notifications/preferences',
-        updates
-      )
-      
-      if (error || !data) {
-        throw new Error(`Failed to update preferences: ${status} ${statusText}`)
-      }
-      
-      return data.preferences
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notification-preferences'] })
-    },
-  })
-}
-```
-
-## Real-time Hook (Socket Integration)
-
-```typescript
-export function useRealtimeNotifications(onNewNotification?: (notif: Notification) => void) {
-  // Get current member ID from auth context
-  const { memberId } = useAuth()
-  
-  useEffect(() => {
-    if (!memberId) return
-    
-    // Subscribe to notifications topic
-    const topic = `POST/notifications/${memberId}`
-    
-    const unsubscribe = SocketClient.subscribe(topic, (payload) => {
-      const notification = payload as Notification
-      onNewNotification?.(notification)
-    })
-    
-    return () => {
-      unsubscribe()
-    }
-  }, [memberId, onNewNotification])
-}
-```
-
-## Index Export
-
-Update `packages/client/src/index.ts`:
-
-```typescript
-// packages/client/src/index.ts
-export {
-  useNotifications,
-  useUnreadCount,
-  useMarkAsRead,
-  useMarkAllAsRead,
-  useNotificationPreferences,
-  useUpdateNotificationPreferences,
-  useRealtimeNotifications,
-} from './notifications/notifications.client'
-```
+- **WebRestApi**: Uses client-specific WebRestApi with Supabase token injection
+- **QueryManager**: Follows established patterns for cache management
+- **Types**: Fully typed with `@peeps/types` notification schemas
 
 ## Cross-References
 
-- WebRestApi: `packages/utils/src/fetch/web.ts`
-- SocketClient: `packages/client/src/socket/SocketClient.ts`
+- Implementation: `packages/client/src/notifications/notifications.client.ts`
+- Query Management: `packages/client/src/notifications/notification.invalidation.ts`
 - Types: `packages/types/src/notifications.ts`
+- API Endpoints: `apps/web/app/api/notifications/`
+
+## Next Steps
+
+The client layer is complete. Ready to move to **UI Layer** implementation:
+- `NotificationBell` - Header icon with unread badge
+- `NotificationDropdown` - Recent notifications list
+- `NotificationInbox` - Full page notification center
+- `NotificationToast` - Real-time toast notifications
 
 ## Notes
 
-- Hooks follow React Query patterns for caching and invalidation
-- `useUnreadCount` polls every 30 seconds
-- `useRealtimeNotifications` integrates with SocketClient for instant updates
-- All hooks handle loading/error states
+- Uses factory pattern consistent with other clients (AuthClient, UserClient, etc.)
+- Integrates with QueryManager for centralized cache management
+- `useUnreadCount` polls every 30 seconds for real-time updates
+- All mutations automatically invalidate relevant queries
+- Fully typed with proper error handling

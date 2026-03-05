@@ -4,16 +4,18 @@
   "description": "Family-centered social platform",
   "private": true,
   "scripts": {
-    "dev": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web",
-    "dev:web": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web",
+    "dev:api": "turbo run dev --filter=@peeps/api",
+    "dev:web": "turbo run dev --filter=@peeps/web",
     "dev:socket": "turbo run dev --filter=@peeps/socket",
     "dev:mobile": "turbo run dev --filter=@peeps/mobile",
-    "dev:all": "clear && pnpm --filter @peeps/web generate:themes && turbo run dev --filter=@peeps/web --filter=@peeps/socket",
-    "kill": "lsof -ti :3001,4100 | xargs kill -9 2>/dev/null || true",
-    "clean": "find . -type d \\( -name .next -o -name .turbo \\) -prune -exec rm -rf {} +",
+    "dev:all": "turbo run dev --filter=@peeps/api --filter=@peeps/web --filter=@peeps/socket",
+    "kill": "lsof -ti :3001,3002,3000 | xargs kill -9 2>/dev/null || true",
+    "clean": "find . -type d \\( -name .next -o -name .nuxt -o -name dist -o -name .turbo -o -name node_modules/.cache \\) -prune -exec rm -rf {} + && find packages/ -name '*.d.ts' -delete && find packages/ -name '*.d.ts.map' -delete && find packages/ -name '*.js' -not -path '*/node_modules/*' -delete",
+    "build:api": "turbo run build --filter=@peeps/api",
     "build:web": "turbo run build --filter=@peeps/web",
     "build:mobile": "turbo run build --filter=@peeps/mobile",
     "build": "turbo run build",
+    "lint:api": "turbo run lint --filter=@peeps/api",
     "lint:web": "turbo run lint --filter=@peeps/web",
     "lint:mobile": "turbo run lint --filter=@peeps/mobile",
     "test": "turbo run test",
@@ -23,8 +25,7 @@
     "db:migrate": "pnpm --filter @peeps/db db:migrate",
     "db:push": "pnpm --filter @peeps/db db:push",
     "db:studio": "pnpm --filter @peeps/db db:studio",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "generate:themes": "pnpm --filter @peeps/web generate:themes"
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
     "@typescript-eslint/parser": "^8.0.0",

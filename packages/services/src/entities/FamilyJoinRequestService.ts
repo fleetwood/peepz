@@ -1,9 +1,9 @@
 import { and, eq, sql } from 'drizzle-orm'
 
-import { withTx } from '@peeps/db/client'
+import { withTx, type WithTx } from '@peeps/db/client'
 import * as schema from '@peeps/db/schema'
 import { GroupRole, MembershipStatus, RequestStatus } from '@peeps/db/schema/enums'
-import type { ApproveRequestInput, CreateJoinRequestInput, UpdateRelationshipsInput, WithTx } from '@peeps/types'
+import type { ApproveRequestInput, CreateJoinRequestInput, UpdateRelationshipsInput } from '@peeps/types'
 import { Logger } from '@peeps/utils'
 
 import { NotificationFactories } from '../integrations/NotificationFactories'
@@ -386,7 +386,7 @@ export class FamilyJoinRequestService {
     const { joinRequest, memberPersonId: requestingPersonId } = joinRequestWithMember
 
     // Validate that all target members are in the family
-    const targetMemberIds = relationships.map((r) => r.targetMemberId)
+    const targetMemberIds = relationships.map((r: { targetMemberId: string }) => r.targetMemberId)
 
     if (targetMemberIds.length > 0) {
       const familyMembers = await params.tx!
