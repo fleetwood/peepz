@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient as SupabaseJsClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 import { clientEnv } from '@peeps/config/env'
 
@@ -7,7 +7,7 @@ type SupabaseClientConfig = {
   supabaseAnonKey: string
 }
 
-export function createSupabaseClient(config: SupabaseClientConfig): SupabaseJsClient {
+export function createSupabaseClient(config: SupabaseClientConfig): SupabaseClient {
   return createClient(config.supabaseUrl, config.supabaseAnonKey, {
     auth: {
       persistSession    : true,
@@ -17,7 +17,7 @@ export function createSupabaseClient(config: SupabaseClientConfig): SupabaseJsCl
 }
 
 export class SupabaseInstance {
-  private static instance: SupabaseJsClient | null = null
+  private static instance: SupabaseClient | null = null
 
   static get() {
     if (!SupabaseInstance.instance) {
@@ -39,6 +39,4 @@ export class SupabaseInstance {
     },
   } as const
 }
-
-export { SupabaseInstance as SupabaseClient }
 

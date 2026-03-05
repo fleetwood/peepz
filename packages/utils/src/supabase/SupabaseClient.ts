@@ -40,5 +40,5 @@ export class SupabaseInstance {
   } as const
 }
 
-export { SupabaseInstance as SupabaseClient }
-
+// eslint-disable-next-line no-restricted-syntax
+export type { SupabaseJsClient }

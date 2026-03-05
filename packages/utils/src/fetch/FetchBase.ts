@@ -1,5 +1,6 @@
 import { ErrorCodeEnum, type FetchAuthConfig, type FetchOptions, type FetchResponse } from '@peeps/types'
 import { PEEPS_API_KEY_HEADER } from '@peeps/config/constants/queryManager'
+import { clientEnv } from '@peeps/config/env'
 
 import { Logger } from '../logger'
 
@@ -8,11 +9,11 @@ export class FetchBase {
   private logger = Logger.instance('FetchBase', false)
 
   constructor(config: FetchAuthConfig) {
-    this.config = config
-  }
-
-  configure(config: Partial<FetchAuthConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = {
+      ...config,
+      apiKey : clientEnv.API_KEY,
+      baseUrl: clientEnv.APP_URL,
+    }
   }
 
   private resolveUrl(raw: string): string {
@@ -78,12 +79,13 @@ export class FetchBase {
 
     headers.set(PEEPS_API_KEY_HEADER, this.config.apiKey)
 
+    // Get auth token if provided via config
     if (this.config.getAccessToken) {
       try {
         const token = await this.config.getAccessToken()
         if (token) headers.set('Authorization', `Bearer ${token}`)
       } catch (error) {
-        this.logger.error('auth.getAccessToken', { error })
+        this.logger.error('getAccessToken', { error })
       }
     }
 

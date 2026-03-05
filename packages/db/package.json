@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@peeps/config": "workspace:*",
+    "@peeps/types": "workspace:*",
     "@peeps/utils": "workspace:*",
     "@supabase/supabase-js": "^2.45.4",
     "drizzle-orm": "^0.36.4",

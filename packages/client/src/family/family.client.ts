@@ -1,13 +1,21 @@
-import * as React from 'react'
 import { useMutation } from '@tanstack/react-query'
+import * as React from 'react'
 
 import { clientEnv } from '@peeps/config/env'
-import { type PaginationParams, type FamilySearchResult, type PaginatedResponse } from '@peeps/types'
-import { WebRestApi } from '@peeps/utils/fetch/web'
+import {
+  type ClientHttpConfig,
+  type FamilySearchResult,
+  type PaginatedResponse
+} from '@peeps/types'
+import { WebRestApi } from '../fetch/WebRestApi'
 
 import { QueryManager } from '../QueryManager'
-import { createSupabaseClient } from '../supabase/client'
 import { FamilyInvalidation, FamilyKeys } from './family.invalidation'
+
+type PaginationParams = {
+  limit: number
+  cursor?: string
+}
 
 type FamilyDetailParams = {
   groupId: string
@@ -63,13 +71,6 @@ type FamilyClientDeps<TResolveFamilyResponse, TFamilyResponse, TFamilyListRespon
   search : (params: FamilySearchParams) => Promise<FamilySearchResult[]>
   listByStub: (params: FamiliesByStubParams) => Promise<FamilySearchResult[]>
   create : (params: CreateFamilyParams) => Promise<FamilyCreateResponse>
-}
-
-type FamilyClientHttpConfig = {
-  baseUrl        : string
-  getAccessToken?: () => Promise<string | null>
-  apiKey?        : string
-  fetchFn?       : typeof fetch
 }
 
 type FamilyClientWebConfig = {
@@ -168,14 +169,8 @@ export const FamilyClient = {
   },
 
   createHttp<TResolveFamilyResponse, TFamilyResponse, TFamilyListResponse, TFamilySearchResponse>(
-    config: FamilyClientHttpConfig,
+    config: ClientHttpConfig,
   ) {
-    WebRestApi.configure({
-      apiKey        : config.apiKey ?? clientEnv.API_KEY,
-      getAccessToken: config.getAccessToken,
-      baseUrl       : config.baseUrl,
-    })
-
     return FamilyClient.create<TResolveFamilyResponse, TFamilyResponse, TFamilyListResponse, TFamilySearchResponse>({
       async resolve() {
         const { data, error, status, statusText } = await WebRestApi.post<TResolveFamilyResponse, Record<string, never>>(
@@ -255,28 +250,18 @@ export const FamilyClient = {
   ) {
     const baseUrl = config?.baseUrl ?? ''
 
-    const supabase = createSupabaseClient({
-      supabaseUrl    : clientEnv.SUPABASE_URL,
-      supabaseAnonKey: clientEnv.SUPABASE_ANON_KEY,
-    })
-
     return FamilyClient.createHttp<TResolveFamilyResponse, TFamilyResponse, TFamilyListResponse, TFamilySearchResponse>({
       baseUrl,
       apiKey: clientEnv.API_KEY,
-      getAccessToken: async () => {
-        const { data, error } = await supabase.auth.getSession()
-        if (error) return null
-        return data.session?.access_token ?? null
-      },
     })
   },
 } as const
 
 export function useFamilyClient<
   TResolveFamilyResponse = DefaultFamilyResolveResponse,
-  TFamilyResponse = DefaultFamilyDetailResponse,
-  TFamilyListResponse = DefaultFamilyListResponse,
-  TFamilySearchResponse = DefaultFamilySearchResponse,
+  TFamilyResponse        = DefaultFamilyDetailResponse,
+  TFamilyListResponse    = DefaultFamilyListResponse,
+  TFamilySearchResponse  = DefaultFamilySearchResponse,
 >(config?: FamilyClientWebConfig) {
   return React.useMemo(
     () =>

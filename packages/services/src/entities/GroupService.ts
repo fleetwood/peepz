@@ -1,6 +1,6 @@
 import * as schema from '@peeps/db/schema'
-import { type WithTx, withTx } from '@peeps/db/client'
-import type { ServiceResult } from '@peeps/types'
+import { withTx } from '@peeps/db/client'
+import type { WithTx, ServiceResult } from '@peeps/types'
 
 /**
  * GroupService

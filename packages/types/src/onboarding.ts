@@ -3,8 +3,8 @@ import {
   RequestStatus,
   GovernanceModel,
   RelationshipType,
-  GroupRole
-} from '@peeps/db'
+  GroupRole,
+} from './enums'
 
 export const OnboardingStepSchema = z.enum([
   'profile',

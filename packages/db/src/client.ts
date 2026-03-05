@@ -17,7 +17,7 @@ export const db = globalThis.__peepsDb ?? drizzle(client, { schema })
 globalThis.__peepsDbClient = client
 globalThis.__peepsDb = db
 
-type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
+export type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
 type WithTxExecutor<T> = (tx: Transaction) => Promise<T>
 
@@ -25,6 +25,8 @@ type WithTxParams<T> = {
   tx      ?: Transaction
   executor: WithTxExecutor<T>
 }
+
+export type WithTx<T> = T & { tx?: Transaction }
 
 export async function runWithTx<T>({ tx, executor }: WithTxParams<T>): Promise<T> {
   return tx ? executor(tx) : db.transaction(executor)

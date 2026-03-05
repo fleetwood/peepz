@@ -4,7 +4,7 @@ export * from "../auth/authProvider.types"
 export * from "../base/baseClasses"
 export * from "../base/errorCodes"
 
-export * from "../db"
+export * from "./enums"
 
 export * from "../fuse"
 
@@ -26,4 +26,6 @@ export * from "../fetch"
 export * from "../domains/family.domain"
 export * from "../domains/presence.domain"
 
+export * from "./client/client.types"
 export * from "./onboarding"
+export * from "./notifications"

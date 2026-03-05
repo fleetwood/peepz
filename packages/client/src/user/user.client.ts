@@ -2,22 +2,14 @@ import { QueryManager } from '../QueryManager'
 import { useMutation } from '@tanstack/react-query'
 
 import { clientEnv } from '@peeps/config/env'
-import { WebRestApi } from '@peeps/utils/fetch/web'
+import { type ClientHttpConfig } from '@peeps/types'
+import { WebRestApi } from '../fetch/WebRestApi'
 
-import { createSupabaseClient } from '../supabase/client'
 import { UserInvalidation, UserKeys } from './user.invalidation'
 
 type UserClientDeps<TUserDto> = {
   me: () => Promise<TUserDto | null>
   updateProfile: (input: any) => Promise<{ member: any; person: any; onboarding: any }>
-}
-
-type UserClientHttpConfig = {
-  baseUrl        : string
-  getAccessToken?: () => Promise<string | null>
-  apiKey?        : string
-  fetchFn?       : typeof fetch
-  updateProfile?: (input: any) => Promise<{ member: any; person: any; onboarding: any }>
 }
 
 type UserClientWebConfig = {
@@ -66,12 +58,7 @@ export const UserClient = {
     return base
   },
 
-  createHttp<TUserDto>(config: UserClientHttpConfig) {
-    WebRestApi.configure({
-      apiKey        : config.apiKey ?? clientEnv.API_KEY,
-      getAccessToken: config.getAccessToken,
-      baseUrl       : config.baseUrl,
-    })
+  createHttp<TUserDto>(config: ClientHttpConfig) {
 
     return UserClient.create<TUserDto>({
       async me() {
@@ -102,19 +89,9 @@ export const UserClient = {
   createWeb<TUserDto>(config?: UserClientWebConfig) {
     const baseUrl = config?.baseUrl ?? ''
 
-    const supabase = createSupabaseClient({
-      supabaseUrl    : clientEnv.SUPABASE_URL,
-      supabaseAnonKey: clientEnv.SUPABASE_ANON_KEY,
-    })
-
     return UserClient.createHttp<TUserDto>({
       baseUrl,
       apiKey: clientEnv.API_KEY,
-      getAccessToken: async () => {
-        const { data, error } = await supabase.auth.getSession()
-        if (error) return null
-        return data.session?.access_token ?? null
-      },
     })
   },
 } as const

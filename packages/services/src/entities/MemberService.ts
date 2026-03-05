@@ -92,6 +92,9 @@ export class MemberService {
   /**
    * Fetches a {@link schema.Member} by primary id.
    * 
+   * TODO: Refactor to return data directly instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
+   * 
    * Database Operations (local scope only):
    * - SELECT: members
    * 
@@ -104,7 +107,7 @@ export class MemberService {
    * DB SCOPE:
    * - calls : 1
    * - tables: 1 (members)
-   * - scope : ✅ clean
+   * - scope : 
    */
   @withTx
   static async getById(params: WithTx<{ id: string }>): Promise<ServiceResult<schema.Member | null>> {
@@ -114,6 +117,9 @@ export class MemberService {
 
   /**
    * Fetches a {@link schema.Member} by Supabase auth user id.
+   * 
+   * TODO: Refactor to return data directly instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
    * 
    * Database Operations (local scope only):
    * - SELECT: members
@@ -127,7 +133,7 @@ export class MemberService {
    * DB SCOPE:
    * - calls : 1
    * - tables: 1 (members)
-   * - scope : ✅ clean
+   * - scope : 
    */
   @withTx
   static async byAuthUserId(params: WithTx<{ authUserId: string }>): Promise<ServiceResult<schema.Member | null>> {
@@ -142,6 +148,9 @@ export class MemberService {
   /**
    * Fetches a {@link schema.Member} by email.
    * 
+   * TODO: Refactor to return data directly instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
+   * 
    * Database Operations (local scope only):
    * - SELECT: members
    * 
@@ -154,7 +163,7 @@ export class MemberService {
    * DB SCOPE:
    * - calls : 1
    * - tables: 1 (members)
-   * - scope : ✅ clean
+   * - scope : 
    */
   @withTx
   static async byEmail(params: WithTx<{ email: string }>): Promise<ServiceResult<schema.Member | null>> {
@@ -168,6 +177,9 @@ export class MemberService {
 
   /**
    * Ensures a {@link schema.Member} exists for the auth user id and email.
+   * 
+   * TODO: Refactor to throw domain errors instead of returning status codes.
+   * Services should not return HTTP status codes (200, 409, 201); routes should handle HTTP responses.
    * 
    * Database Operations (local scope only):
    * - *?INSERT: members (create member if missing)*
@@ -231,6 +243,9 @@ export class MemberService {
   /**
    * Updates the member's Person profile fields and replaces family name rows.
    * 
+   * TODO: Refactor to throw domain errors (NotFoundError) instead of returning status codes.
+   * Services should not return HTTP status codes (404, 200); routes should handle HTTP responses.
+   * 
    * Database Operations (local scope only):
    * - (none) (delegates all Person table writes)
    * 
@@ -243,7 +258,7 @@ export class MemberService {
    * DB SCOPE:
    * - calls : 0 (local) + delegated
    * - tables: 0 (local)
-   * - scope : ✅ clean
+   * - scope : 
    */
   @withTx
   static async updateProfile(params: WithTx<{
@@ -269,6 +284,9 @@ export class MemberService {
   /**
    * Resolves a family (group) for the current member using their primary family name.
    * 
+   * TODO: Refactor to throw domain errors instead of returning status codes.
+   * Services should not return HTTP status codes (404, 201, 400, 500); routes should handle HTTP responses.
+   * 
    * Database Operations (local scope only):
    * - (none) (delegates all family/group writes)
    * 
@@ -281,7 +299,7 @@ export class MemberService {
    * DB SCOPE:
    * - calls : 0 (local) + delegated
    * - tables: 0 (local)
-   * - scope : ✅ clean
+   * - scope : 
    */
   @withTx
   static async resolveFamilyForAuthUser(params: WithTx<{ authUserId: string }>): Promise<ServiceResult<
@@ -305,17 +323,74 @@ export class MemberService {
     }
   }
 
+  /**
+   * Fetches a member with their notification preferences.
+   * 
+   * TODO: Refactor to return data directly instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
+   * 
+   * Database Operations (local scope only):
+   * - SELECT: members (with left join to notification_preferences)
+   * 
+   * @param params - { id, tx }
+   * @returns Member with preferences or null
+   * 
+   * DB SCOPE:
+   * - calls : 1
+   * - tables: 2 (members, notification_preferences)
+   * - scope : 
+   */
+  @withTx
+  static async getWithPreferences(params: WithTx<{ id: string }>): Promise<ServiceResult<{ member: schema.Member; preferences: schema.NotificationPreferences | null } | null>> {
+    const [result] = await params.tx!
+      .select({
+        member: schema.members,
+        preferences: schema.notificationPreferences,
+      })
+      .from(schema.members)
+      .leftJoin(
+        schema.notificationPreferences,
+        eq(schema.notificationPreferences.memberId, schema.members.id)
+      )
+      .where(eq(schema.members.id, params.id))
+      .limit(1)
+
+    if (!result) {
+      return { status: 200, result: null }
+    }
+
+    return {
+      status: 200,
+      result: {
+        member: result.member,
+        preferences: result.preferences ?? null,
+      },
+    }
+  }
+
+  /**
+   * TODO: Refactor to return data directly instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
+   */
   static async create(data: any): Promise<ServiceResult<any>> {
     void data
     return { status: 501, error: 'Not implemented' }
   }
 
+  /**
+   * TODO: Refactor to return data directly instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
+   */
   static async update(id: string, data: any): Promise<ServiceResult<any>> {
     void id
     void data
     return { status: 501, error: 'Not implemented' }
   }
 
+  /**
+   * TODO: Refactor to return void or throw errors instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
+   */
   static async delete(id: string): Promise<ServiceResult<void>> {
     void id
     return { status: 501, error: 'Not implemented' }

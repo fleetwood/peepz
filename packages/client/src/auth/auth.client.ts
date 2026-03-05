@@ -1,23 +1,17 @@
 import { useMutation } from '@tanstack/react-query'
 
 import { clientEnv } from '@peeps/config/env'
-import { ErrorCodeEnum } from '@peeps/types'
 import type { AuthProviderId as AuthProviderIdType, ContinueAfterAuthResult } from '@peeps/types'
-import { WebRestApi } from '@peeps/utils/fetch/web'
-
+import { ErrorCodeEnum } from '@peeps/types'
 import { SupabaseClient } from '../supabase/client'
+import type { SupabaseClient as SupabaseJsClient } from '@supabase/supabase-js'
+import { WebRestApi } from '../fetch/WebRestApi'
+
 import { AuthInvalidation, AuthKeys } from './auth.invalidation'
 import { createAuthProviderRegistry } from './providers/providerRegistry'
 
 type AuthClientDeps<TEnsureMemberResponse> = {
   ensureMember: () => Promise<TEnsureMemberResponse>
-}
-
-type AuthClientHttpConfig = {
-  baseUrl        : string
-  getAccessToken?: () => Promise<string | null>
-  apiKey?        : string
-  fetchFn?       : typeof fetch
 }
 
 type AuthClientWebConfig = {
@@ -57,50 +51,17 @@ export const AuthClient = {
     return base
   },
 
-  createHttp<TEnsureMemberResponse>(config: AuthClientHttpConfig) {
-    WebRestApi.configure({
-      apiKey        : config.apiKey ?? clientEnv.API_KEY,
-      getAccessToken: config.getAccessToken,
-      baseUrl       : config.baseUrl,
-    })
-
-    return AuthClient.create<TEnsureMemberResponse>({
-      async ensureMember() {
-        const { data, error, status, statusText } = await WebRestApi.post<TEnsureMemberResponse, Record<string, never>>(
-          '/auth/ensure-member',
-          {},
-        )
-
-        if (error || !data) {
-          throw new Error(`AuthClient.createHttp.ensureMember failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
-        }
-
-        return data
-      },
-    })
-  },
-
-  createWeb<TEnsureMemberResponse>(config?: AuthClientWebConfig) {
+  createWeb<TEnsureMemberResponse>(config?: AuthClientWebConfig, client?: ReturnType<typeof SupabaseClient.get>) {
     const baseUrl = config?.baseUrl ?? ''
     const apiKey = config?.apiKey ?? clientEnv.API_KEY
 
-    const supabase = SupabaseClient.get()
+    const supabaseClient = client ?? (SupabaseClient.get() as SupabaseJsClient)
 
     const providers = createAuthProviderRegistry({
       redirectTo: `${clientEnv.APP_URL}/login`,
     })
 
-    const http = AuthClient.createHttp<TEnsureMemberResponse>({
-      baseUrl,
-      apiKey,
-      getAccessToken: async () => {
-        const { data, error } = await supabase.auth.getSession()
-        if (error) return null
-        return data.session?.access_token ?? null
-      },
-    })
-
-    const base = {
+    return {
       keys        : AuthKeys,
       invalidation: AuthInvalidation,
 
@@ -112,7 +73,16 @@ export const AuthClient = {
       },
 
       async ensureMember() {
-        return http.ensureMember()
+        const { data, error, status, statusText } = await WebRestApi.post<TEnsureMemberResponse, Record<string, never>>(
+          '/auth/ensure-member',
+          {},
+        )
+
+        if (error || !data) {
+          throw new Error(`AuthClient.ensureMember failed: ${status ?? ''} ${statusText ?? ''} ${error ?? ''}`.trim())
+        }
+
+        return data
       },
 
       async ensureMemberResult(): Promise<ContinueAfterAuthResult<TEnsureMemberResponse>> {
@@ -146,7 +116,7 @@ export const AuthClient = {
       },
 
       async continueAfterAuth() {
-        const { data, error } = await supabase.auth.getSession()
+        const { data, error } = await supabaseClient.auth.getSession()
         if (error) {
           throw new Error(error.message)
         }
@@ -156,11 +126,11 @@ export const AuthClient = {
           throw new Error('No session yet. Use Email or Google sign-in first.')
         }
 
-        return http.ensureMember()
+        return this.ensureMember()
       },
 
       async continueAfterAuthResult(): Promise<ContinueAfterAuthResult<TEnsureMemberResponse>> {
-        const { data, error } = await supabase.auth.getSession()
+        const { data, error } = await supabaseClient.auth.getSession()
         if (error) {
           throw new Error(error.message)
         }
@@ -170,17 +140,15 @@ export const AuthClient = {
           throw new Error('No session yet. Use Email or Google sign-in first.')
         }
 
-        return base.ensureMemberResult()
+        return this.ensureMemberResult()
       },
 
       async signOut() {
-        const { error } = await supabase.auth.signOut()
+        const { error } = await supabaseClient.auth.signOut()
         if (error) {
           throw new Error(error.message)
         }
       },
     } as const
-
-    return base
   },
 } as const

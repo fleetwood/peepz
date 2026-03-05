@@ -51,16 +51,19 @@ export class IdentitiesService {
 
   /**
    * Creates a short-lived link request that can be redeemed to attach an auth identity to an existing member.
-   * 
+   *
+   * TODO: Refactor to return data directly instead of ServiceResult with status codes.
+   * Services should not return HTTP status codes; routes should handle HTTP responses.
+   *
    * Database Operations (local scope only):
    * - INSERT: auth_identity_link_requests
-   * 
+   *
    * External Calls:
    * - {@link randomBytes} (generate token)
-   * 
+   *
    * @param params - { memberId, provider, providerUserId, providerEmail, tx }
    * @returns Link token + expiry
-   * 
+   *
    * DB SCOPE:
    * - calls : 1
    * - tables: 1 (auth_identity_link_requests)
@@ -85,19 +88,22 @@ export class IdentitiesService {
 
   /**
    * Confirms (consumes) a link request token and upserts the corresponding auth identity onto the target member.
-   * 
+   *
+   * TODO: Refactor to throw domain errors instead of returning status codes.
+   * Services should not return HTTP status codes (404, 410, 200); routes should handle HTTP responses.
+   *
    * Database Operations (local scope only):
    * - SELECT: auth_identity_link_requests
    * - UPDATE: auth_identity_link_requests (mark consumed)
-   * 
+   *
    * External Calls:
    * - {@link IdentitiesService.upsertAuthIdentities} (persist identity after consuming request)
    * - {@link isNull} (guard against double-consume)
    * - {@link gt} (guard against expiry)
-   * 
+   *
    * @param params - { token, tx }
    * @returns Member id that now owns the identity
-   * 
+   *
    * DB SCOPE:
    * - calls : 2 (local) + delegated
    * - tables: 1 (local: auth_identity_link_requests)
