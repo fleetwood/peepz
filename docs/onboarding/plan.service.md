@@ -8,8 +8,7 @@ Make the server-side **source of truth** for onboarding progress by using existi
 
 - **Types**: `OnboardingStep`, `JoinRequest`, `ClaimedRelationship`, `FamilyGovernance`, and all Zod schemas from `packages/types`.
 
-- **`familyJoinRequests`** as the join/approval/relationship workflow record
-- **`members.currentStep`** as coarse onboarding progress tracking
+- **`familyJoinRequests`** as the join/approval/relationship workflow record and primary onboarding state
 
 ## Services to add or extend
 
@@ -19,9 +18,6 @@ Make the server-side **source of truth** for onboarding progress by using existi
   - Update `claimedRelationships`
   - Record confirmations / approvals
   - Enforce "1 admin OR 2 non-admin" rule
-- **Member service**
-  - Persist `currentStep`
-  - Gate access to later onboarding steps based on join request status
 - **Family/Group governance service**
   - Persist governance model + config for new families and/or admins
 
@@ -30,14 +26,14 @@ Make the server-side **source of truth** for onboarding progress by using existi
 - **Create join request**
   - Inputs: `memberId`, `familyId` (or groupId), optional `inviteCode`
   - Output: `JoinRequest` (from `packages/types`)
-  - Side effects: set `members.currentStep = 'approval'`
+  - Side effects: none (status is tracked in `familyJoinRequests`)
 - **Get join request**
   - Inputs: request id (and/or lookup by `(memberId, familyId)`)
   - Output: `JoinRequest` (includes confirmations, requirements, claimedRelationships)
 - **Approve / confirm join request**
   - Inputs: `requestId`, `actorMemberId`, `confirmationType: 'ADMIN' | 'MEMBER'`
   - Behavior: write a confirmation, recompute status, finalize membership when satisfied
-  - Side effects: advance `members.currentStep` to `'relationships'` when approved
+  - Side effects: none (status is tracked in `familyJoinRequests`)
 - **Update claimed relationships**
   - Inputs: `requestId`, `relationships: ClaimedRelationship[]`
   - Behavior: validate member targets are in-family, store into `familyJoinRequests.claimedRelationships`

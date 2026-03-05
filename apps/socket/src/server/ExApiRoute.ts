@@ -10,7 +10,8 @@ import {
   type ServiceResult,
 } from '@peeps/types'
 import type { ZodTypeAny } from 'zod'
-import { Logger, createSupabaseVerifier, isServiceResult, normalizeError } from '@peeps/utils'
+import { Logger } from '@peeps/utils'
+import { createSupabaseVerifier, isServiceResult, normalizeError } from '@peeps/utils/apiRoute'
 
 const logger = Logger.instance('ExApiRoute')
 
@@ -192,35 +193,82 @@ export class ExApiRoute {
   }
 
   /**
-   * Validates a portion of the incoming request against a Zod schema and stores
-   * the parsed result in `validated[target]` for injection into `ctx.validated`.
+   * Validates multiple incoming data sources with Zod and stores parsed output on `ctx.validated`.
+   *
+   * Each validation result is stored under its source key in `this.validated`, which is then
+   * passed to the handler as `ctx.validated`. Supports chaining multiple validations.
    *
    * Validation sources (see {@link ValidationSourceEnum}):
    * - `BODY`   — `req.body` (requires `express.json()` middleware upstream)
    * - `QUERY`  — `req.query`
    * - `PARAMS` — `req.params` (URL path parameters)
    *
+   * Note: `FORM` is not supported in ExApiRoute. Use `options: { data }` to pass
+   * pre-parsed form data if needed, or use ApiRoute for form data validation.
+   *
+   * Access validated data inside the handler via `ctx.validated.body`,
+   * `ctx.validated.params`, etc.
+   *
+   * @param validations - Array of validation configs with target, schema, and optional data override
+   * @returns `this` for chaining
+   */
+  validate(validations: Array<{ target: ValidationSourceEnum; schema: ZodTypeAny; options?: { data?: unknown } }>): this
+  /**
+   * Validates a single incoming data source with Zod and stores parsed output on `ctx.validated`.
+   *
+   * Validation sources (see {@link ValidationSourceEnum}):
+   * - `BODY`   — `req.body` (requires `express.json()` middleware upstream)
+   * - `QUERY`  — `req.query`
+   * - `PARAMS` — `req.params` (URL path parameters)
+   *
+   * Note: `FORM` is not supported in ExApiRoute. Use `options: { data }` to pass
+   * pre-parsed form data if needed, or use ApiRoute for form data validation.
+   *
    * Throws synchronously on validation failure (Zod `ZodError`), which `handle()`
    * will catch and normalize into a JSON error response.
    *
-   * Access validated data inside the handler via `ctx.validated[ValidationSourceEnum.BODY]`
-   * etc., casting to your expected type.
+   * Access validated data inside the handler via `ctx.validated[target]`.
    *
    * @param target - Which part of the request to validate ({@link ValidationSourceEnum})
    * @param schema - Zod schema to parse against
+   * @param options - Optional config with `data` override to bypass parsing
    * @returns `this` for chaining
    * @throws {ZodError} if validation fails
    */
-  validate(target: ValidationSourceEnum, schema: ZodTypeAny) {
+  validate(target: ValidationSourceEnum, schema: ZodTypeAny, options?: { data?: unknown }): this
+  validate(
+    targetOrValidations: ValidationSourceEnum | Array<{ target: ValidationSourceEnum; schema: ZodTypeAny; options?: { data?: unknown } }>,
+    schema?: ZodTypeAny,
+    options?: { data?: unknown },
+  ): this {
+    // Handle array of validations
+    if (Array.isArray(targetOrValidations)) {
+      for (const validation of targetOrValidations) {
+        this.runValidation(validation.target, validation.schema, validation.options)
+      }
+      return this
+    }
+
+    // Handle single validation (original behavior)
+    this.runValidation(targetOrValidations, schema!, options)
+    return this
+  }
+
+  private runValidation(target: ValidationSourceEnum, schema: ZodTypeAny, options?: { data?: unknown }) {
     logger.debug('validate', { target })
     try {
-      const source = target === ValidationSourceEnum.BODY ? this.req.body : target === ValidationSourceEnum.QUERY ? this.req.query : this.req.params
+      const source = options?.data !== undefined
+        ? options.data
+        : target === ValidationSourceEnum.BODY
+          ? this.req.body
+          : target === ValidationSourceEnum.QUERY
+            ? this.req.query
+            : this.req.params
       this.validated[target] = schema.parse(source)
     } catch (error) {
       logger.error('validate', error)
       throw error
     }
-    return this
   }
 
   /**

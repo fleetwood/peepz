@@ -9,7 +9,7 @@ import {
   type PaginationParams,
   type ServiceResult,
 } from '@peeps/types'
-import { createSupabaseVerifier, isServiceResult, normalizeError } from '@peeps/utils'
+import { createSupabaseVerifier, isServiceResult, normalizeError } from '@peeps/utils/apiRoute'
 import type { ZodTypeAny } from 'zod'
 
 const supabaseTokenVerifier = createSupabaseVerifier(serverEnv.SUPABASE_URL)
@@ -66,10 +66,12 @@ export class ApiRoute {
   private paginationParams: PaginationParams | null = null
   private validated: Partial<Record<ValidationSourceEnum, unknown>> = {}
   private validationTasks: Array<Promise<void>> = []
+  private routeParams: Record<string, string> | null = null
 
-  constructor(request: Request) {
+  constructor(request: Request, routeParams?: Record<string, string>) {
     this.request = request
     this.accessToken = ApiRoute.getBearerToken(request)
+    this.routeParams = routeParams ?? null
   }
 
   private static getBearerToken(request: Request): string | null {
@@ -182,17 +184,75 @@ export class ApiRoute {
   }
 
   /**
-   * Validates incoming data with Zod and stores parsed output on `validatedData` for the handler.
+   * Stores route parameters (from Next.js dynamic route segments like [id]) for use in the handler.
    *
-   * - BODY: parses `request.json()` once and validates
-   * - QUERY: validates `URLSearchParams` as a plain object
-   * - Throws for unsupported sources (e.g., PARAMS/FORM not implemented here)
+   * @param params - The route params object from Next.js (e.g., { id: string })
+   * @returns `this` for chaining
+   */
+  params(params: Record<string, string>) {
+    this.routeParams = params
+    return this
+  }
+
+  /**
+   * Validates multiple incoming data sources with Zod and stores parsed output on `ctx.validatedData`.
+   *
+   * Each validation result is stored under its source key in `this.validated`, which is then
+   * passed to the handler as `ctx.validatedData`. Supports chaining multiple validations.
+   *
+   * Supported sources:
+   * - `BODY`   — parses `request.json()` once and validates
+   * - `PARAMS` — validates route parameters passed via `.params()`
+   * - `QUERY`  — validates `URLSearchParams` as a plain object
+   * - `FORM`   — validates form data from `request.formData()`
+   *
+   * Access validated data inside the handler via `ctx.validatedData.body`,
+   * `ctx.validatedData.params`, etc.
+   *
+   * @param validations - Array of validation configs with target, schema, and optional data override
+   * @returns `this` for chaining
+   */
+  validate(validations: Array<{ target: ValidationSourceEnum; schema: ZodTypeAny; options?: { data?: unknown } }>): this
+  /**
+   * Validates a single incoming data source with Zod and stores parsed output on `ctx.validatedData`.
+   *
+   * Supported sources:
+   * - `BODY`   — parses `request.json()` once and validates
+   * - `PARAMS` — validates route parameters passed via `.params()`
+   * - `QUERY`  — validates `URLSearchParams` as a plain object
+   * - `FORM`   — validates form data from `request.formData()`
    *
    * Parsing/validation is deferred: this method queues a Promise and returns `this` so chaining
    * (`.auth().pagination().validate().handle()`) stays synchronous; `handle()` awaits all queued
    * validations before calling the handler.
+   *
+   * Access validated data inside the handler via `ctx.validatedData[target]`.
+   *
+   * @param target - Which part of the request to validate ({@link ValidationSourceEnum})
+   * @param schema - Zod schema to parse against
+   * @param options - Optional config with `data` override to bypass parsing
+   * @returns `this` for chaining
    */
-  validate(target: ValidationSourceEnum, schema: ZodTypeAny, options?: { data?: unknown }) {
+  validate(target: ValidationSourceEnum, schema: ZodTypeAny, options?: { data?: unknown }): this
+  validate(
+    targetOrValidations: ValidationSourceEnum | Array<{ target: ValidationSourceEnum; schema: ZodTypeAny; options?: { data?: unknown } }>,
+    schema?: ZodTypeAny,
+    options?: { data?: unknown },
+  ): this {
+    // Handle array of validations
+    if (Array.isArray(targetOrValidations)) {
+      for (const validation of targetOrValidations) {
+        this.queueValidation(validation.target, validation.schema, validation.options)
+      }
+      return this
+    }
+
+    // Handle single validation (original behavior)
+    this.queueValidation(targetOrValidations, schema!, options)
+    return this
+  }
+
+  private queueValidation(target: ValidationSourceEnum, schema: ZodTypeAny, options?: { data?: unknown }) {
     const url = new URL(this.request.url)
 
     const parsePromise = options?.data !== undefined
@@ -203,7 +263,9 @@ export class ApiRoute {
           ? this.request.formData().then((fd) => Object.fromEntries(fd.entries()))
           : target === ValidationSourceEnum.QUERY
             ? Promise.resolve(Object.fromEntries(url.searchParams.entries()))
-            : null
+            : target === ValidationSourceEnum.PARAMS
+              ? Promise.resolve(this.routeParams ?? {})
+              : null
 
     if (parsePromise === null) {
       throw new Error(`Validation source not supported: ${target}`)
@@ -214,7 +276,6 @@ export class ApiRoute {
     })
 
     this.validationTasks.push(task)
-    return this
   }
 
   /**

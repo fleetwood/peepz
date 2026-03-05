@@ -386,6 +386,9 @@ importers:
       '@peeps/config':
         specifier: workspace:*
         version: link:../config
+      '@peeps/types':
+        specifier: workspace:*
+        version: link:../types
       '@peeps/utils':
         specifier: workspace:*
         version: link:../utils
@@ -481,9 +484,6 @@ importers:
 
   packages/types:
     dependencies:
-      '@peeps/db':
-        specifier: workspace:*
-        version: link:../db
       zod:
         specifier: ^3.24.1
         version: 3.25.76
@@ -524,6 +524,9 @@ importers:
       '@peeps/types':
         specifier: workspace:*
         version: link:../types
+      '@supabase/supabase-js':
+        specifier: ^2.45.4
+        version: 2.89.0
       drizzle-orm:
         specifier: ^0.36.4
         version: 0.36.4(@types/react@18.3.27)(postgres@3.4.7)(react@18.3.1)

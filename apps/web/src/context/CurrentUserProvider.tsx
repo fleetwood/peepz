@@ -5,6 +5,7 @@ import * as React from 'react'
 import { AuthClient, UserClient } from '@peeps/client'
 import { UseMutationResult } from '@tanstack/react-query'
 import type { UserDto } from '@peeps/types'
+import { useSupabaseClient } from '@/hooks/useSupabaseClient'
 
 type CurrentUserContextValue = {
   user       : UserDto | null
@@ -19,6 +20,7 @@ const CurrentUserContext = React.createContext<CurrentUserContextValue | null>(n
 export function CurrentUserProvider({ children }: { children: React.ReactNode }) {
   const userClient = React.useMemo(() => UserClient.createWeb<UserDto>(), [])
   const [userOverride, setUserOverride] = React.useState<UserDto | null | undefined>(undefined)
+  const supabaseClient = useSupabaseClient()
 
   const auth = React.useMemo(() => {
     const base = AuthClient.createWeb<unknown>()
@@ -42,6 +44,18 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
 
   const query = userClient.useMe()
   const updateProfileMutation = userClient.useUpdateProfile()
+
+  // Auto-call continueAfterAuth on mount if there's a Supabase session but no user data
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession()
+      if (session && !query.data && !query.isLoading && !query.isFetching) {
+        await auth.continueAfterAuth()
+      }
+    }
+    
+    checkAuth()
+  }, [supabaseClient, query.data, query.isLoading, query.isFetching, auth.continueAfterAuth])
 
   const value = React.useMemo(() => {
     return {
