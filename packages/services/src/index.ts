@@ -1,9 +1,16 @@
 // Entity Services
+export * from './entities/IdentitiesService'
 export * from './entities/FamilyService'
+export * from './entities/FamilyJoinRequestService'
 export * from './entities/GroupService'
 export * from './entities/MemberService'
 export * from './entities/PersonService'
 export * from './entities/UserService'
 
 // Integration Services
-// TODO: Create integration service files as needed
+export * from './integrations/ResendService'
+export * from './integrations/MongoService'
+// Note: NotificationService is server-only, import directly from './integrations/NotificationService'
+
+// Auth Services
+export * from './auth/AuthService'

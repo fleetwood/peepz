@@ -7,16 +7,23 @@
   "exports": {
     ".": "./src/index.ts",
     "./string": "./src/string.ts",
-    "./logger": "./src/logger.ts"
+    "./logger": "./src/logger.ts",
+    "./fetch/FetchBase": "./src/fetch/FetchBase.ts",
+    "./fetch/web": "./src/fetch/web.ts",
+    "./fetch/socket": "./src/fetch/socket.ts",
+    "./apiRoute": "./src/apiRoute.ts"
   },
   "scripts": {
     "lint": "eslint src --ext .ts",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "dependencies": {
     "@peeps/config": "workspace:*",
     "@peeps/types": "workspace:*",
     "drizzle-orm": "^0.36.4",
+    "@supabase/supabase-js": "^2.45.4",
+    "jose": "^5.9.3",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

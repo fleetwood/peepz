@@ -1,5 +1,4 @@
-import { QueryDomainEnum, QuerySubdomainEnum } from '@peeps/types/queryManager'
-
+import { QueryDomainEnum, QuerySubdomainEnum } from '@peeps/types'
 import { QueryManager } from '../QueryManager'
 
 type ResolveFamilyParams = {
@@ -12,6 +11,10 @@ type FamilyDetailParams = {
 
 type FamilySearchParams = {
   query: string
+}
+
+type FamiliesByStubParams = {
+  stub: string
 }
 
 export class FamilyKeys {
@@ -43,6 +46,14 @@ export class FamilyKeys {
       domain   : QueryDomainEnum.FAMILIES,
       subdomain: QuerySubdomainEnum.LIST,
       params   : { query } satisfies FamilySearchParams,
+    }
+  }
+
+  static stubList({ stub }: FamiliesByStubParams) {
+    return {
+      domain   : QueryDomainEnum.FAMILIES,
+      subdomain: QuerySubdomainEnum.LIST,
+      params   : { stub } satisfies FamiliesByStubParams,
     }
   }
 }

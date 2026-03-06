@@ -65,13 +65,14 @@ export type WebhookProvider = {
 }
 
 export type ChainContext = AuthContext & {
-  validatedData  ?: any
-  pagination     ?: PaginationParams
-  streamToken    ?: string
-  body           ?: any
+  params        ?: Record<string, string>
+  validatedData ?: any
+  pagination    ?: PaginationParams
+  streamToken   ?: string
+  body          ?: any
   // Security properties
-  routeType      ?: RouteType
-  authRequired   ?: boolean
+  routeType     ?: RouteType
+  authRequired  ?: boolean
   webhookProvider?: string
 }
 

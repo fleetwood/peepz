@@ -5,12 +5,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./queryManager": "./queryManager.ts",
-    "./response/*": "./response/*.ts",
-    "./cloudinary": "./cloudinary/cloudinary.ts",
-    "./base/*": "./base/*.ts",
-    "./user/*": "./user/*.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "lint": "eslint src --ext .ts"

@@ -4,32 +4,43 @@
   "description": "Family-centered social platform",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev --filter=@peeps/web",
+    "dev:api": "turbo run dev --filter=@peeps/api",
     "dev:web": "turbo run dev --filter=@peeps/web",
+    "dev:socket": "turbo run dev --filter=@peeps/socket",
     "dev:mobile": "turbo run dev --filter=@peeps/mobile",
-    "dev:all": "turbo run dev --filter=@peeps/web --filter=@peeps/mobile",
-    "clean": "find . -type d \\( -name .next -o -name .turbo \\) -prune -exec rm -rf {} +",
+    "dev:all": "turbo run dev --filter=@peeps/api --filter=@peeps/web --filter=@peeps/socket",
+    "kill": "lsof -ti :3001,3002,3000 | xargs kill -9 2>/dev/null || true",
+    "clean": "find . -type d \\( -name .next -o -name .nuxt -o -name dist -o -name .turbo \\) -prune -exec rm -rf {} + && find . -name '.turbo' -exec rm -rf {} +",
+    "build:api": "turbo run build --filter=@peeps/api",
     "build:web": "turbo run build --filter=@peeps/web",
     "build:mobile": "turbo run build --filter=@peeps/mobile",
     "build": "turbo run build",
+    "lint:api": "turbo run lint --filter=@peeps/api",
     "lint:web": "turbo run lint --filter=@peeps/web",
     "lint:mobile": "turbo run lint --filter=@peeps/mobile",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "logger:clean": "node packages/scripts/setLoggerFalse.js",
+    "lint:policy": "eslint .",
     "db:generate": "pnpm --filter @peeps/db db:generate",
     "db:migrate": "pnpm --filter @peeps/db db:migrate",
     "db:push": "pnpm --filter @peeps/db db:push",
     "db:studio": "pnpm --filter @peeps/db db:studio",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "generate:themes": "pnpm --filter @peeps/web generate:themes"
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "turbo": "latest",
-    "prettier": "^3.1.0"
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.1.0",
+    "turbo": "latest"
   },
-  "packageManager": "pnpm@8.0.0",
+  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.0",
+    "glob": "^8.0.0"
   }
 }

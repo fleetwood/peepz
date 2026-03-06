@@ -1,0 +1,73 @@
+@import "./themes.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.75rem;
+
+  --font-gluten: var(--font-peeps-gluten);
+  --font-patrick-hand: var(--font-peeps-patrick);
+  --font-montserrat: var(--font-sans-montserrat);
+  --font-merriweather: var(--font-sans-merriweather);
+  --font-domine: var(--font-serif-domine);
+  --font-fraunces: var(--font-serif-fraunces);
+  --font-inconsolata: var(--font-mono-inconsolata);
+  --font-dm-mono: var(--font-mono-dm);
+  
+  }
+
+
+html,
+body {
+  height: 100%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-serif), ui-serif, Georgia, serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-peeps), ui-sans-serif, system-ui, sans-serif;
+    font-size: 3rem !important;
+    @apply transition-ease-200 hover:text-secondary text-gradient-yellow-blue;
+  }
+  h2,
+  h3 {
+    font-size: 2rem !important;
+    @apply text-secondary;
+  }
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem !important;
+    @apply text-accent;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  label {
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family:
+      var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+}

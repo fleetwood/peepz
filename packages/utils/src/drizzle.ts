@@ -2,6 +2,7 @@
 import { text } from 'drizzle-orm/pg-core'
 export { ruid } from './string'
 
+// eslint-disable-next-line no-restricted-syntax
 export type EnumRecord = {
   enumName?: string
 }

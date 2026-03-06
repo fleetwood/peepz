@@ -1,5 +1,5 @@
 import { clientEnv } from '@peeps/config/env'
-import { ErrorCodeEnum } from '@peeps/types/base/errorCodes'
+import { ErrorCodeEnum } from '@peeps/types'
 import { colors } from './colors'
 
 /*

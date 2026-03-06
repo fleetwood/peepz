@@ -15,7 +15,7 @@ The Service Layer is the **business logic layer** that sits between API routes a
 └─────────────────────────────────────────┘
                   ↓
 ┌─────────────────────────────────────────┐
-│  Route Layer (apps/web/app/api/)        │
+│  Route Layer (apps/api/app/api/)         │
 │  - Validate API key                      │
 │  - Check user session                    │
 │  - Call Service                          │

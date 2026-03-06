@@ -19,6 +19,7 @@ export enum ErrorCodeEnum {
   AUTH_EXPIRED_TOKEN            = 'CD1003',
   AUTH_INSUFFICIENT_PERMISSIONS = 'CD1004',
   AUTH_USER_NOT_FOUND           = 'CD1005',
+  AUTH_IDENTITY_LINK_REQUIRED   = 'CD1006',
   
       // Database Errors (2xxx)
   DB_CONNECTION_ERROR  = 'CD2001',
@@ -65,6 +66,7 @@ export const errorCodeToStatusCode: Record<ErrorCodeEnum, number> = {
   [ErrorCodeEnum.AUTH_EXPIRED_TOKEN]           : 401,
   [ErrorCodeEnum.AUTH_INSUFFICIENT_PERMISSIONS]: 403,
   [ErrorCodeEnum.AUTH_USER_NOT_FOUND]          : 404,
+  [ErrorCodeEnum.AUTH_IDENTITY_LINK_REQUIRED]  : 409,
   
     // Database Errors
   [ErrorCodeEnum.DB_CONNECTION_ERROR] : 503,
@@ -111,6 +113,7 @@ export const errorCodeToMessage: Record<ErrorCodeEnum, string> = {
   [ErrorCodeEnum.AUTH_EXPIRED_TOKEN]           : 'The authentication token has expired',
   [ErrorCodeEnum.AUTH_INSUFFICIENT_PERMISSIONS]: 'You do not have permission to access this resource',
   [ErrorCodeEnum.AUTH_USER_NOT_FOUND]          : 'User not found',
+  [ErrorCodeEnum.AUTH_IDENTITY_LINK_REQUIRED]  : 'Account exists; explicit provider linking is required',
   
     // Database Errors
   [ErrorCodeEnum.DB_CONNECTION_ERROR] : 'Failed to connect to the database',

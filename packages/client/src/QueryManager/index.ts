@@ -17,7 +17,7 @@ import {
   QueryDomainMeta,
   QuerySubdomainEnum,
   SubdomainGroup
-} from '@peeps/types/queryManager'
+} from '@peeps/types'
 import { Logger, ruid } from '@peeps/utils'
 import { QueryClient, QueryKey, useQuery, UseQueryOptions } from '@tanstack/react-query'
 
@@ -273,8 +273,8 @@ export class QueryManager {
     const { pagination, params, ...rest } = options
     const combinedParams = {
       ...params,
-      page    : pagination.page,
-      pageSize: pagination.limit
+      cursor: pagination.cursor,
+      limit : pagination.limit
     }
 
     // Extract domains from the options

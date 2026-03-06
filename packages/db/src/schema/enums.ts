@@ -1,242 +1,117 @@
-import { BaseFields } from './base'
-import { enumColumn } from '@peeps/utils'
-import { z } from 'zod'
+export {
+  PrivacyLevel,
+  PrivacyLevelSchema,
+  FamilyNameCategory,
+  FamilyNameCategorySchema,
+  GroupType,
+  GroupTypeSchema,
+  GroupPrivacyLevel,
+  GroupPrivacyLevelSchema,
+  GovernanceModel,
+  GovernanceModelSchema,
+  RemovalPolicy,
+  RemovalPolicySchema,
+  GroupRole,
+  GroupRoleSchema,
+  MembershipStatus,
+  MembershipStatusSchema,
+  EntityType,
+  EntityTypeSchema,
+  MediaType,
+  MediaTypeSchema,
+  TagStatus,
+  TagStatusSchema,
+  BlockType,
+  BlockTypeSchema,
+  ReportReason,
+  ReportReasonSchema,
+  ReportStatus,
+  ReportStatusSchema,
+  ModerationAction,
+  ModerationActionSchema,
+  RequestStatus,
+  RequestStatusSchema,
+  RemovalRequestType,
+  RemovalRequestTypeSchema,
+  EventRole,
+  EventRoleSchema,
+  EventInstanceStatus,
+  EventInstanceStatusSchema,
+  RSVPStatus,
+  RSVPStatusSchema,
+  EventShareTarget,
+  EventShareTargetSchema,
+  RelationshipType,
+  RelationshipTypeSchema,
+  InvitationStatus,
+  InvitationStatusSchema,
+  NotificationType,
+  NotificationTypeSchema,
+  NotificationChannel,
+  NotificationChannelSchema,
+  NotificationDigest,
+  NotificationDigestSchema,
+} from '@peeps/types'
 
-export type EnumRecord = typeof BaseFields & {
-  enumValue: string // The enum value (e.g. 'foo_bar')
-  enumName: string // The enum name (e.g. 'Foo Bar')
-  description: string // Human readable description
-}
+export type {
+  PrivacyLevelType,
+  FamilyNameCategoryType,
+  GroupTypeEnum,
+  GroupPrivacyLevelEnum,
+  GovernanceModelEnum,
+  RemovalPolicyEnum,
+  GroupRoleEnum,
+  MembershipStatusEnum,
+  EntityTypeEnum,
+  MediaTypeEnum,
+  TagStatusEnum,
+  BlockTypeEnum,
+  ReportReasonEnum,
+  ReportStatusEnum,
+  ModerationActionEnum,
+  RequestStatusEnum,
+  RemovalRequestTypeEnum,
+  EventRoleEnum,
+  EventInstanceStatusEnum,
+  RSVPStatusEnum,
+  EventShareTargetEnum,
+  RelationshipTypeEnum,
+  InvitationStatusEnum,
+  NotificationTypeEnum,
+  NotificationChannelType,
+  NotificationDigestEnum,
+} from '@peeps/types'
 
-export const toEnumValues = (records: EnumRecord[]): string[] => records.map(r => r.enumValue)
+// Re-export helper functions
+export {
+  privacyLevelEnum,
+  familyNameCategoryEnum,
+  groupTypeEnum,
+  groupPrivacyLevelEnum,
+  governanceModelEnum,
+  removalPolicyEnum,
+  groupRoleEnum,
+  membershipStatusEnum,
+  entityTypeEnum,
+  mediaTypeEnum,
+  tagStatusEnum,
+  blockTypeEnum,
+  reportReasonEnum,
+  reportStatusEnum,
+  moderationActionEnum,
+  requestStatusEnum,
+  removalRequestTypeEnum,
+  eventRoleEnum,
+  eventInstanceStatusEnum,
+  rsvpStatusEnum,
+  eventShareTargetEnum,
+  relationshipTypeEnum,
+  invitationStatusEnum,
+  notificationTypeEnum,
+  notificationChannelEnum,
+  notificationDigestEnum,
+} from './enumHelpers'
 
-export const fromEnumValues = <T extends string>(
-  values: T[],
-  allRecords: EnumRecord[]
-): EnumRecord[] => values.map(v => allRecords.find(r => r.enumValue === v)!)
+export type { EnumRecord } from './enumHelpers'
+export { toEnumValues, fromEnumValues, createEnumValidator } from './enumHelpers'
 
-export const createEnumValidator = <T extends string>(
-  records: EnumRecord[],
-  errorMessage: string
-) => {
-  return z.custom<T>(val => records.some(r => r.enumValue === val && r.visible), {
-    message: errorMessage
-  })
-}
-
-export const PrivacyLevel = {
-  PUBLIC: 'PUBLIC',
-  FAMILY: 'FAMILY',
-  PRIVATE: 'PRIVATE',
-} as const
-
-export const privacyLevelEnum = (name: string) => enumColumn(name, PrivacyLevel)
-
-export const FamilyNameCategory = {
-  paternal : 'paternal',
-  maternal : 'maternal',
-  adopted  : 'adopted',
-  surrogate: 'surrogate',
-  chosen   : 'chosen',
-  other    : 'other',
-} as const
-
-export const familyNameCategoryEnum = (name: string) => enumColumn(name, FamilyNameCategory)
-
-export const GroupType = {
-  FAMILY : 'FAMILY',
-  FRIENDS: 'FRIENDS',
-  CLUB   : 'CLUB',
-  OTHER  : 'OTHER',
-} as const
-
-export const groupTypeEnum = (name: string) => enumColumn(name, GroupType)
-
-export const GroupPrivacyLevel = {
-  PRIVATE    : 'PRIVATE',
-  INVITE_ONLY: 'INVITE_ONLY',
-} as const
-
-export const groupPrivacyLevelEnum = (name: string) => enumColumn(name, GroupPrivacyLevel)
-
-export const GovernanceModel = {
-  SINGLE_ADMIN: 'SINGLE_ADMIN',
-  HIERARCHICAL: 'HIERARCHICAL',
-  CONSENSUS   : 'CONSENSUS',
-  DEMOCRATIC  : 'DEMOCRATIC',
-} as const
-
-export const governanceModelEnum = (name: string) => enumColumn(name, GovernanceModel)
-
-export const RemovalPolicy = {
-  IMMEDIATE          : 'IMMEDIATE',
-  VOTE_REQUIRED      : 'VOTE_REQUIRED',
-  CONSENSUS_REQUIRED : 'CONSENSUS_REQUIRED',
-} as const
-
-export const removalPolicyEnum = (name: string) => enumColumn(name, RemovalPolicy)
-
-export const GroupRole = {
-  ADMIN : 'ADMIN',
-  MEMBER: 'MEMBER',
-} as const
-
-export const groupRoleEnum = (name: string) => enumColumn(name, GroupRole)
-
-export const MembershipStatus = {
-  ACTIVE : 'ACTIVE',
-  INVITED: 'INVITED',
-  REMOVED: 'REMOVED',
-} as const
-
-export const membershipStatusEnum = (name: string) => enumColumn(name, MembershipStatus)
-
-export const EntityType = {
-  PERSON        : 'PERSON',
-  MEMBER        : 'MEMBER',
-  GROUP         : 'GROUP',
-  FAMILY        : 'FAMILY',
-  RELATIONSHIP  : 'RELATIONSHIP',
-  THREAD        : 'THREAD',
-  MESSAGE       : 'MESSAGE',
-  ALBUM         : 'ALBUM',
-  MEDIA         : 'MEDIA',
-  EVENT         : 'EVENT',
-  TAG           : 'TAG',
-  BLOCK         : 'BLOCK',
-  CONTENT_REPORT: 'CONTENT_REPORT',
-  REMOVAL_REQUEST: 'REMOVAL_REQUEST',
-  CONTACT_POINT : 'CONTACT_POINT',
-  CONTACT_HANDLE: 'CONTACT_HANDLE',
-} as const
-
-export const entityTypeEnum = (name: string) => enumColumn(name, EntityType)
-
-export const MediaType = {
-  PHOTO: 'PHOTO',
-  VIDEO: 'VIDEO',
-} as const
-
-export const mediaTypeEnum = (name: string) => enumColumn(name, MediaType)
-
-export const TagStatus = {
-  PENDING : 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-} as const
-
-export const tagStatusEnum = (name: string) => enumColumn(name, TagStatus)
-
-export const BlockType = {
-  BLOCK: 'BLOCK',
-  MUTE : 'MUTE',
-} as const
-
-export const blockTypeEnum = (name: string) => enumColumn(name, BlockType)
-
-export const RequestStatus = {
-  PENDING : 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-} as const
-
-export const requestStatusEnum = (name: string) => enumColumn(name, RequestStatus)
-
-export const RemovalRequestType = {
-  TAGGED_MEMBER  : 'TAGGED_MEMBER',
-  UNTAGGED_MEMBER: 'UNTAGGED_MEMBER',
-  UPLOADER       : 'UPLOADER',
-} as const
-
-export const removalRequestTypeEnum = (name: string) => enumColumn(name, RemovalRequestType)
-
-export const ReportReason = {
-  SPAM         : 'SPAM',
-  INAPPROPRIATE: 'INAPPROPRIATE',
-  HARASSMENT   : 'HARASSMENT',
-  OTHER        : 'OTHER',
-} as const
-
-export const reportReasonEnum = (name: string) => enumColumn(name, ReportReason)
-
-export const ReportStatus = {
-  PENDING : 'PENDING',
-  REVIEWED: 'REVIEWED',
-  RESOLVED: 'RESOLVED',
-} as const
-
-export const reportStatusEnum = (name: string) => enumColumn(name, ReportStatus)
-
-export const EventRole = {
-  OWNER   : 'OWNER',
-  CO_OWNER: 'CO_OWNER',
-  EDITOR  : 'EDITOR',
-  VIEWER  : 'VIEWER',
-} as const
-
-export const eventRoleEnum = (name: string) => enumColumn(name, EventRole)
-
-export const EventInstanceStatus = {
-  ACTIVE  : 'ACTIVE',
-  CANCELED: 'CANCELED',
-} as const
-
-export const eventInstanceStatusEnum = (name: string) => enumColumn(name, EventInstanceStatus)
-
-export const RSVPStatus = {
-  YES    : 'YES',
-  NO     : 'NO',
-  MAYBE  : 'MAYBE',
-  PENDING: 'PENDING',
-} as const
-
-export const rsvpStatusEnum = (name: string) => enumColumn(name, RSVPStatus)
-
-export const EventShareTarget = {
-  GROUP : 'GROUP',
-  FAMILY: 'FAMILY',
-  MEMBER: 'MEMBER',
-} as const
-
-export const eventShareTargetEnum = (name: string) => enumColumn(name, EventShareTarget)
-
-export const RelationshipType = {
-  PARENT       : 'PARENT',
-  CHILD        : 'CHILD',
-  SIBLING      : 'SIBLING',
-  SPOUSE       : 'SPOUSE',
-  PARTNER      : 'PARTNER',
-  GRANDPARENT  : 'GRANDPARENT',
-  GRANDCHILD   : 'GRANDCHILD',
-  AUNT_UNCLE   : 'AUNT_UNCLE',
-  NIECE_NEPHEW : 'NIECE_NEPHEW',
-  COUSIN       : 'COUSIN',
-} as const
-
-export const relationshipTypeEnum = (name: string) => enumColumn(name, RelationshipType)
-
-export const InvitationStatus = {
-  PENDING : 'PENDING',
-  ACCEPTED: 'ACCEPTED',
-  EXPIRED : 'EXPIRED',
-} as const
-
-export const invitationStatusEnum = (name: string) => enumColumn(name, InvitationStatus)
-
-export const NotificationDigest = {
-  HOURLY: 'HOURLY',
-  DAILY : 'DAILY',
-  WEEKLY: 'WEEKLY',
-  NEVER : 'NEVER',
-} as const
-
-export const notificationDigestEnum = (name: string) => enumColumn(name, NotificationDigest)
-
-export const ModerationAction = {
-  DELETE       : 'DELETE',
-  HIDE         : 'HIDE',
-  WARN         : 'WARN',
-  REMOVE_MEMBER: 'REMOVE_MEMBER',
-} as const
-
-export const moderationActionEnum = (name: string) => enumColumn(name, ModerationAction)

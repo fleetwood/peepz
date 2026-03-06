@@ -1,5 +1,4 @@
 import { WithClassName } from '../base/baseClasses'
-import { ImgHTMLAttributes } from 'react'
 import { ServiceResult } from '../response/response.types'
 
 export type AspectRatioProps = {
@@ -113,37 +112,39 @@ export const _CScale: Record<CScale, string> = {
   100: 'h_1.0' //full
 }
 
-export const defaultScale = (size?: AvatarHEnum | BannerHEnum | CoverHEnum) => {
-  switch (size || CoverHEnum.md) {
-    case AvatarHEnum.xs:
-    case CoverHEnum.xs:
-      return _CScale[10]
-
-    case AvatarHEnum.sm:
-    case BannerHEnum.sm:
-    case CoverHEnum.sm:
-      return _CScale[30]
-
-    case AvatarHEnum.md:
-    case BannerHEnum.md:
-    case CoverHEnum.md:
-      return _CScale[50]
-
-    case AvatarHEnum.lg:
-    case BannerHEnum.lg:
-    case CoverHEnum.lg:
-      return _CScale[70]
-
-    case AvatarHEnum.xl:
-    case CoverHEnum.xl:
-      return _CScale[90]
-
-    case BannerHEnum.full:
-    case AvatarHEnum.full:
-    case CoverHEnum.full:
-    default:
-      return _CScale[100]
-  }
+export const defaultScale = (size?: AvatarHEnum | BannerHEnum | CoverHEnum): CScale => {
+  if (!size) return 100
+  
+  // xs sizes
+  if (size === AvatarHEnum.xs || 
+      size === CoverHEnum.xs) 
+    return 10
+  
+  // sm sizes  
+  if (size === AvatarHEnum.sm || 
+      size === BannerHEnum.sm || 
+      size === CoverHEnum.sm) 
+    return 30
+  
+  // md sizes
+  if (size === AvatarHEnum.md || 
+      size === BannerHEnum.md || 
+      size === CoverHEnum.md) 
+    return 50
+  
+  // lg sizes
+  if (size === AvatarHEnum.lg || 
+      size === BannerHEnum.lg || 
+      size === CoverHEnum.lg) 
+    return 70
+  
+  // xl sizes
+  if (size === AvatarHEnum.xl || 
+      size === CoverHEnum.xl) 
+    return 90
+  
+  // Full size
+  return 100
 }
 
 export const hw = ({
@@ -226,12 +227,14 @@ export const hw = ({
   }
 }
 
-export type CImgProps = ImgHTMLAttributes<HTMLImageElement> &
-  WithClassName & {
-    src: string
-    type: CTypeEnum
-    aspect?: AspectRatioEnum
-    height?: number
-    width?: number
-    sz?: CBaseH | CExtH
+export type CImgProps = WithClassName & {
+    src    : string
+    type   : CTypeEnum
+    aspect ?: AspectRatioEnum
+    height ?: number
+    width  ?: number
+    sz     ?: CBaseH | CExtH
+    alt    ?: string
+    loading?: 'lazy' | 'eager'
+    decoding?: 'async' | 'auto' | 'sync'
   }

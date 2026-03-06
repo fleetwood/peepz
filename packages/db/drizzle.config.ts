@@ -1,8 +1,9 @@
 import { defineConfig } from 'drizzle-kit'
 import { config } from 'dotenv'
 
-// Load .env from project root
+// Load env from project root (.env first, then .env.local overrides)
 config({ path: '../../.env' })
+config({ path: '../../.env.local', override: true })
 
 function getDatabaseUrl(): string {
   const url = process.env.DATABASE_URL
