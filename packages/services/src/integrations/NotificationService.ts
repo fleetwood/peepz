@@ -7,7 +7,7 @@ import { and, desc, eq, gte, inArray, lt } from 'drizzle-orm'
 import { MemberService } from '../entities/MemberService'
 import { ResendService } from './ResendService'
 
-const logger = Logger.instance('NotificationService')
+const logger = Logger.instance('NotificationService', false)
 
 export class NotificationService {
   /**

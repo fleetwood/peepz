@@ -10,7 +10,7 @@ import { FamilyService } from './FamilyService'
 import { getProviderProfilePatch } from '../auth/providers/profileMapperRegistry'
 import { Logger } from '@peeps/utils'
 
-const logger = Logger.instance('MemberService')
+const logger = Logger.instance('MemberService', false)
 
 type EnsureSupabaseUser = {
   identities?: Array<{

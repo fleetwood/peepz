@@ -11,7 +11,7 @@ import { Logger } from '@peeps/utils';
 import { UserCog } from "lucide-react";
 import * as React from "react";
 
-const logger = Logger.instance('ProfilePage')
+const logger = Logger.instance('ProfilePage', false)
 
 type ProfilePageProps = {
   searchParams: Promise<{

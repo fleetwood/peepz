@@ -1,13 +1,16 @@
 import { ref, computed } from 'vue'
-import apiClient from '@/utils/api'
-import type { UserDto, AuthResponse } from '@peeps/types'
+import apiClient from '@utils/VueApiClient'
+import { type UserDto, type AuthResponse, type UserStatus, UserStatusEnum } from '@peeps/types'
 
 const logger = {
   debug: (message: string, data?: any) => console.log(`[useCurrentUser] ${message}`, data),
   error: (message: string, data?: any) => console.error(`[useCurrentUser] ${message}`, data),
 }
 
+const { LOADING, AUTHENTICATED, UNAUTHENTICATED } = UserStatusEnum
+
 const user        = ref<UserDto | null>(null)
+const userStatus  = ref<UserStatus>(LOADING)
 const loading     = ref(true)
 let   fetchingUser = false
 
@@ -15,20 +18,41 @@ async function fetchCurrentUser(): Promise<UserDto | null> {
   if (fetchingUser) return null
   
   fetchingUser = true
+  userStatus.value = LOADING
   try {
     logger.debug('Fetching current user from API')
     
     const response = await apiClient.get<UserDto>('/me')
     
     if (response.error) {
-      logger.error('API error', { error: response.error, status: response.status })
+      if (response.status !== 401) {
+        logger.error('API error', { error: response.error, status: response.status })
+      } else {
+        logger.debug('User not authenticated (401) - this is expected for unauthenticated users')
+      }
+      user.value = null
+      userStatus.value = UNAUTHENTICATED
+      loading.value = false
       return null
     }
     
     logger.debug('Current user fetched successfully', response)
+    
+    if (response.data) {
+      user.value = response.data
+      userStatus.value = AUTHENTICATED
+    } else {
+      user.value = null
+      userStatus.value = UNAUTHENTICATED
+    }
+    
+    loading.value = false
     return response.data || null
   } catch (err) {
     logger.error('Failed to fetch current user', err)
+    user.value = null
+    userStatus.value = UNAUTHENTICATED
+    loading.value = false
     return null
   } finally {
     fetchingUser = false
@@ -98,9 +122,17 @@ export function useCurrentUser() {
     },
   }
 
-  return {
-    user        : computed(() => user.value),
-    userLoading : computed(() => loading.value),
+  const hasPendingJoinRequests = computed(() => {
+  if (!user.value) return false
+  return user.value.familyJoinRequests && user.value.familyJoinRequests.length > 0
+})
+
+return {
+    user                : computed(() => user.value),
+    userStatus          : computed(() => userStatus.value),
+    userLoading         : computed(() => loading.value),
+    needsOnboarding     : computed(() => user.value?.needsOnboarding ?? false),
+    hasPendingJoinRequests: hasPendingJoinRequests,
     fetchCurrentUser,
     auth,
   }

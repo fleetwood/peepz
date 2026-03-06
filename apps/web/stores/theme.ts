@@ -8,6 +8,20 @@ export const useThemeStore = defineStore('theme', () => {
   const theme = ref<string>('peeps')
   const mode = ref<ThemeMode>('system')
 
+  // Initialize from localStorage on client side
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('theme')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        theme.value = parsed.theme || 'peeps'
+        mode.value = parsed.mode || 'system'
+      } catch (e) {
+        console.warn('Failed to parse theme from localStorage:', e)
+      }
+    }
+  }
+
   // Computed
   const colorTheme = computed(() => {
     const parts = theme.value.split('-')
@@ -74,5 +88,6 @@ export const useThemeStore = defineStore('theme', () => {
 }, {
   persist: {
     storage: typeof window !== 'undefined' ? localStorage : undefined,
+    paths: ['theme', 'mode'], // Explicitly persist theme and mode
   }
 })

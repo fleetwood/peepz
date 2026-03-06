@@ -3,7 +3,7 @@ import { Logger } from '@peeps/utils'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-const logger = Logger.instance('OnboardingApproval')
+const logger = Logger.instance('OnboardingApproval', false)
 
 type EnsureMemberResponse = {
   member    : unknown

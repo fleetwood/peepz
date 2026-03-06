@@ -13,7 +13,7 @@ import type { ZodTypeAny } from 'zod'
 import { Logger } from '@peeps/utils'
 import { createSupabaseVerifier, isServiceResult, normalizeError } from '@peeps/utils/apiRoute'
 
-const logger = Logger.instance('ExApiRoute')
+const logger = Logger.instance('ExApiRoute', false)
 
 const supabaseTokenVerifier = createSupabaseVerifier(serverEnv.SUPABASE_URL)
 

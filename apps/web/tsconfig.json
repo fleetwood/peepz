@@ -1,3 +1,12 @@
 {
-  "extends": "./.nuxt/tsconfig.json"
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@utils/*": ["./utils/*"],
+      "@icons": ["./components/ui/icons/index.ts"],
+      "@ui/*": ["./components/ui/*"],
+      "@components/*": ["./components/*"],
+      "@composables/*": ["./composables/*"]
+    }
+  }
 }

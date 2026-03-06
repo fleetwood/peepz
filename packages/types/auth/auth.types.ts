@@ -1,6 +1,7 @@
 import type { AuthProviderId } from './authProvider.types'
 import type { UserDto } from '../user/user.dto'
 import { z } from 'zod'
+import { UserStatusEnum } from '@peeps/types';
 
 export type ContinueAfterAuthResult<TEnsureMemberResponse> =
   | { kind: 'ok'; data: TEnsureMemberResponse }
@@ -41,3 +42,5 @@ export type AuthResponse = {
   accessToken?: string
   refreshToken?: string
 }
+
+export type UserStatus = typeof UserStatusEnum[keyof typeof UserStatusEnum]

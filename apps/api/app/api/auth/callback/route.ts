@@ -1,7 +1,7 @@
 import { Logger } from '@peeps/utils/logger'
 import { serverEnv } from '@peeps/config/env'
 
-const logger = Logger.instance('api/auth/callback')
+const logger = Logger.instance('api/auth/callback', false)
 
 async function exchangeCodeForSession(code: string) {
   const res = await fetch(`${serverEnv.SUPABASE_URL}/auth/v1/exchange?code=${encodeURIComponent(code)}`, {

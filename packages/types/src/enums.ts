@@ -1,5 +1,14 @@
 import { z } from 'zod'
 
+export const UserStatusEnum = {
+  LOADING        : 'LOADING',
+  AUTHENTICATED  : 'AUTHENTICATED',
+  UNAUTHENTICATED: 'UNAUTHENTICATED',
+} as const
+
+export const UserStatusEnumSchema = z.nativeEnum(UserStatusEnum)
+export type UserStatusEnumType = z.infer<typeof UserStatusEnumSchema>
+
 // =============================================================================
 // Privacy
 // =============================================================================

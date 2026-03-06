@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
+import { Button } from '@ui/button'
 import {
   Dialog,
   DialogContent,
@@ -7,19 +7,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { useCurrentUser } from '@/composables/useCurrentUser'
+} from '@ui/dialog'
+import { Input } from '@ui/input'
+import { useCurrentUser } from '@composables/useCurrentUser'
 import { Logger } from '@peeps/utils'
 import { ref } from 'vue'
-import { GoogleIcon, EmailIcon, LogoutIcon } from '@/components/ui/icons'
+import { GoogleIcon, EmailIcon, LogoutIcon } from '@icons'
 
 const props = defineProps<{
   buttonText?: string
   buttonClass?: string
 }>()
 
-const logger = Logger.instance('LoginDialog')
+const logger = Logger.instance('LoginDialog', false)
 const { auth, user } = useCurrentUser()
 
 const email = ref('')

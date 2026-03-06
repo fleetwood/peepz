@@ -24,8 +24,28 @@ export type UserPersonDto = {
   visible      : boolean
 }
 
+export type UserFamilyDto = {
+  id        : string
+  name      : string
+  createdAt : string
+  updatedAt : string
+  visible   : boolean
+}
+
+export type UserFamilyJoinRequestDto = {
+  id        : string
+  familyId  : string
+  memberId  : string
+  status    : 'PENDING' | 'ACCEPTED' | 'REJECTED'
+  createdAt : string
+  updatedAt : string
+}
+
 export type UserDto = UserPersonDto & {
-  member: UserMemberDto
-  auth  : UserAuthDto
-  fullName: string
+  member            : UserMemberDto
+  auth              : UserAuthDto
+  fullName          : string
+  families          : UserFamilyDto[]
+  familyJoinRequests: UserFamilyJoinRequestDto[]
+  needsOnboarding   : boolean
 }

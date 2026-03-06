@@ -1,4 +1,7 @@
 import { useRuntimeConfig } from '#app'
+import { Logger } from '@peeps/utils'
+
+const logger = Logger.instance('VueApiClient')
 
 type FetchOptions = {
   method     ?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
@@ -14,19 +17,19 @@ type FetchResponse<T = any> = {
   statusText?: string
 }
 
-class ApiClient {
+class VueApiClient {
   private config: any
-  private static instance: ApiClient
+  private static instance: VueApiClient
 
   private constructor() {
     // Config will be set when first accessed
   }
 
-  static getInstance(): ApiClient {
-    if (!ApiClient.instance) {
-      ApiClient.instance = new ApiClient()
+  static getInstance(): VueApiClient {
+    if (!VueApiClient.instance) {
+      VueApiClient.instance = new VueApiClient()
     }
-    return ApiClient.instance
+    return VueApiClient.instance
   }
 
   private getConfig() {
@@ -42,7 +45,7 @@ class ApiClient {
     try {
       result = await response.json()
     } catch (parseError) {
-      console.error('API response parse error', { parseError, contentType: response.headers.get('content-type') })
+      logger.error('API response parse error', { parseError, contentType: response.headers.get('content-type') })
       return {
         error: `Failed to parse response: ${response.statusText || 'Invalid JSON response'}`,
         status: response.status,
@@ -55,7 +58,7 @@ class ApiClient {
       const baseError = response.status === 401 ? 'Unauthorized' : 'Something went wrong'
 
       if (response.status !== 401) {
-        console.error('API response error', isEmpty ? { status: response.status } : { result })
+        logger.error('API response error', isEmpty ? { status: response.status } : { result })
       }
 
       return {
@@ -97,14 +100,22 @@ class ApiClient {
     const { method = 'GET', body, headers, credentials = 'include' } = options || {}
     const config = this.getConfig()
 
-    const response = await fetch(`${config.apiUrl}/api${url}`, {
-      method,
-      headers: this.buildHeaders(headers),
-      body: body ? JSON.stringify(body) : undefined,
-      credentials,
-    })
+    try {
+      const response = await fetch(`${config.apiUrl}/api${url}`, {
+        method,
+        headers: this.buildHeaders(headers),
+        body: body ? JSON.stringify(body) : undefined,
+        credentials,
+      })
 
-    return this.handleResponse<T>(response)
+      return this.handleResponse<T>(response)
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+        statusText: 'Network Error'
+      }
+    }
   }
 
   async get<T = any>(url: string, options?: Omit<FetchOptions, 'method' | 'body'>): Promise<FetchResponse<T>> {
@@ -128,4 +139,4 @@ class ApiClient {
   }
 }
 
-export default ApiClient.getInstance()
+export default VueApiClient.getInstance()

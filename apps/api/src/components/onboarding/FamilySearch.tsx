@@ -11,7 +11,7 @@ import { Debug } from "../layout/Debug";
 import { Logger } from "@peeps/utils";
 import MiniCard, { MiniCardContent, MiniCardCta, MiniCardIcon } from "../layout/MiniCard";
 
-const logger = Logger.instance('FamilySearch')
+const logger = Logger.instance('FamilySearch', false)
 
 export function FamilySearch() {
   const [query, setQuery] = React.useState("");

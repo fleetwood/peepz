@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Logger } from '@peeps/utils'
 import { WebRestApi } from '@peeps/utils/fetch/web'
 
-const logger = Logger.instance('OnboardingProfile')
+const logger = Logger.instance('OnboardingProfile', false)
 
 const OnboardingProfile = () => {
  

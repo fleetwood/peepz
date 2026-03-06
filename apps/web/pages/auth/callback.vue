@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import apiClient from '@/utils/api'
-import { useCurrentUser } from '@/composables/useCurrentUser'
+import apiClient from '@utils/VueApiClient'
+import { useCurrentUser } from '@composables/useCurrentUser'
 
 const route = useRoute()
 const router = useRouter()

@@ -7,7 +7,7 @@ import { presenceTracker } from '../../server/presence'
 import { ExApiRoute } from '../../server/ExApiRoute'
 import { Logger } from '@peeps/utils'
 
-const logger = Logger.instance('heartbeat')
+const logger = Logger.instance('heartbeat', false)
 
 const router = Router()
 

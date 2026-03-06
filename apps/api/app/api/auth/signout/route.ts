@@ -3,7 +3,7 @@ import { AuthService } from '@peeps/services'
 import { Logger } from '@peeps/utils/logger'
 import { handleOptions as OPTIONS } from '@/lib/api/cors'
 
-const logger = Logger.instance('api/auth/signout')
+const logger = Logger.instance('api/auth/signout', false)
 
 export { OPTIONS }
 

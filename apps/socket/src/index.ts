@@ -19,7 +19,7 @@ const PORT = parseInt(serverEnv.SHAREDB_PORT)
 
 const mongoDb = ShareDbMongo(serverEnv.MONGODB_URI)
 const backend = new ShareDB({ db: mongoDb })
-const logger      = Logger.instance('Socket:WS')
+const logger      = Logger.instance('Socket:WS', false)
 const supabaseJwks = createRemoteJWKSet(new URL(`${serverEnv.SUPABASE_URL}/auth/v1/.well-known/jwks.json`))
 
 async function getMemberIdFromToken(token: string): Promise<string | null> {

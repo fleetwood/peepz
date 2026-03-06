@@ -10,7 +10,7 @@
     "dev:mobile": "turbo run dev --filter=@peeps/mobile",
     "dev:all": "turbo run dev --filter=@peeps/api --filter=@peeps/web --filter=@peeps/socket",
     "kill": "lsof -ti :3001,3002,3000 | xargs kill -9 2>/dev/null || true",
-    "clean": "find . -type d \\( -name .next -o -name .nuxt -o -name dist -o -name .turbo -o -name node_modules/.cache \\) -prune -exec rm -rf {} + && find packages/ -name '*.d.ts' -delete && find packages/ -name '*.d.ts.map' -delete && find packages/ -name '*.js' -not -path '*/node_modules/*' -delete",
+    "clean": "find . -type d \\( -name .next -o -name .nuxt -o -name dist -o -name .turbo \\) -prune -exec rm -rf {} + && find . -name '.turbo' -exec rm -rf {} +",
     "build:api": "turbo run build --filter=@peeps/api",
     "build:web": "turbo run build --filter=@peeps/web",
     "build:mobile": "turbo run build --filter=@peeps/mobile",
@@ -20,6 +20,7 @@
     "lint:mobile": "turbo run lint --filter=@peeps/mobile",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "logger:clean": "node packages/scripts/setLoggerFalse.js",
     "lint:policy": "eslint .",
     "db:generate": "pnpm --filter @peeps/db db:generate",
     "db:migrate": "pnpm --filter @peeps/db db:migrate",
@@ -39,6 +40,7 @@
     "pnpm": ">=8.0.0"
   },
   "dependencies": {
-    "mongodb": "^7.1.0"
+    "mongodb": "^7.1.0",
+    "glob": "^8.0.0"
   }
 }

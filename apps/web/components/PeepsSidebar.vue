@@ -1,27 +1,37 @@
 <script setup lang="ts">
-import { Home, Users, Heart, BarChart, AppWindow, LogOut } from 'lucide-vue-next'
-import { cn } from '@/lib/utils'
-import { useLayout } from '@/composables/useLayout'
-import { useCurrentUser } from '@/composables/useCurrentUser'
+import { computed } from 'vue'
+import { useCurrentUser } from '@composables/useCurrentUser'
+import { useLayout } from '@composables/useLayout'
+import { HeartIcon, HomeIcon, ThemeIcon, UsersIcon } from '@icons'
 import { clientEnv } from '@peeps/config/env'
-import { Button } from '@/components/ui/button'
+import { cn } from '@peeps/utils'
 
 const { colorTheme } = useLayout()
 const { user, userLoading, auth } = useCurrentUser()
 
 const isWarmTheme = computed(() => colorTheme.value === 'warm')
 
-const navItems = [
-  { icon: Home, label: 'Home', href: '/' },
-  { icon: Users, label: 'Family', href: '/family/123' },
-  { icon: Heart, label: 'Memories', href: '/memories' },
-  ...(clientEnv.isDev
+const navItems = computed(() => [
+  { icon: HomeIcon, label: 'Home', href: '/' },
+  ...(user?.value?.needsOnboarding 
     ? [
-        { icon: BarChart, label: 'Theme', href: '/theme' },
-        { icon: AppWindow, label: 'Dialog', href: '#dialog' },
+        { icon: HeartIcon, label: 'Onboarding', href: '/onboarding' }
       ]
     : []),
-]
+  ...(user?.value?.families && user.value.families.length > 0
+    ? user.value.families.map(family => ({
+        icon: UsersIcon, 
+        label: family.name, 
+        href: `/family/${family.id}`
+      }))
+    : []),
+  { icon: HeartIcon, label: 'Memories', href: '/memories' },
+  ...(clientEnv.isDev
+    ? [
+        { icon: ThemeIcon, label: 'Theme', href: '/theme' }
+      ]
+    : []),
+])
 
 const route = useRoute()
 </script>
@@ -52,24 +62,16 @@ const route = useRoute()
             :to="item.href"
             :class="cn(
               'w-full flex items-center justify-center md:justify-start gap-4 px-4 py-3 rounded-lg transition-colors duration-200',
-              route.path === item.href || route.path.startsWith(item.href)
+              route.path === item.href || (item.href !== '/' && route.path.startsWith(item.href))
                 ? 'bg-primary text-primary-foreground'
                 : 'text-primary hover:bg-accent hover:text-accent-foreground'
             )"
           >
-            <component :is="item.icon" class="w-6 h-6" />
+            <component :is="item.icon" class="w-6 h-6" style="color: currentColor" />
             <span class="hidden md:inline">{{ item.label }}</span>
           </NuxtLink>
         </li>
       </ul>
     </nav>
-
-    <!-- Logout button (when logged in) -->
-    <div v-if="user" class="p-3">
-      <Button variant="ghost" class="w-full" @click="auth.signOut()">
-        <LogOut class="w-4 h-4 mr-2" />
-        <span class="hidden md:inline">Log out</span>
-      </Button>
-    </div>
   </aside>
 </template>

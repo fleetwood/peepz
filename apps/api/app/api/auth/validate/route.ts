@@ -6,7 +6,7 @@ import { ApiRoute } from '@/lib/api/ApiRoute'
 import { z } from 'zod'
 import { ValidationSourceEnum } from '@peeps/types'
 
-const logger = Logger.instance('api/auth/validate')
+const logger = Logger.instance('api/auth/validate', false)
 
 export { OPTIONS }
 

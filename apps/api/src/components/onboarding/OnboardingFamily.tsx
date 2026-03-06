@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Logger } from '@peeps/utils'
 
-const logger = Logger.instance('OnboardingFamily')
+const logger = Logger.instance('OnboardingFamily', false)
 
 const OnboardingFamily = () => {
   const [status, setStatus] = React.useState<string | null>(null)

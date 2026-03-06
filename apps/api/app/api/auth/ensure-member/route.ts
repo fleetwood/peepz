@@ -4,7 +4,7 @@ import { ApiRoute } from '@/lib/api/ApiRoute'
 import { handleOptions as OPTIONS } from '@/lib/api/cors'
 import { Logger } from '@peeps/utils'
 
-const logger = Logger.instance('EnsureMemberRoute')
+const logger = Logger.instance('EnsureMemberRoute', false)
 
 export { OPTIONS }
 

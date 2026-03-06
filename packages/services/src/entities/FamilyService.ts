@@ -7,7 +7,7 @@ import { decodeOffsetCursor, encodeOffsetCursor, formatStub } from '@peeps/utils
 import { GovernanceModel, GroupRole, GroupType, MembershipStatus, RemovalPolicy, GroupPrivacyLevel } from '@peeps/db/schema/enums'
 import { Logger } from '@peeps/utils'
 
-const logger = Logger.instance('FamilyService')
+const logger = Logger.instance('FamilyService', false)
 
 type ListFamiliesParams = {
   pagination: PaginationParams
@@ -156,7 +156,7 @@ export class FamilyService {
 
     const where = query.length > 0
       ? and(eq(schema.groups.type, GroupType.FAMILY), ilike(schema.groups.name, `%${query}%`))
-      : eq(schema.groups.type, GroupType.FAMILY)
+      : and(eq(schema.groups.type, GroupType.FAMILY), sql`false`) // Return no results for empty query
 
     const [totalRow] = await params.tx!
       .select({ count: sql<number>`count(*)` })

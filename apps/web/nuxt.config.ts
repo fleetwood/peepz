@@ -56,6 +56,11 @@ export default defineNuxtConfig({
     resolve: {
       alias: {
         '@peeps/ui/assets': resolve(__dirname, '../../packages/ui/assets'),
+        '@icons'          : resolve(__dirname, 'components/ui/icons'),
+        '@ui'             : resolve(__dirname, 'components/ui'),
+        '@components'     : resolve(__dirname, 'components'),
+        '@utils'          : resolve(__dirname, 'utils'),
+        '@composables'    : resolve(__dirname, 'composables')
       },
     },
   },

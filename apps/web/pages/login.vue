@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Logger } from '@peeps/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@ui/button'
+import { Input } from '@ui/input'
 import { Mail } from 'lucide-vue-next'
-import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useCurrentUser } from '@composables/useCurrentUser'
 
 const logger = Logger.instance('Login', false)
 const { auth } = useCurrentUser()

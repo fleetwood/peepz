@@ -5,7 +5,7 @@ import { serverEnv } from '@peeps/config/env'
 import { handleOptions as OPTIONS } from '@/lib/api/cors'
 import { ApiRoute } from '@/lib/api/ApiRoute'
 
-const logger = Logger.instance('api/auth/signin')
+const logger = Logger.instance('api/auth/signin', false)
 
 export { OPTIONS }
 

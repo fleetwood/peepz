@@ -3,7 +3,7 @@ import { Logger } from '../logger'
 
 import { FetchBase } from './FetchBase'
 
-const logger = Logger.instance('SocketRestApi')
+const logger = Logger.instance('SocketRestApi', false)
 
 const { SHAREDB_PORT, API_KEY } = serverEnv
 

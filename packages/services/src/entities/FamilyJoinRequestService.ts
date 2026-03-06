@@ -9,7 +9,7 @@ import { Logger } from '@peeps/utils'
 import { NotificationFactories } from '../integrations/NotificationFactories'
 import { NotificationService } from '../integrations/NotificationService'
 
-const logger = Logger.instance('FamilyJoinRequestService')
+const logger = Logger.instance('FamilyJoinRequestService', false)
 
 type GetJoinRequestParams = {
   requestId: string

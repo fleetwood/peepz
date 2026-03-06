@@ -33,7 +33,7 @@
 //   validatedData: NotifCreateProps & { targetUserId: string }
 // }
 
-// const logger = Logger.instance('NotifService')
+// const logger = Logger.instance('NotifService', false)
 // export class NotifService {
 //   /**
 //    * Creates a notification for a target user.

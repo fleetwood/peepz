@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { Separator } from '@/components/ui/separator'
+import { Separator } from '@ui/separator'
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { useCurrentUser } from '@/composables/useCurrentUser'
-import { useLayout } from '@/composables/useLayout'
+} from '@ui/sheet'
+import { useCurrentUser } from '@composables/useCurrentUser'
+import { useLayout } from '@composables/useLayout'
 import { themeNames, themes, type ThemeName } from '@peeps/ui'
 import { Bell, Check, Computer, Egg, Leaf, LogOut, Moon, Settings, Sun, User } from 'lucide-vue-next'
+import { UserStatusEnum } from '@peeps/types'
 
 type ModeType = {
   value: 'system' | 'light' | 'dark'
@@ -24,7 +25,7 @@ const themeModes: ModeType[] = [
   { value: 'dark', label: 'Dark', icon: Moon },
 ]
 
-const { user, userLoading, auth } = useCurrentUser()
+const { user, userLoading, userStatus, auth } = useCurrentUser()
 const { setTheme, setMode, theme, colorTheme, mode, navigate } = useLayout()
 
 const currentTheme = computed(() => colorTheme.value as ThemeName)
@@ -49,37 +50,19 @@ function handleNavigation(path: string) {
 <template>
   <div class="p-4">
     <!-- Not logged in: Login button -->
-    <div v-if="!user && !userLoading" class="flex items-center gap-3">
+    <div v-if="userStatus === UserStatusEnum.UNAUTHENTICATED" class="flex items-center gap-3">
       <LoginDialog button-text="Login" button-class="w-full" />
     </div>
 
     <!-- Loading -->
     <div v-else-if="userLoading" class="flex items-center gap-3">
-      <div class="h-10 w-10 rounded-full bg-muted animate-pulse" />
-      <div class="hidden md:block space-y-1">
-        <div class="h-4 w-20 bg-muted rounded animate-pulse" />
-      </div>
+      <Spinner />
     </div>
 
     <!-- Logged in: User menu -->
     <Sheet v-else v-model:open="sheetOpen">
       <SheetTrigger as-child>
-        <button
-          type="button"
-          class="flex items-center gap-2 p-2 w-full rounded-lg hover:bg-accent transition-colors"
-        >
-          <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-            <User class="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div class="hidden md:block text-left flex-1">
-            <p class="text-sm font-medium">
-              {{ user?.preferredName || user?.name?.[0] || user?.auth?.email?.split('@')[0] || 'User' }}
-            </p>
-            <p v-if="user?.auth?.email" class="text-xs text-muted-foreground">
-              {{ user.auth.email }}
-            </p>
-          </div>
-        </button>
+        <MemberAvatar :user="user" />
       </SheetTrigger>
 
       <SheetContent side="left" class="w-[280px] p-0">
@@ -112,7 +95,7 @@ function handleNavigation(path: string) {
             Settings
           </button>
 
-          <Separator class="my-2" />
+          <Separator class="my-2 bg-muted" />
 
           <!-- Theme Section -->
           <div class="px-3 py-1 text-xs font-medium text-muted-foreground">Theme</div>
@@ -131,7 +114,7 @@ function handleNavigation(path: string) {
             <Check v-if="mode === m.value" class="h-4 w-4" />
           </button>
 
-          <Separator class="my-2" />
+          <Separator class="my-2 bg-muted" />
 
           <!-- Theme Selection -->
           <button
@@ -147,7 +130,7 @@ function handleNavigation(path: string) {
             <Check v-if="currentTheme === name" class="h-4 w-4" />
           </button>
 
-          <Separator class="my-2" />
+          <Separator class="my-2 bg-muted" />
 
           <button
             class="w-full flex items-center gap-2 px-3 py-2 rounded-sm text-sm hover:bg-accent hover:text-accent-foreground transition-colors text-left"
