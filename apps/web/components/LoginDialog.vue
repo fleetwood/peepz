@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { AuthProviderId } from '@peeps/types'
-import { Logger } from '@peeps/utils'
-import { useCurrentUser } from '@/composables/useCurrentUser'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -13,7 +8,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Mail } from 'lucide-vue-next'
+import { Input } from '@/components/ui/input'
+import { useCurrentUser } from '@/composables/useCurrentUser'
+import { Logger } from '@peeps/utils'
+import { ref } from 'vue'
+import { GoogleIcon, EmailIcon, LogoutIcon } from '@/components/ui/icons'
 
 const props = defineProps<{
   buttonText?: string
@@ -21,7 +20,7 @@ const props = defineProps<{
 }>()
 
 const logger = Logger.instance('LoginDialog')
-const { auth } = useCurrentUser()
+const { auth, user } = useCurrentUser()
 
 const email = ref('')
 const showEmailLogin = ref(false)
@@ -53,38 +52,39 @@ async function signInWithGoogle() {
 <template>
   <Dialog>
     <DialogTrigger>
-      <Button :class="buttonClass" type="button">
-        {{ buttonText || 'Log in' }}
+      <Button class="buttonClass" type="button">
+        {{ user? buttonText || 'Log out' : 'Log in' }}
       </Button>
     </DialogTrigger>
 
     <DialogContent class="sm:max-w-sm">
       <DialogHeader>
-        <DialogTitle>Sign in</DialogTitle>
-        <DialogDescription>FLANK Choose a method to continue</DialogDescription>
+        <DialogTitle>
+          <div class="text-primary">
+            {{ user ? "Log out" : "Sign In"}}
+          </div>
+        </DialogTitle>
+        <DialogDescription class="text-secondary">
+          {{ user ? "See you next time!" : "Choose your login provider" }}
+        </DialogDescription>
       </DialogHeader>
 
-      <div class="grid gap-4">
+      <div v-if="!user" class="grid gap-4">
         <div class="flex justify-center gap-4">
           <Button
-            variant="outline"
-            class="h-12 w-12 rounded-full"
+            variant="ghost"
+            class="!h-12 !w-12 !rounded-full text-primary hover:text-primary-foreground"
             @click="signInWithGoogle"
           >
-            <svg class="size-6" viewBox="0 0 48 48">
-              <path fill="#EA4335" d="M24 9.5c3.54 0 6.73 1.22 9.23 3.62l6.9-6.9C36.1 2.55 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.99 6.2C12.44 13.15 17.74 9.5 24 9.5z" />
-              <path fill="#4285F4" d="M46.1 24.55c0-1.65-.15-3.23-.43-4.76H24v9.02h12.4c-.54 2.91-2.2 5.38-4.68 7.03l7.2 5.59c4.2-3.88 6.58-9.59 6.58-16.88z" />
-              <path fill="#FBBC05" d="M10.55 28.07c-.5-1.48-.79-3.06-.79-4.67 0-1.62.29-3.2.79-4.68l-7.99-6.2A23.95 23.95 0 0 0 0 23.4c0 3.87.93 7.53 2.56 10.88l7.99-6.21z" />
-              <path fill="#34A853" d="M24 48c6.47 0 11.9-2.13 15.87-5.77l-7.2-5.59c-2.01 1.35-4.6 2.15-8.67 2.15-6.26 0-11.56-3.65-13.45-8.92l-7.99 6.21C6.51 42.62 14.62 48 24 48z" />
-            </svg>
+          <GoogleIcon class="size-6" />
           </Button>
 
           <Button
-            variant="outline"
-            class="h-12 w-12 rounded-full"
+            variant="ghost"
+            class="!h-12 !w-12 !rounded-full text-primary hover:text-primary-foreground"
             @click="showEmailLogin = !showEmailLogin"
           >
-            <Mail class="size-6" />
+            <EmailIcon class="size-6" />
           </Button>
         </div>
 
@@ -98,6 +98,18 @@ async function signInWithGoogle() {
 
         <div v-if="status" class="rounded-md bg-muted p-3 text-sm text-muted-foreground">
           {{ status }}
+        </div>
+      </div>
+
+      <div v-else class="grid gap-4">
+        <div class="flex justify-center gap-4">
+          <Button
+            variant="ghost"
+            class="!h-12 !w-12 !rounded-full text-primary hover:text-primary-foreground"
+            @click="auth.signOut()"
+          >
+            <LogoutIcon class="size-6" />
+          </Button>
         </div>
       </div>
     </DialogContent>

@@ -13,6 +13,7 @@
     "type-check": "nuxt typecheck"
   },
   "dependencies": {
+    "@iconify/vue": "^5.0.0",
     "@nuxt/icon": "^1.15.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@peeps/client": "workspace:*",
@@ -22,8 +23,8 @@
     "@peeps/types": "workspace:*",
     "@peeps/ui": "workspace:*",
     "@peeps/utils": "workspace:*",
-    "@supabase/supabase-js": "^2.45.4",
     "@pinia/nuxt": "^0.5.1",
+    "@supabase/supabase-js": "^2.45.4",
     "@tanstack/query-core": "^5.90.20",
     "@tanstack/vue-query": "^5.92.9",
     "@vueuse/core": "^10.11.1",

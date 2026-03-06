@@ -29,3 +29,5 @@ export * from "../domains/presence.domain"
 export * from "./client/client.types"
 export * from "./onboarding"
 export * from "./notifications"
+
+export * from "../db"

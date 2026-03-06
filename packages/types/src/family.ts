@@ -1,3 +1,7 @@
+export type GovernanceValue = 'SINGLE_ADMIN' | 'HIERARCHICAL' | 'CONSENSUS' | 'DEMOCRATIC'
+export type GroupPrivacyValue = 'PRIVATE' | 'PUBLIC' | 'APPROVAL'
+export type FamilySettingsConfig = 'access' | 'request' | 'vote' | 'none'
+
 export type FamilySearchResult = {
   families: {
     id       : string

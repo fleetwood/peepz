@@ -2,6 +2,9 @@ import { serverEnv } from '@peeps/config/env'
 import { MemberService } from '@peeps/services'
 import { ApiRoute } from '@/lib/api/ApiRoute'
 import { handleOptions as OPTIONS } from '@/lib/api/cors'
+import { Logger } from '@peeps/utils'
+
+const logger = Logger.instance('EnsureMemberRoute')
 
 export { OPTIONS }
 
@@ -38,11 +41,14 @@ export async function POST(request: Request) {
     .auth(true)
     .handle(async (ctx) => {
       const user = await getSupabaseUser(ctx.accessToken)
+      logger.debug('getSupabaseUser', { user })
 
-      return MemberService.validateSupabaseUser({
+      const validatedUser = await MemberService.validateSupabaseUser({
         authUserId: ctx.authUserId,
         email     : ctx.email,
         user,
       })
+      logger.debug('validateSupabaseUser', { validatedUser })
+      return validatedUser
     })
 }

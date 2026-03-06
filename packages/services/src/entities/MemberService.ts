@@ -8,6 +8,9 @@ import { IdentitiesService } from './IdentitiesService'
 import { PersonService } from './PersonService'
 import { FamilyService } from './FamilyService'
 import { getProviderProfilePatch } from '../auth/providers/profileMapperRegistry'
+import { Logger } from '@peeps/utils'
+
+const logger = Logger.instance('MemberService')
 
 type EnsureSupabaseUser = {
   identities?: Array<{
@@ -43,7 +46,8 @@ export class MemberService {
    * - scope : ✅ clean
    */
   @withTx
-  static async validateSupabaseUser(params: WithTx<ValidateSupabaseUserParams>): Promise<{ member: schema.Member; onboarding: { needsProfile: boolean; needsFamily: boolean } }> {
+  static async validateSupabaseUser(params: ValidateSupabaseUserParams & { tx?: any }): Promise<{ member: schema.Member; onboarding: { needsProfile: boolean; needsFamily: boolean } }> {
+    logger.debug('validateSupabaseUser', { params })
     const identities = (params.user.identities ?? [])
       .map((i) => ({
         provider      : i.provider,
@@ -53,15 +57,17 @@ export class MemberService {
       }))
       .filter((i) => i.provider && i.providerUserId)
 
-    const ensured = await MemberService.validateAuthUser({
+    const validateUser = {
       authUserId : params.authUserId,
       email      : params.email,
       identities,
       tx         : params.tx,
-    })
+    }
+    const ensured = await MemberService.validateAuthUser(validateUser)
 
     if (!ensured.result) {
       if (ensured.status === 409) {
+        logger.debug('Found email, linking required', validateUser)
         throw {
           error      : 'Member exists for email; explicit provider linking required',
           code       : 'AUTH_IDENTITY_LINK_REQUIRED',
@@ -72,14 +78,16 @@ export class MemberService {
           },
         }
       }
-
+      
+      logger.debug('No matching email found', validateUser, ensured)
       throw {
         error     : 'Failed to ensure member',
         code      : 'AUTH_ENSURE_MEMBER_FAILED',
         statusCode: ensured.status ?? 500,
       }
     }
-
+    
+    logger.debug('Member found!', ensured)
     return {
       member    : ensured.result,
       onboarding: {
