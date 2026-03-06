@@ -7,6 +7,8 @@ export const themes = {
   peeps     : peepsTheme,
 } as const;
 
+
+// eslint-disable-next-line no-restricted-syntax
 export type ThemeName = keyof typeof themes;
 
 export const themeNames = Object.keys(themes) as ThemeName[];

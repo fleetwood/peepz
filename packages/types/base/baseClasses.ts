@@ -1,10 +1,8 @@
-import { HTMLAttributes, ReactNode } from "react"
-
-export type ClassName = HTMLAttributes<any>['className']
+export type ClassName = string | undefined
 
 export type WithClassName = {
   className?: ClassName
-  style    ?: React.CSSProperties
+  style    ?: Record<string, string | number>
 }
 
 export type ReadOnly = {
@@ -16,7 +14,7 @@ export type Disabled = {
 }
 
 export type WithChildren = {
-  children: ReactNode
+  children?: unknown
 }
 
 export type TVariant           = 'primary' | 'secondary' | 'accent' | 'muted' | 'ghost' | 'outline' | 'warning' | 'danger' | 'success' | 'info' | 'disabled'

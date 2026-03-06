@@ -39,8 +39,10 @@ module.exports = [
   },
   {
     files: [
-      'apps/web/src/components/ui/**/*.{ts,tsx}',
-      'apps/web/src/components/library/**/*.{ts,tsx}',
+      'apps/web/components/ui/**/*.{ts,tsx,vue}',
+      'apps/web/components/library/**/*.{ts,tsx,vue}',
+      'apps/web/src/components/ui/**/*.{ts,tsx,vue}',
+      'apps/web/src/components/library/**/*.{ts,tsx,vue}',
       'packages/types/**/*.{ts,tsx}',
       'packages/db/**/*.{ts,tsx}'
     ],

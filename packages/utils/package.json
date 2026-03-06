@@ -8,6 +8,7 @@
     ".": "./src/index.ts",
     "./string": "./src/string.ts",
     "./logger": "./src/logger.ts",
+    "./fetch/FetchBase": "./src/fetch/FetchBase.ts",
     "./fetch/web": "./src/fetch/web.ts",
     "./fetch/socket": "./src/fetch/socket.ts",
     "./apiRoute": "./src/apiRoute.ts"

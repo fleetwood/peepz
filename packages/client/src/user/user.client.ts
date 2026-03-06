@@ -26,7 +26,7 @@ export const UserClient = {
         return deps.me()
       },
 
-      useMe() {
+      useUser() {
         return QueryManager.domainQuery({
           ...UserKeys.me(),
           queryFn: async () => deps.me(),

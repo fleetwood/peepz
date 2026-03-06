@@ -1,10 +1,9 @@
-import { Buffer } from 'buffer'
-
 export function decodeOffsetCursor(cursor?: string | null) {
   if (!cursor) return 0
 
   try {
-    const raw = Buffer.from(cursor, 'base64').toString('utf8')
+    // atob decodes base64 to a string
+    const raw = atob(cursor)
     const parsed = JSON.parse(raw) as { offset?: number }
     return typeof parsed.offset === 'number' && parsed.offset >= 0 ? parsed.offset : 0
   } catch {
@@ -13,5 +12,6 @@ export function decodeOffsetCursor(cursor?: string | null) {
 }
 
 export function encodeOffsetCursor(offset: number) {
-  return Buffer.from(JSON.stringify({ offset }), 'utf8').toString('base64')
+  // btoa encodes a string to base64
+  return btoa(JSON.stringify({ offset }))
 }

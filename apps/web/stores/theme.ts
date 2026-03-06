@@ -30,10 +30,12 @@ export const useThemeStore = defineStore('theme', () => {
   // Actions
   function setTheme(newTheme: string) {
     theme.value = newTheme
+    updateHtmlAttributes()
   }
 
   function setMode(newMode: ThemeMode) {
     mode.value = newMode
+    updateHtmlAttributes()
   }
 
   // Helper to update HTML attributes
@@ -48,7 +50,7 @@ export const useThemeStore = defineStore('theme', () => {
 
   // Watch for changes and update HTML attributes (client-only)
   if (typeof window !== 'undefined') {
-    watch([theme, mode], updateHtmlAttributes, { immediate: true })
+    watch([theme, mode], updateHtmlAttributes)
   }
 
   return {

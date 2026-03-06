@@ -1,7 +1,6 @@
-import { PropsWithChildren } from "react";
-
-export type PageDialogProps = PropsWithChildren & {
-    title?: React.ReactNode
+export type PageDialogProps = {
+    title   ?: string
+    children?: unknown
 }
 
 export type PagePopoverAnchor = {
@@ -11,9 +10,10 @@ export type PagePopoverAnchor = {
     height: number
 }
 
-export type PagePopoverProps = PropsWithChildren & {
-    title ?: React.ReactNode
-    anchor: PagePopoverAnchor
-    side  ?: 'top' | 'right' | 'bottom' | 'left'
-    align ?: 'start' | 'center' | 'end'
+export type PagePopoverProps = {
+    title   ?: string
+    anchor  : PagePopoverAnchor
+    side    ?: 'top' | 'right' | 'bottom' | 'left'
+    align   ?: 'start' | 'center' | 'end'
+    children?: unknown
 }

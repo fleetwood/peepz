@@ -1,5 +1,4 @@
 import { WithClassName } from '../base/baseClasses'
-import { ImgHTMLAttributes } from 'react'
 import { ServiceResult } from '../response/response.types'
 
 export type AspectRatioProps = {
@@ -226,12 +225,14 @@ export const hw = ({
   }
 }
 
-export type CImgProps = ImgHTMLAttributes<HTMLImageElement> &
-  WithClassName & {
-    src: string
-    type: CTypeEnum
-    aspect?: AspectRatioEnum
-    height?: number
-    width?: number
-    sz?: CBaseH | CExtH
+export type CImgProps = WithClassName & {
+    src    : string
+    type   : CTypeEnum
+    aspect ?: AspectRatioEnum
+    height ?: number
+    width  ?: number
+    sz     ?: CBaseH | CExtH
+    alt    ?: string
+    loading?: 'lazy' | 'eager'
+    decoding?: 'async' | 'auto' | 'sync'
   }

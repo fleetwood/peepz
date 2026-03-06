@@ -1,4 +1,5 @@
 export * from './array'
+export * from './classnames'
 export * from './colors'
 export * from './drizzle'
 export * from './env'
