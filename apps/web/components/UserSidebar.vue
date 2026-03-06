@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
   Sheet,
@@ -12,7 +11,6 @@ import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useLayout } from '@/composables/useLayout'
 import { themeNames, themes, type ThemeName } from '@peeps/ui'
 import { Bell, Check, Computer, Egg, Leaf, LogOut, Moon, Settings, Sun, User } from 'lucide-vue-next'
-import LoginDialog from './LoginDialog.vue'
 
 type ModeType = {
   value: 'system' | 'light' | 'dark'
@@ -52,8 +50,7 @@ function handleNavigation(path: string) {
   <div class="p-4">
     <!-- Not logged in: Login button -->
     <div v-if="!user && !userLoading" class="flex items-center gap-3">
-      <!-- <LoginDialog button-text="Login" button-class="w-full" /> -->
-       <BoxDialog />
+      <LoginDialog button-text="Login" button-class="w-full" />
     </div>
 
     <!-- Loading -->
@@ -75,8 +72,12 @@ function handleNavigation(path: string) {
             <User class="h-5 w-5 text-primary-foreground" />
           </div>
           <div class="hidden md:block text-left flex-1">
-            <p class="text-sm font-medium">{{ user?.preferredName || user?.name || 'User' }}</p>
-            <p v-if="user?.fullName" class="text-xs text-muted-foreground">{{ user.fullName }}</p>
+            <p class="text-sm font-medium">
+              {{ user?.preferredName || user?.name?.[0] || user?.auth?.email?.split('@')[0] || 'User' }}
+            </p>
+            <p v-if="user?.auth?.email" class="text-xs text-muted-foreground">
+              {{ user.auth.email }}
+            </p>
           </div>
         </button>
       </SheetTrigger>

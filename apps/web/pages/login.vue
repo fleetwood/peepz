@@ -16,7 +16,7 @@ const status        = ref<string | null>(null)
 async function signInWithEmail() {
   status.value = null
   try {
-    await auth.emailSignIn({ email: email.value })
+    await auth.signIn({ provider: 'email', params: { email: email.value } })
     status.value = 'Check your email!'
   } catch (err) {
     status.value = err instanceof Error ? err.message : String(err)
@@ -26,7 +26,7 @@ async function signInWithEmail() {
 async function signInWithGoogle() {
   status.value = null
   try {
-    await auth.googleSignIn()
+    await auth.signIn({ provider: 'google' })
   } catch (err) {
     logger.error('Google sign-in error', err)
     status.value = err instanceof Error ? err.message : String(err)

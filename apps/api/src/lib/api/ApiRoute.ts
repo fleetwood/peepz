@@ -14,6 +14,11 @@ import type { ZodTypeAny } from 'zod'
 
 const supabaseTokenVerifier = createSupabaseVerifier(serverEnv.SUPABASE_URL)
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'http://localhost:3000',
+  'Access-Control-Allow-Credentials': 'true',
+}
+
 type ApiRouteAuthed = Omit<ApiRoute, 'handle'> & {
   handle<T>(handler: (ctx: AuthedChainContext) => Promise<T>): Promise<Response>
 }
@@ -85,7 +90,7 @@ export class ApiRoute {
   }
 
   private static jsonError(value: ApiErrorShape) {
-    return Response.json(value, { status: value.statusCode })
+    return Response.json(value, { status: value.statusCode, headers: CORS_HEADERS })
   }
 
   /**
@@ -337,10 +342,10 @@ export class ApiRoute {
       }
 
       if (isServiceResult(data)) {
-        return Response.json({ data: (data as ServiceResult).result })
+        return Response.json({ data: (data as ServiceResult).result }, { headers: CORS_HEADERS })
       }
 
-      return Response.json({ data })
+      return Response.json({ data }, { headers: CORS_HEADERS })
     } catch (error) {
       return ApiRoute.jsonError(normalizeError(error))
     }

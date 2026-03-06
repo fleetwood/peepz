@@ -13,8 +13,8 @@ export type AuthProvider<SignInParams, SendJoinParams> = {
   id   : AuthProviderId
   label: string
 
-  signIn  : (params: SignInParams) => Promise<void | string>
-  sendJoin: (params: SendJoinParams) => Promise<void | string>
+  signIn  : (params: SignInParams) => Promise<void | string | Record<string, any>>
+  sendJoin: (params: SendJoinParams) => Promise<void | string | Record<string, any>>
 }
 
 export type AuthProviderRegistry = {

@@ -11,3 +11,6 @@ export * from './entities/UserService'
 export * from './integrations/ResendService'
 export * from './integrations/MongoService'
 // Note: NotificationService is server-only, import directly from './integrations/NotificationService'
+
+// Auth Services
+export * from './auth/AuthService'

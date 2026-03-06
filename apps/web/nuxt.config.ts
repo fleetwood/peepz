@@ -20,6 +20,21 @@ const URLS = {
   api     : 'http://localhost:3001',
 }
 
+const runtimeConfig = {
+    public: {
+      apiUrl         : process.env.NEXT_PUBLIC_API_URL          || URLS.api,
+      socketUrl      : process.env.NEXT_PUBLIC_SOCKET_URL       || URLS.socket,
+      apiKey         : process.env.NEXT_PUBLIC_API_KEY || '',
+      supabaseUrl    : process.env.NEXT_PUBLIC_SUPABASE_URL
+                    || process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL
+                    || URLS.supabase,
+      supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+                    || process.env.NEXT_PUBLIC_SUPABASE_KEY
+                    || '',
+    }
+  }
+
+console.log(' >>>>> NUXT CONFIG', runtimeConfig)
 // @ts-ignore
 export default defineNuxtConfig({
   build: {
@@ -35,18 +50,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@pinia/nuxt',
   ],
-  runtimeConfig: {
-    public: {
-      apiUrl         : process.env.NEXT_PUBLIC_API_URL          || URLS.api,
-      socketUrl      : process.env.NEXT_PUBLIC_SOCKET_URL       || URLS.socket,
-      supabaseUrl    : process.env.NEXT_PUBLIC_SUPABASE_URL
-                    || process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL
-                    || URLS.supabase,
-      supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-                    || process.env.NEXT_PUBLIC_SUPABASE_KEY
-                    || '',
-    }
-  },
+  runtimeConfig,
   css: ['~/assets/css/main.css'],
   vite: {
     resolve: {

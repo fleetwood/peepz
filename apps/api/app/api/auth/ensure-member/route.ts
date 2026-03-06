@@ -1,6 +1,9 @@
 import { serverEnv } from '@peeps/config/env'
 import { MemberService } from '@peeps/services'
 import { ApiRoute } from '@/lib/api/ApiRoute'
+import { handleOptions as OPTIONS } from '@/lib/api/cors'
+
+export { OPTIONS }
 
 type SupabaseUser = {
   id   : string
