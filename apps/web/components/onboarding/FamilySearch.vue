@@ -3,6 +3,8 @@ import { Search, Plus } from "lucide-vue-next"
 import { Logger } from "@peeps/utils"
 import { useRouter } from "vue-router"
 import { useFamilySearch } from "@composables/useFamilySearch"
+import { GroupPrivacyIcons, GovernanceIcons } from "@icons"
+import { GovernanceMap } from "@peeps/types"
 
 const logger = Logger.instance('FamilySearch', false)
 const router = useRouter()
@@ -95,13 +97,22 @@ onUnmounted(() => {
             {{ family.groups.description }}
           </p>
           <div class="flex items-center gap-2">
-            <span class="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded">
+            <span class="flex items-center gap-1 text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded">
+              <component :is="GroupPrivacyIcons[family?.groups?.privacyLevel as keyof typeof GroupPrivacyIcons] || GroupPrivacyIcons.PRIVATE" class="w-3 h-3" />
               {{ family?.groups?.privacyLevel || 'Unknown' }}
             </span>
-            <span class="text-xs px-2 py-1 border rounded">
-              {{ family?.groups?.governanceModel || 'Unknown' }}
+            <span class="flex items-center gap-1 text-xs px-2 py-1 border rounded">
+              <component :is="GovernanceIcons[family?.groups?.governanceModel as keyof typeof GovernanceIcons] || GovernanceIcons.SINGLE_ADMIN" class="w-3 h-3" />
+              {{ GovernanceMap[family?.groups?.governanceModel as keyof typeof GovernanceMap]?.label || family?.groups?.governanceModel || 'Unknown' }}
             </span>
+            <Debug :data="family" />
           </div>
+          <p 
+            v-if="family?.groups?.governanceModel && GovernanceMap[family?.groups?.governanceModel as keyof typeof GovernanceMap]?.description"
+            class="text-xs text-muted-foreground mt-2"
+          >
+            {{ GovernanceMap[family?.groups?.governanceModel as keyof typeof GovernanceMap]?.description }}
+          </p>
         </div>
         <Button variant="ghost" size="sm" :disabled="selectingGroupId === family?.groups?.id">
           {{ selectingGroupId === family?.groups?.id ? "Selecting..." : "Select" }}

@@ -1,8 +1,7 @@
-import { GovernanceModel } from "../schema/enums"
+import { GovernanceModel } from "../enums"
+import type { FamilySettingsConfig, GovernanceValue } from "../family"
 
 const { SINGLE_ADMIN, HIERARCHICAL, CONSENSUS, DEMOCRATIC } = GovernanceModel
-
-export type FamilySettingsConfig = "access" | "request" | "vote" | "none"
 
 type RolePrivileges = {
   changeSettings : FamilySettingsConfig
@@ -24,8 +23,6 @@ type GovernanceDetail = {
   bestFor    : string
   privileges : GovernancePrivileges
 }
-
-export type GovernanceValue = (typeof GovernanceModel)[keyof typeof GovernanceModel]
 
 export const GovernanceMap: Record<GovernanceValue, GovernanceDetail> = {
   [SINGLE_ADMIN]: {

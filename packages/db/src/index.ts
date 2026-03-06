@@ -13,7 +13,6 @@ export * from './client'
 export * from './mongo'
 
 // Maps (depend on schema - import directly to avoid circular deps)
-// GovernanceMap: import from '@peeps/db/maps/GovernanceMap'
 // GroupPrivacyMap: import from '@peeps/db/maps/GroupPrivacyMap'
 
 // Inferred types from Drizzle schema

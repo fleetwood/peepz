@@ -31,3 +31,5 @@ export * from "./onboarding"
 export * from "./notifications"
 
 export * from "../db"
+
+export * from "./maps/GovernanceMap"
