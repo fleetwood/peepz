@@ -4,7 +4,7 @@ The API Layer defines the server-side boundary that clients call.
 
 ## Source of Truth
 
-- `apps/web/app/api/`
+- `apps/api/app/api/`
 
 ## Responsibilities
 
@@ -23,7 +23,7 @@ The API Layer defines the server-side boundary that clients call.
 ## Typical Handler Shape
 
 ```typescript
-// apps/web/app/api/persons/route.ts
+// apps/api/app/api/persons/route.ts
 // (Pseudo example)
 
 // 1. Validate input

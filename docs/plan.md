@@ -15,19 +15,21 @@ Family-centered social platform enabling direct connections, multi-channel commu
 ## Architecture Overview
 
 **Monorepo Structure** (Turborepo):
-- `apps/web` - Next.js app (web UI + REST API routes)
-- `apps/web` - Next.js web application
+- `apps/api` - Next.js API routes (backend only)
+- `apps/web` - Vue 3 + Nuxt web application
+- `apps/socket` - WebSocket server (Node.js)
 - `apps/mobile` - React Native mobile app (Expo)
-- `packages/ui` - Shared UI components
 - `packages/types` - Shared TypeScript types
 - `packages/config` - Shared configurations
 - `packages/utils` - Shared utilities
+- `packages/services` - Business logic services
+- `packages/db` - Database schema and client
 
 ---
 
 ## Tech Stack by Codebase
 
-### API (`apps/web/app/api`)
+### API (`apps/api/app/api`)
 - **Runtime**     : Node.js (Next.js server runtime)
 - **Framework**   : Next.js (App Router)
 - **API Layer**   : REST (Next.js Route Handlers)
@@ -43,15 +45,15 @@ Family-centered social platform enabling direct connections, multi-channel commu
 - **Validation**  : Zod schemas
 
 ### Web App (`apps/web`)
-- **Framework**: Next.js 14+ (App Router)
-- **UI**       : React + TailwindCSS + shadcn/ui (custom auth UI)
+- **Framework**: Vue 3 + Nuxt 3 (Composition API)
+- **UI**       : Vue + TailwindCSS + shadcn/ui (Vue components)
 - **Theming**  : Tailwind CSS variables (primary, secondary, accent, etc)
-- **State**    : Zustand
-- **Data**     : TanStack Query + `@peeps/client` (fetch-based REST)
+- **State**    : Pinia + pinia-plugin-persistedstate
+- **Data**     : Vue composables + VueApiClient (fetch-based REST)
 - **Auth**     : Supabase Auth SDK
-- **Forms**    : React Hook Form + Zod
-- **Icons**    : Lucide React
-- **Real-time**: Pusher JS client or Supabase Realtime
+- **Forms**    : Vue composition API + Zod validation
+- **Icons**    : Lucide Vue
+- **Real-time**: WebSocket client
 
 ### Mobile App (`apps/mobile`)
 - **Framework**   : React Native (Expo)

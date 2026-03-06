@@ -16,12 +16,15 @@ Peeps uses a **layered monorepo architecture** with clear separation of concerns
 ```
 peeps/
 ├── apps/
-│   ├── web/              # Next.js (web UI + API routes)
-│   │   ├── app/
-│   │   │   ├── api/      # REST API routes (Next.js Route Handlers)
-│   │   │   ├── actions/  # Server Actions (web only)
-│   │   │   └── (pages)/  # Web UI pages
-│   │   └── server/       # Database config
+│   ├── api/              # Next.js API routes (backend only)
+│   │   └── app/
+│   │       └── api/      # REST API routes (Next.js Route Handlers)
+│   ├── web/              # Vue 3 + Nuxt (web UI)
+│   │   ├── components/   # Vue components
+│   │   ├── composables/  # Vue composables
+│   │   ├── pages/        # Nuxt pages
+│   │   └── utils/        # Vue-specific utilities
+│   ├── socket/           # WebSocket server (Node.js)
 │   └── mobile/           # React Native (Expo)
 │       └── app/          # Expo Router pages
 ├── packages/
